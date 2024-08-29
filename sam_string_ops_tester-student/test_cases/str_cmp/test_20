@@ -1,0 +1,8 @@
+PUSHIMMSTR "╰(◕ヮ◕)つ¤=[]———"
+PUSHIMMSTR "╰(◕ヮ◕)つ¤=[]———"
+
+// str_cmp
+
+PUSHIMM 0
+EQUAL
+STOP

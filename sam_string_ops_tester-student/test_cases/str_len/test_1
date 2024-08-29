@@ -1,0 +1,7 @@
+PUSHIMMSTR ""
+
+// str_len
+
+PUSHIMM 0
+EQUAL
+STOP

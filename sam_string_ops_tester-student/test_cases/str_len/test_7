@@ -1,0 +1,7 @@
+PUSHIMMSTR "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Sit amet luctus venenatis lectus. Lectus quam id leo in vitae turpis massa sed elementum. At consectetur lorem donec massa sapien faucibus et. Pharetra sit amet aliquam id diam. Viverra justo nec ultrices dui sapien eget mi proin sed. Turpis egestas integer eget aliquet nibh. Viverra mauris in aliquam sem fringilla ut morbi. At in tellus integer feugiat scelerisque varius morbi. Quis vel eros donec ac odio tempor. Nibh praesent tristique magna sit. Elit duis tristique sollicitudin nibh sit amet commodo. Turpis egestas sed tempus urna et. Amet aliquam id diam maecenas ultricies. Nunc sed id semper risus in hendrerit gravida rutrum quisque. Eros donec ac odio tempor orci dapibus. Facilisi morbi tempus iaculis urna id volutpat lacus."
+
+// str_len
+
+PUSHIMM 864
+EQUAL
+STOP

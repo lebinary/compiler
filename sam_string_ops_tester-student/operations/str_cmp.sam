@@ -1,0 +1,6 @@
+// str_cmp
+// Input: Memory Address, Memory Address
+// Output: Integer
+// Description: Compares the two input values. If the first input value is bigger than the second input value, a 1 is placed on the stack. 
+//              If they are equal, a 0 is placed on the stack. If the first input value is smaller than the second input value, a -1 is placed on the stack.
+

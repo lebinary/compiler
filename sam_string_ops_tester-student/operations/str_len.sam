@@ -1,0 +1,35 @@
+// str_len
+// Input: Memory Address
+// Output: Integer
+// Description: Computes the length of the null-terminated character array at the input memory address.
+//              Places the return value on the stack.
+
+
+DUP // duplicate address
+PUSHIMM 0 // push counter
+SWAP // swap address on TOS
+
+start_loop:
+    DUP // duplicate address
+    PUSHIND
+
+    // end loop if nil
+    ISNIL
+    JUMPC stop_loop
+
+    // increase counter
+    SWAP
+    PUSHIMM 1
+    ADD
+    SWAP
+
+    // increase address
+    PUSHIMM 1
+    ADD
+
+    JUMP start_loop
+
+stop_loop:
+    ADDSP -1
+    SWAP
+    FREE
