@@ -3,6 +3,142 @@
 // Output: Memory Address
 // Description: Allocates a new string and copies the string at the input memory address into the new
 //              string a number of times equal to the integer input.  Places the memory address of the
-//              new string on the stack. 
+//              new string on the stack.
+
+// Validate param
+validate_param_n:
+    PUSHOFF 1
+    ISNEG
+    JUMPC neg_to_zero
+
+start_program:
+    // calculate length of current string -> Int
+    PUSHIMM 0 // return value
+    PUSHOFF 0
+    JSR get_str_len
+    ADDSP -1
+
+    // allocate memory for new string -> Address
+    PUSHOFF 1
+    TIMES
+    PUSHIMM 1 // Add extra byte for "end of string char"
+    ADD
+    MALLOC
+
+    PUSHOFF 2 // Duplicated new string address
+    PUSHIMM 0 // loop counter
+    start_repeat:
+        // check if done loop
+        DUP // duplicate counter for comparison
+        PUSHOFF 1 // get number of repeats
+        EQUAL
+        JUMPC stop_repeat
+
+        // append str to memory -> address
+        SWAP // make sure address on TOS
+        PUSHOFF 0
+        JSR append_str_to_memory
+        ADDSP -1
+
+        // Increase counter
+        SWAP
+        PUSHIMM 1
+        ADD
+
+        JUMP start_repeat
+
+    stop_repeat:
+        ADDSP -1
+        JUMP end_program
 
 
+
+// Get string length subroutine -> Int
+get_str_len:
+    LINK
+
+    PUSHOFF -2
+
+    start_count:
+        // get 1 character from memory
+        DUP
+        PUSHIND
+
+        // end loop if nil
+        ISNIL
+        JUMPC stop_count
+
+        // increase address
+        PUSHIMM 1
+        ADD
+
+        JUMP start_count
+
+    stop_count:
+        PUSHOFF -2
+        SUB
+        STOREOFF -3
+
+        UNLINK
+        RST
+
+
+// Append str to memory subroutine -> Address
+append_str_to_memory:
+    LINK
+
+    PUSHOFF -2
+
+    start_loop:
+        DUP // duplicate address
+        PUSHIND
+
+        // end loop if nil
+        ISNIL
+        JUMPC stop_loop
+
+        // Save to allocated memory
+        DUP
+        PUSHIND
+        PUSHOFF -3
+        SWAP
+        STOREIND
+
+        // increase address current string
+        PUSHIMM 1
+        ADD
+
+        // increase final address string
+        PUSHOFF -3
+        PUSHIMM 1
+        ADD
+        STOREOFF -3
+
+        JUMP start_loop
+
+    stop_loop:
+        ADDSP -1
+        UNLINK
+        RST
+
+
+// Turn param n to zero
+neg_to_zero:
+    PUSHIMM 0
+    STOREOFF 1
+    JUMP start_program
+
+
+end_program:
+    // Add end of string
+    PUSHIMMCH '\0'
+    STOREIND
+
+    JUMP clean_up
+
+clean_up:
+    // Clean up
+    SWAP
+    ADDSP -1 // rm param 2
+    SWAP
+    FREE // free param 1
