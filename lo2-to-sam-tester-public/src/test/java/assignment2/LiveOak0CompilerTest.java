@@ -40,7 +40,7 @@ class LiveOak0CompilerTest {
 
     @Test
     @DisplayName("should just run")
-    void testLO2_99() throws Throwable {
+    void testLO0_1() throws Throwable {
         String fileName = Path.of(lo0ValidProgramDir, "test_0.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
     }

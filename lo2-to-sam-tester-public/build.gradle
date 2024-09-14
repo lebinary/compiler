@@ -29,6 +29,9 @@ task testLO0(type: Test) {
     filter {
         includeTestsMatching "assignment2.LiveOak0CompilerTest"
     }
+    testLogging {
+        showStandardStreams = true
+    }
 }
 
 task testLO1(type: Test) {
@@ -36,12 +39,18 @@ task testLO1(type: Test) {
     filter {
         includeTestsMatching "assignment2.LiveOak1CompilerTest"
     }
+    testLogging {
+        showStandardStreams = true
+    }
 }
 
 task testLO2(type: Test) {
     useJUnitPlatform()
     filter {
         includeTestsMatching "assignment2.LiveOak2CompilerTest"
+    }
+    testLogging {
+        showStandardStreams = true
     }
 }
 
