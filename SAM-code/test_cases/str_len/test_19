@@ -1,0 +1,7 @@
+PUSHIMMSTR "Scelerisque eleifend donec pretium vulputate sapien nec. Ipsum faucibus vitae aliquet nec ullamcorper. Ac feugiat sed lectus vestibulum mattis ullamcorper velit. Magna fermentum iaculis eu non diam phasellus vestibulum lorem sed. Adipiscing bibendum est ultricies integer quis auctor. Tellus in hac habitasse platea. Mi proin sed libero enim sed faucibus. Id eu nisl nunc mi ipsum faucibus vitae aliquet nec. Odio facilisis mauris sit amet massa vitae tortor condimentum. Sed euismod nisi porta lorem. Tortor pretium viverra suspendisse potenti. Dignissim enim sit amet venenatis urna cursus. Ultricies integer quis auctor elit sed vulputate. Pellentesque eu tincidunt tortor aliquam nulla facilisi cras fermentum odio. Odio facilisis"
+
+// str_len
+
+PUSHIMM 734
+EQUAL
+STOP

@@ -1,0 +1,7 @@
+PUSHIMMSTR "Mus mauris vitae ultricies leo. Faucibus in ornare quam viverra orci sagittis eu volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada. Sed turpis tincidunt id aliquet risus feugiat in. Morbi blandit cursus risus at ultrices mi tempus. Commodo nulla facilisi nullam vehicula ipsum a arcu. Egestas erat imperdiet sed euismod nisi porta lorem mollis. At volutpat diam ut venenatis. Vitae auctor eu augue ut. Tellus rutrum tellus pellentesque eu tincidunt tortor aliquam. Hendrerit gravida rutrum quisque non tellus. Dictum varius duis at consectetur lorem donec massa. Proin fermentum leo vel orci porta non pulvinar neque. Nunc mattis enim ut tellus elementum. Eu feugiat pretium nibh ipsum consequat. Aenean pharetra magna ac placerat vestibulum."
+
+// str_len
+
+PUSHIMM 771
+EQUAL
+STOP

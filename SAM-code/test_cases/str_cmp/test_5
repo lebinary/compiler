@@ -1,0 +1,8 @@
+PUSHIMMSTR ""
+PUSHIMMSTR ""
+
+// str_cmp
+
+PUSHIMM 0
+EQUAL
+STOP

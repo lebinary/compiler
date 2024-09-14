@@ -1,0 +1,8 @@
+PUSHIMMSTR "ab1cd"
+PUSHIMMSTR "ab2cd"
+
+// str_cmp
+
+PUSHIMM 1
+EQUAL
+STOP
