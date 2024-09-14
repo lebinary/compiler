@@ -957,5 +957,4 @@ class LiveOak2CompilerTest {
         String program = LiveOak2Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 905);
     }
-
 }

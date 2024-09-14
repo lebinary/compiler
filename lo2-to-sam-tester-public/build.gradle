@@ -24,6 +24,27 @@ test {
     useJUnitPlatform()
 }
 
+task testLO0(type: Test) {
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching "assignment2.LiveOak0CompilerTest"
+    }
+}
+
+task testLO1(type: Test) {
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching "assignment2.LiveOak1CompilerTest"
+    }
+}
+
+task testLO2(type: Test) {
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching "assignment2.LiveOak2CompilerTest"
+    }
+}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
