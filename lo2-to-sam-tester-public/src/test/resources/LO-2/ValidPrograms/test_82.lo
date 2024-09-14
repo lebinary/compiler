@@ -1,0 +1,25 @@
+// *Good testcase*
+// The string concatenation result is discarded
+// main return value: 0
+// Author: Kaveri Mukundan
+
+int main()
+{
+  String s, t, r;
+  {
+    s = "Graduate";
+    t = "Student";
+    r = str_concat_fun ( s, t );
+
+    return 0;
+  }
+     
+}
+
+String str_concat_fun ( String s, String t )
+{
+{
+return (s + t);
+}
+
+}

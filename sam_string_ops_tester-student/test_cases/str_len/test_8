@@ -1,7 +1,0 @@
-PUSHIMMSTR "( ͡° _ʖ ͡°)"
-
-// str_len
-
-PUSHIMM 11
-EQUAL
-STOP

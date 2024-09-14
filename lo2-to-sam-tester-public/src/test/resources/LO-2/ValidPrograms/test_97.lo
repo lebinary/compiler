@@ -1,0 +1,31 @@
+// *Good testcase*
+// Test string accumlation in while loop
+// main return value: "abcabcabcabcabcabcabcabcabcabcabc"
+// Author: Tyler Collins
+
+String main() {
+    String target, result;
+    int counter;
+    {
+        target = ("abc" * 12);
+        result = "abc";
+        counter = 0;
+        while ((target > accumulate(result, "abc"))) {
+            result = (((counter % 3) = 0) ? accumulate(result, "abc") : result);
+            counter = (counter + 1);
+
+            if (((result = target) | (result > target))) {
+                return result;
+            } else { ; }
+        }
+
+        return result;
+    }
+}
+
+String accumulate(String result, String addend) {
+     {
+        return (result + addend);
+     }
+}
+

@@ -1,0 +1,16 @@
+// *Good testcase*
+// Uncalled functions
+// main return value: 0
+// Author: Fall 2021 TAs
+
+int main() {
+    {return 0;}
+}
+
+int foo() {
+    {return 10;}
+}
+
+int bar() {
+    {return 20;}
+}

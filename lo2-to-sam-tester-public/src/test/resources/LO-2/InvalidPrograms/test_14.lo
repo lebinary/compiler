@@ -1,0 +1,16 @@
+// *Bad testcase*
+// Incomplete expression
+
+int foo(int a)
+{
+  int b;
+  {
+    b = (a+10);
+    return b;
+  }
+}
+
+int main()
+{
+  {return foo((5+));}
+}

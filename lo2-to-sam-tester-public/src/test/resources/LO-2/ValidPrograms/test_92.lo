@@ -1,0 +1,30 @@
+// *Good testcase*
+// Function call
+// main return value: 90
+// Author: Fall 2021 TAs
+
+int main()
+{
+  {
+    return foo(10, 20);
+  }
+}
+
+int foo(int a, int b)
+{
+  int c;
+  {
+    c = bar(a);
+    c = (c + b);
+    return c;
+  }
+}
+
+int bar(int a)
+{
+  int b;
+  {
+    b = ((((((a+10)+10)+10)+10)+10)+10);
+    return b;
+  }
+}

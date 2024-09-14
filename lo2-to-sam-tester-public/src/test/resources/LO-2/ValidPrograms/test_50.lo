@@ -1,0 +1,40 @@
+// *Good testcase*
+// Test string concat
+// main return value: "do Do Do do Do"
+// Author: Aaron Wollman
+
+
+String addDo(String str, bool uppercaseD){
+  String do;
+  {
+	if (uppercaseD) {
+	  do = " Do";
+	}
+	else {
+	  do = " do";
+	}
+	
+	str = (str + do);
+	
+	return str;
+  }
+}
+
+
+String main(){
+  String str;
+  int i;
+  bool uppercaseD;
+  {
+	str = "do";
+	i = 0;
+	uppercaseD = false;
+	while (((i < 4))) {
+		uppercaseD = ((((i = 0) | (i = 1)) | (i = 3)));
+		str = addDo(str, uppercaseD);
+		i = (i + 1);
+	}
+	
+	return str;
+  }
+}

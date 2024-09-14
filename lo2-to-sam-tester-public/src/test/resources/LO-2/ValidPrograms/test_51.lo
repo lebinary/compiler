@@ -1,0 +1,16 @@
+// *Good testcase*
+// Tests a while loop with tabbed formatting
+// main return value: 20
+// Author: Isha Joshi
+
+int main(){
+    int a, b;
+    {
+        a=20;
+        b=10;
+        while ((b < a)) {
+            b = (b + 1);
+        }
+        return b;
+    }
+}

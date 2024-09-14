@@ -1,0 +1,18 @@
+// *Good testcase*
+// Arithmetic Operations
+// main return value: 199704
+// Author: Tyler Collins
+
+
+int main() {
+    int a, b, c, d;
+  {
+    a = 1;
+    b = 10;
+    c = 100;
+    d = 1000;
+
+    return (((((2 * d) - 3) * c) + 4) * a);
+  }
+}
+

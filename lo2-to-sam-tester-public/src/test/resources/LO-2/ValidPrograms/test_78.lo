@@ -1,0 +1,16 @@
+// *Good testcase*
+// String Operations
+// main return value: 1
+// Author: Tyler Collins
+
+
+bool main() {
+    String a, b, c, d;
+  {
+    a = "The rain in Spain falls";
+    b = (~a);
+
+    return (a < b);
+  }
+}
+

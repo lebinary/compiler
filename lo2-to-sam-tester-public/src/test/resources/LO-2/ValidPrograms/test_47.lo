@@ -1,0 +1,24 @@
+// *Good testcase*
+// Function call
+// main return value: 15
+// Author: Fall 2021 TAs
+
+int foo(int a) {
+  int b;
+  {
+    b=0;
+    while((a>0)) {
+       b = (a+10);
+       a = (a-1);
+       break;
+    }
+
+    return b;
+   }
+}
+
+int main() {
+    {
+     return foo(5);
+    }
+}

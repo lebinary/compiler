@@ -1,0 +1,23 @@
+// *Good testcase*
+// Function return value is discarded
+// main return value: 0
+// Author: Kaveri Mukundan
+
+int fun1 ( int a )
+    {
+    int c;
+    {
+        c = (a * 5);
+        return c;
+    }
+}
+
+int main ( )
+{
+    int a, b;
+    {
+        a = 5;
+        b = fun1 ( a );
+        return 0;
+    }
+}

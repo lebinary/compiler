@@ -1,0 +1,43 @@
+// *Good testcase*
+// Test literals in while/if statements, ternary expressions
+// main return value: 1
+// Author: Aaron Wollman
+
+bool isDivisible(int a, int b){
+  {
+     return ((a % b) = 0);
+  }
+}
+
+bool main(){
+  int a, b;
+  {
+    a = 61;
+	while (true){
+		if ((!(a = 61))){
+		  break;
+		}
+		else {
+		  a = 93;
+		}
+	}
+	
+	b = 42;
+	if (false){
+      b = 105;
+	}
+	else {
+	  b = 3;
+	}
+	
+	if (((b > a) ? isDivisible(b, a) : isDivisible(a, b)))
+	{
+	  return true;
+	}
+	else {
+	  return false;
+	}
+
+	return false;
+  }
+}

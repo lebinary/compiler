@@ -1,0 +1,18 @@
+// *Good testcase*
+// String Operations
+// main return value: "zZZZsllaf niapS ni niar ehTZZZz"
+// Author: Tyler Collins
+
+
+String main() {
+    String a, b, c, d;
+  {
+    a = "The rain in Spain falls";
+    b = (~a);
+    c = (a * 2);
+    d = "zZZZ";
+
+    return ((d + b) + (~d));
+  }
+}
+

@@ -1,0 +1,30 @@
+// *Good testcase*
+// Test string comparisons
+// main return value: -1
+// Author: Aaron Wollman
+
+int strCmp(String a, String b){
+  bool isGt, isLt;
+  {
+	isGt = (a > b);
+	isLt = (a < b);
+	return (isGt ? 1 : (isLt ? (~1) : 0));
+  }
+}
+
+int main(){
+  String a, b, c;
+  {
+    a = "bar";
+	b = "bar";
+	c = "foo";
+	if(((a = b))){
+	  return (strCmp(a, c));
+	}
+	else{
+	  return strCmp(c, b);
+	}
+	
+	return 0;
+  }
+}

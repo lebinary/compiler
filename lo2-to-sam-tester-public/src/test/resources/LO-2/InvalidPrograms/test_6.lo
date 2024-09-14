@@ -1,0 +1,17 @@
+// *Bad testcase*
+// Too many arguments
+
+int main()
+{
+    int a;
+    {
+     a=5;
+     return foo(a,a);
+    }
+}
+
+int foo(int a) {
+    {
+        return a;
+    }
+}

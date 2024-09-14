@@ -1,0 +1,26 @@
+// bad testcase
+// invalid function name
+
+int 0_9abs(int num1)
+{
+    int r;
+    {
+        if ( (num1 > 0) )
+        {
+            r = num1;
+        }
+        else {
+            r = r * -1;
+        }
+        return r;
+    }
+}
+
+int main(){
+    int a,b;
+    {
+        a=5;
+        b=0_9abs(a);
+        return 0;
+    }
+}

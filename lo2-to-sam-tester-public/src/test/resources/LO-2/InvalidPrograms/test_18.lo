@@ -1,0 +1,8 @@
+// Main takes parameters -- it should not
+
+int main(int c) {
+    int a, b;
+    {
+        return 1;
+    }
+}

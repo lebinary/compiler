@@ -1,0 +1,24 @@
+// *Good testcase*
+// Computing pseudo-random numbers
+// main return value: 26141
+// Author: Tyler Collins
+
+int linear_congruence_random_number(int seed) {
+    {
+        return ((1233 * seed) % (65536));
+    }
+}
+
+int main() {
+    int a, b;
+    {
+        a = 0;
+        b = 989;
+        while ((a < 100)) {
+            b = linear_congruence_random_number(b);
+            a = (a + 1);
+        }
+
+        return b;
+    }
+}

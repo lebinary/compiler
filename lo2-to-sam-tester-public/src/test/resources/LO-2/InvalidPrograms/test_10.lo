@@ -1,0 +1,10 @@
+// Missing operand
+
+bool main(){
+  int a, b;
+  {
+    a = 39;
+    b = 15;
+    return ((a = 1) ? : b);
+  }
+}

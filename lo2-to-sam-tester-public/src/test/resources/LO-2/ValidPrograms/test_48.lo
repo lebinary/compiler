@@ -1,0 +1,11 @@
+// *Good testcase*
+// Declare and call a simple method
+// main return value: 1
+// Author: Tyler Collins
+
+
+bool main() {
+  {
+    return true;
+  }
+}

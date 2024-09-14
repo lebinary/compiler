@@ -1,0 +1,42 @@
+// *Good testcase*
+// Count the number of primes less than n
+// main return value: 168
+// Author: Tyler Collins
+
+int main() {
+    {
+        return num_primes_less_than(1000);
+    }
+}
+
+int num_primes_less_than(int n) {
+    int rem, count;
+    {
+        rem = (n - 1);
+        count = 0;
+
+        while ((rem > 2)) {
+            count = (is_not_prime(rem) ? count : (count + 1));
+            rem = (rem - 1);
+        }
+
+        return (count + 1);
+    }
+}
+
+bool is_not_prime(int n) {
+    int rem, div;
+    {
+        rem = n;
+        div = 2;
+        while ((div < rem)) {
+            if (((rem % div) = 0)) {
+              return true;
+            } else {
+              div = (div + 1);
+            }
+        }
+
+        return false;
+    }
+}

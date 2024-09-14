@@ -1,0 +1,11 @@
+// *Good testcase*
+// String Operations
+// main return value: "tset a tsuj si sihTtset a tsuj si sihTright?"
+// Author: Tyler Collins
+
+
+String main() {
+  {
+    return ((((~"This is just a test") * 2) + "right?") + (" no." * (~10)));
+  }
+}

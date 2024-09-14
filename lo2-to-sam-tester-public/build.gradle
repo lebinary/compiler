@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs "."
+    }
+}
+
+configurations {
+    bundledDeps
+}
+
+dependencies {
+    bundledDeps 'edu.utexas.cs:SaM:2.6.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    configurations.implementation.extendsFrom(configurations.bundledDeps)
+}
+
+test {
+    useJUnitPlatform()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'assignment2.LiveOak2Compiler'
+    }
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+    from { configurations.bundledDeps.collect { it.isDirectory() ? it : zipTree(it) } }
+}

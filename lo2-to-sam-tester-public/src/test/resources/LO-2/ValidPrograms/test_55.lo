@@ -1,0 +1,19 @@
+// *Good testcase*
+// Test useless formals and variables, string reversal
+// main return value: "eip sa ysae"
+// Author: Aaron Wollman
+
+String getStr(int foo, int bar, String useless, bool isUseless){
+  String b, c;
+  {
+    return "easy as pie";
+  }
+}
+
+String main(){
+  String a;
+  {
+    a = getStr(1, 2, "blah", false);
+	return (~a);
+  }
+}

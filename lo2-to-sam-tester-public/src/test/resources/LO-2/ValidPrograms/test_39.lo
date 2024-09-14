@@ -1,0 +1,42 @@
+// *Good testcase*
+// Performing binary search
+// main return value: 238
+// Author: Tyler Collins
+
+int main() {
+    {
+        return binary_search_mono_func(64, 0, 10000);
+    }
+}
+
+int mono_func(int input) {
+    {
+        return (3 * input);
+    }
+}
+
+int binary_search_mono_func(int target, int low, int high) {
+    int mid;
+    {
+        if (((high - low) < 2)) {
+            if ((target = mono_func(low))) {
+                return 799;
+            } else {
+                if ((target = mono_func(high))) {
+                    return 610;
+                } else {
+                    return 238;
+                }
+            }
+        } else { ; }
+
+        mid = ((low + high) / 2);
+        if ((target < mid)) {
+            return binary_search_mono_func(target, low, mid);
+        } else {
+            return binary_search_mono_func(target, mid, high);
+        }
+
+        return (~1);
+    }
+}

@@ -1,0 +1,32 @@
+// *Good testcase*
+// String Operations
+// main return value: 266
+// Author: Tyler Collins
+
+
+int main() {
+    String a, b, c, d;
+  {
+    a = "The rain in Spain falls";
+    b = (~a);
+    c = (a * 2);
+    d = "zZZZ";
+
+    if ((a = b)) {
+        return (~1);
+    } else {
+        if ((b < d)) {
+            return 266;
+        } else {
+            if ((c > d)) {
+                return 592;
+            } else {
+                return 312;
+            }
+        }
+    }
+
+    return 703;
+  }
+}
+

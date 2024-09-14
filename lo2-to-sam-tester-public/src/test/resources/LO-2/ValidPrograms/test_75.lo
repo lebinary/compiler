@@ -1,0 +1,23 @@
+// *Good testcase*
+// Nested while loop
+// main return value: 431
+// Author: Fall 2021 TAs
+
+int main() {
+    int a, b, c;
+    {
+     a = 431;
+     b = 123;
+     c = 345;
+
+     while ((b<c))
+     {
+       while ((b<a))
+       {
+        b = (b+1);
+       }
+      }
+
+      return b;
+     }
+}

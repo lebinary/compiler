@@ -1,0 +1,25 @@
+// *Good testcase*
+// String Operations
+// main return value: 72
+// Author: Tyler Collins
+
+
+int main() {
+    String a, b, c;
+  {
+    a = "test";
+    b = (~a);
+    c = "tset";
+
+    if ((a = b)) {
+        return 31;
+    } else {
+        if ((b = c)) {
+            return 72;
+        } else { ; }
+    }
+
+    return (~1);
+  }
+}
+

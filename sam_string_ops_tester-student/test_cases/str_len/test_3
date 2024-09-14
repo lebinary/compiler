@@ -1,7 +1,0 @@
-PUSHIMMSTR "test string."
-
-// str_len
-
-PUSHIMM 12
-EQUAL
-STOP

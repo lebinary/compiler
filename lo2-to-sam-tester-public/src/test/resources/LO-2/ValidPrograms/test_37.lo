@@ -1,0 +1,18 @@
+// *Good testcase*
+// Arithmetic Operations
+// main return value: 4
+// Author: Tyler Collins
+
+
+int main() {
+    int a, b, c, d;
+  {
+    a = 1;
+    b = 10;
+    c = 100;
+    d = 1000;
+
+    return ((d / 7) % (b - 4));
+  }
+}
+

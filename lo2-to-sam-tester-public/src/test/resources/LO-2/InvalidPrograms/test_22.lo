@@ -1,0 +1,17 @@
+// Incorrect arguments
+
+int main() {
+    int a, b;
+    {
+        a = xyz(1, 2, 3);
+        return a;
+    }
+}
+
+int xyz(int a, String b, int c) {
+    String result;
+    {
+        result = b;
+        return a;
+    }
+}

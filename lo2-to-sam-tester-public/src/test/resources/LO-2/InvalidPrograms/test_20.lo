@@ -1,0 +1,20 @@
+// *Bad testcase*
+// Unbalanced parentheses in expression evaluation
+
+int main()
+{
+  int a;
+  {
+    a = 5;
+    return foo(a);
+  }
+}
+
+int foo(int a)
+{
+  int b;
+  {
+    b = ((((a+10)-10)*5)/5));
+    return b;
+  }
+}

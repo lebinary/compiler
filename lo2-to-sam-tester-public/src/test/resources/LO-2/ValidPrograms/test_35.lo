@@ -1,0 +1,16 @@
+// *Good testcase*
+// Return value as argument
+// main return value: 30
+// Author: Fall 2021 TAs
+
+int foo() {
+   {return 10;}
+}
+
+int bar(int a) {
+    {return (a + 20);}
+}
+
+int main() {
+    {return bar(foo());}
+}

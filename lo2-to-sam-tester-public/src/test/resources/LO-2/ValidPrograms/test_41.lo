@@ -1,0 +1,12 @@
+// *Good testcase*
+// Declare and call a simple method
+// main return value: 1
+// Author: Fall 2021 TAs
+
+bool f () {
+    {return true;}
+}
+
+int main() {
+  {return (f()?1:(~1));}
+}

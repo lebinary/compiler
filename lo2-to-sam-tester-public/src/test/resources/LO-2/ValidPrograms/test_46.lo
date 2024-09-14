@@ -1,0 +1,21 @@
+// *Good testcase*
+// Nested method calls
+// main return value: 40
+// Author: Isha Joshi
+
+int foo(int a){
+  int c;
+  {
+    c = (a * 2);
+    return c;
+  }
+}
+
+int main(){
+  int var1, var2, var3, var4;
+  {
+    var1 = 5;
+    var2 = (foo(foo(foo(var1))));
+    return var2;
+  }
+}

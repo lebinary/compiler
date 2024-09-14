@@ -1,0 +1,12 @@
+// Missing block in foo
+
+int foo() {
+    String a, b;
+
+}
+
+int main() {
+    {
+        return foo();
+    }
+}

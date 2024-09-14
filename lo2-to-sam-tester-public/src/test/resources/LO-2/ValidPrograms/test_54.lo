@@ -1,0 +1,44 @@
+// *Good testcase*
+// Sum binary numbers
+// main return value: 11110
+// Author: Tyler Collins
+
+int main() {
+    {
+        return binary_sum(1111, 1111);
+    }
+}
+
+int binary_sum(int a, int b) {
+    int a_left, b_left, a_rem, b_rem, left_sum, right_sum;
+    {
+        if ((a = 0)) {
+            return b;
+        } else {
+            if ((b = 0)) {
+                return a;
+            } else { ; }
+        }
+
+        a_left = (a / 10);
+        b_left = (b / 10);
+
+        a_rem = (a % 10);
+        b_rem = (b % 10);
+
+        right_sum = (a_rem + b_rem);
+        if ((right_sum = 2))  {
+            right_sum = 10;
+        } else { ; }
+
+        left_sum = binary_sum(a_left, b_left);
+
+        if ((right_sum = 10)) {
+            return (binary_sum(left_sum, 1) * 10);
+        } else {
+            return ((left_sum * 10) + right_sum);
+        }
+
+        return (~1);
+    }
+}

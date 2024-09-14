@@ -1,0 +1,19 @@
+// Mismatching operand types from methods declared after usage
+
+bool main(){
+  {
+    return (integerMethod() + stringMethod());
+  }
+}
+
+bool integerMethod() {
+    {
+        return false;
+    }
+}
+
+String stringMethod() {
+    {
+        return "1";
+    }
+}

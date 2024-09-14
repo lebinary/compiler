@@ -1,0 +1,16 @@
+// *Good testcase*
+// Declare and call a simple method
+// main return value: -10
+// Author: Tyler Collins
+
+bool f () {
+    {
+        return (2 > 10);
+    }
+}
+
+int main() {
+  {
+    return (f() ? (5 - 5) : (~10) );
+  }
+}

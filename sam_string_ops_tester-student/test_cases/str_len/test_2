@@ -1,7 +1,0 @@
-PUSHIMMSTR "f123k"
-
-// str_len
-
-PUSHIMM 5
-EQUAL
-STOP

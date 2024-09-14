@@ -1,0 +1,10 @@
+// Incorrect operator for binary operation
+
+String main(){
+  String a, b;
+  {
+    a = "123";
+    b = "abc";
+    return (a ~ b);
+  }
+}

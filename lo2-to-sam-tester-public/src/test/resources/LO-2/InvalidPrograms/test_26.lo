@@ -1,0 +1,8 @@
+//bad case:no return type, main takes parameters
+
+main(int a){
+    int b;
+    {
+        return true;
+    }
+}

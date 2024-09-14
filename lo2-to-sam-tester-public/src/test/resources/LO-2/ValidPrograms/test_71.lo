@@ -1,0 +1,23 @@
+// *Good testcase*
+// String Operations
+// main return value: "azzzzzc"
+// Author: Tyler Collins
+
+
+String main() {
+  {
+    return concatenator(concatenator("a", replicator("z", 5)), "c");
+  }
+}
+
+String replicator(String input, int repetitions) {
+    {
+        return (input * repetitions);
+    }
+}
+
+String concatenator(String a, String b) {
+    {
+        return (a + b);
+    }
+}

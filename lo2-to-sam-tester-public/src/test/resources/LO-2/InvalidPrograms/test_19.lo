@@ -1,0 +1,7 @@
+// Missing type on main declaration
+
+main() {
+    {
+        return 0;
+    }
+}

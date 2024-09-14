@@ -1,0 +1,12 @@
+// *Good testcase*
+// Test a moderately complex method 
+// main return value: 14
+// Author: Fall 2021 TAs
+
+int f(int a, int b) {
+    {return (a + b);}
+}
+
+int main() {
+  {return f(2, (3*4));}
+}

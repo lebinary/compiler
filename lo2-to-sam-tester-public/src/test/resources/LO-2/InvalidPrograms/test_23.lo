@@ -1,0 +1,17 @@
+// *Bad testcase*
+// Undefined functions: notice "Foo" vs "foo"
+
+int main()
+{
+    int a;
+    {
+       a = 5;
+       return foo(a);
+    }
+}
+
+int Foo(int a) {
+    {
+        return a;
+    }
+}

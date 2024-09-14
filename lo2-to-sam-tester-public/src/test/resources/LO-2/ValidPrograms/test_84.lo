@@ -1,0 +1,32 @@
+// *Good testcase*
+// Test string concat, short circuit on OR
+// main return value: "black cat"
+// Author: Aaron Wollman
+
+String addCat(String str){
+  {
+    str = (str + " cat");
+    return str;
+  }
+}
+
+String addDog(String str){
+  {
+    str = (str + " dog");
+    return str;
+  }
+}
+
+String main(){
+  String str;
+  {
+	str = "black";
+	if ((((("a" < str) | (str < "z")) | (str = "a")) | (str = "z"))) {
+		str = addCat(str);
+	} else {
+		str = addDog(str);
+	}
+	
+	return str;
+  }
+}

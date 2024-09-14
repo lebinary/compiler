@@ -1,0 +1,21 @@
+// *Good testcase*
+// Tests return-statements within if-statements
+// main return value: 20
+// Author: Shivi Agarwal
+
+int main(){
+    int a, b;
+    {
+        a=20;
+        b=10;
+        if((a>b))
+        {
+            return a;
+        }
+        else
+        {
+            return b;
+        }
+        return (a-b);
+    }
+}

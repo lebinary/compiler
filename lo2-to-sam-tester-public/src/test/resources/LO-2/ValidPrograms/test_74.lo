@@ -1,0 +1,36 @@
+// *Good testcase*
+// Performing binary search
+// main return value: 147
+// Author: Tyler Collins
+
+int binary_search(int target, int low, int high) {
+    int mid;
+    {
+        if (((high - low) < 2)) {
+            if ((target = low)) {
+                return 147;
+            } else {
+                if ((target = high)) {
+                    return 32;
+                } else {
+                    return 18;
+                }
+            }
+        } else { ; }
+
+        mid = ((low + high) / 2);
+        if ((target < mid)) {
+            return binary_search(target, low, mid);
+        } else {
+            return binary_search(target, mid, high);
+        }
+
+        return (~1);
+    }
+}
+
+int main() {
+    {
+        return binary_search(345176, 0, 10000000);
+    }
+}

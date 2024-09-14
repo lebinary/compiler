@@ -1,0 +1,33 @@
+// *Good testcase*
+// Test method invocation
+// main return value: 17
+// Author: Fall 2021 TAs
+
+int min(int a, int b) {
+    {
+        if ((a > b)) {
+          return b;
+        } else {
+          return a;
+        }
+        return 0;
+    }
+}
+
+int foo(int a, int b) {
+    int c;
+    {
+
+        c = min(a,b);
+        return c;
+    }
+}
+
+int main() {
+  int x, y;
+  {
+    x = 42;
+    y = 17;
+    return foo(x, y);
+  }
+}

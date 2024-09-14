@@ -1,0 +1,26 @@
+// *Good testcase*
+// The while-loop executes only once because of the break
+// main return value: "HelloHello"
+// Author: Fall 2021 TAs
+
+
+String foo(String a) {
+  int b;
+  String c;
+  {
+    b=5;
+    while((b>0)) {
+       c = (a*2);
+       b = (b-1);
+       break;
+    }
+
+    return c;
+   }
+}
+
+String main() {
+    {
+     return foo("Hello");
+    }
+}

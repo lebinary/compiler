@@ -1,0 +1,39 @@
+// *Good testcase*
+// Nested if-else
+// main return value: 123
+// Author: Fall 2021 TAs
+
+int main() {
+    int a, b, c;
+    int d;
+
+    {
+     a = 431;
+     b = 123;
+     c = 345;
+
+    if ((a<b))
+    {
+      if ((a<c))
+      {
+        d = a;
+      }
+      else
+      {
+        d = c;
+      }
+    }
+    else
+    {
+      if ((b<c))
+      {
+       d = b;
+      }
+      else
+      {
+       d = c;
+      }
+    }
+    return d;
+    }
+}

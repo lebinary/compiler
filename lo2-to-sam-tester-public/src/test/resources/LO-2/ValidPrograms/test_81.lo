@@ -1,0 +1,27 @@
+// *Good testcase*
+// Swap two numbers
+// main return value: 456
+// Author: Fall 2021 TAs
+
+int main()
+{
+    int a, b, c;
+    {
+      a = 123;
+      b = 456;
+      if (foo(a, b)) {
+        c = a;
+        a = b;
+        b = c;
+      }
+      else {
+        ;
+      }
+      return a;
+    }
+}
+
+bool foo(int a, int b)
+{
+    {return (a<b);}
+}

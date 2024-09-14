@@ -1,0 +1,20 @@
+// *Good testcase*
+// Test modulo, ternary
+// main return value: "false"
+// Author: Aaron Wollman
+
+bool isEven(int value){
+  {
+	return ((((value % 2)) = 0) | ((!(true))));
+  }
+}
+
+String main(){
+  String trueStr;
+  int value;
+  {
+    value = 21;
+	trueStr = "true";
+	return (((isEven((value))) ? trueStr : "false"));
+  }
+}

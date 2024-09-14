@@ -1,0 +1,31 @@
+// *Good testcase*
+// String Operations
+// main return value: "alternate result"
+// Author: Tyler Collins
+
+
+String main() {
+  {
+    return concatenator(concatenator("a", replicator("b", 5)), "c");
+  }
+}
+
+String replicator(String input, int repetitions) {
+    {
+        return (input * repetitions);
+    }
+}
+
+String concatenator(String a, String b) {
+    String c;
+    {
+        c = "tluser etanretla";
+        if ((a < b)) {
+            return (~c);
+        } else {
+            return (a + b);
+        }
+
+        return "";
+    }
+}

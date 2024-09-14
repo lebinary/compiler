@@ -1,0 +1,36 @@
+// *Good testcase*
+// Performing binary search
+// main return value: 24
+// Author: Fall 2021 TAs
+
+int binary_search(int target, int low, int high) {
+    int mid;
+    {
+        if (((high - low) < 2)) {
+            if ((target = low)) {
+                return 87;
+            } else {
+                if ((target = high)) {
+                    return 24;
+                } else {
+                    return 59;
+                }
+            }
+        } else { ; }
+
+        mid = ((low + high) / 2);
+        if ((target < mid)) {
+            return binary_search(target, low, mid);
+        } else {
+            return binary_search(target, mid, high);
+        }
+
+        return (~1);
+    }
+}
+
+int main() {
+    {
+        return binary_search(15, 0, 15);
+    }
+}

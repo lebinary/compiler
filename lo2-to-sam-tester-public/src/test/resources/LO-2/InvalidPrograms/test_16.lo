@@ -1,0 +1,10 @@
+// Incorrect integer negation operator
+
+int main(){
+  bool isGt, isLt;
+  {
+	isGt = (1 > 2);
+	isLt = (1 < 2);
+	return (isGt ? 1 : (isLt ? -1 : 0));
+  }
+}

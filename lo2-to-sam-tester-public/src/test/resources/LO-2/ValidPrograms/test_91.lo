@@ -1,0 +1,32 @@
+// *Good testcase*
+// String Operations
+// main return value: 12
+// Author: Tyler Collins
+
+
+int main() {
+    String a, b, c, d;
+  {
+    a = "Mr Livingstone I presume?";
+    b = "Do you feel lucky?";
+    c = "Tomorrow, and tomorrow, and tomorrow creeps in this petty pace from day to day.";
+    d = "Without our traditions, our lives would be as shaky as a fiddler on the roof.";
+
+    b = (c + d);
+    a = (~b);
+    c = (a * 2);
+
+    if ((c = "Mr Livingstone I presume?Mr Livingstone I presume?")) {
+        return 47;
+    } else {
+        if ((a = ".foor eht no relddif a sa ykahs sa eb dluow sevil ruo ,snoitidart ruo tuohtiW.yad ot yad morf ecap yttep siht ni speerc worromot dna ,worromot dna ,worromoT")) {
+            return 12;
+        } else {
+            return 95;
+        }
+    }
+
+    return (~1);
+  }
+}
+
