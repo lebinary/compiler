@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 /*******************
- * Example test cases for main.LiveOak2Compiler, on LiveOak-0
+ * Example test cases for main.LiveOak0Compiler, on LiveOak-0
  *
  *
  * *******************/
@@ -42,6 +42,6 @@ class LiveOak0CompilerTest {
     @DisplayName("should just run")
     void testLO0_1() throws Throwable {
         String fileName = Path.of(lo0ValidProgramDir, "test_0.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak0Compiler.compiler(fileName);
     }
 }

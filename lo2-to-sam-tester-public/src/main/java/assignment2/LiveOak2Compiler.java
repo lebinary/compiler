@@ -67,15 +67,10 @@ public class LiveOak2Compiler {
     static String getProgram(SamTokenizer f) throws CompilerException {
         String pgm = "";
         // LiveOak-2
-        // while(f.peekAtKind()!=TokenType.EOF) {
-        //     pgm+= getMethod(f);
-        // }
-
-
-        // LiveOak-0
         while(f.peekAtKind()!=TokenType.EOF) {
-            pgm += getBody(f);
+            pgm+= getMethod(f);
         }
+
         return pgm;
     }
 
@@ -98,146 +93,6 @@ public class LiveOak2Compiler {
 
     static String getFormals(SamTokenizer f) {
         return null;
-    }
-
-    /** LiveOak 0
-     **/
-    static String getBody(SamTokenizer f) throws CompilerException {
-        String body = "";
-
-        // while start with "int | bool | String"
-        while (f.peekAtKind() == TokenType.WORD) {
-            // VarDecl will store variable in Hashmap: identifier -> { type: TokenType, relative_address: int }
-            parseVarDecl(f);
-        }
-        CompilerUtils.printHashmap(variables);
-
-        // Then, get Block
-        body += getBlock(f);
-
-        return body;
-    }
-
-    static void parseVarDecl(SamTokenizer f) throws CompilerException {
-        // typeString = int | bool | String
-        String typeString = f.getWord();
-        Type varType = Type.fromString(typeString);
-
-        // typeString != int | bool | String
-        if (varType == null) {
-            throw new TypeErrorException(
-                "Invalid type: " + typeString,
-                f.lineNo()
-            );
-        }
-
-        // while varName = a | b | c | ...
-        while (f.peekAtKind() == TokenType.WORD) {
-            String varName = f.getWord();
-
-            // put variable in hashmap
-            int address = CompilerUtils.getNextAddress(variables);
-            Variable variable = new Variable(varName, varType, address);
-            variables.put(varName, variable);
-
-            if(f.check(',')) {
-                continue;
-            }
-            else if(f.check(';')) {
-                break;
-            } else {
-                throw new SyntaxErrorException(
-                    "Expected ',' or `;` after each variable declaration",
-                    f.lineNo()
-                );
-            }
-        }
-    }
-
-    static String getBlock(SamTokenizer f) throws CompilerException {
-        String block = "";
-
-        // while start with "{"
-        while(f.check('{')) {
-            block += getStmt(f);
-        }
-
-        return block;
-    }
-
-    static String getStmt(SamTokenizer f) throws CompilerException {
-        Variable variable = getVar(f);
-        String variableExpr = "STOREOFF " + variable.getAddress();
-
-        if(f.check('=')) {
-            throw new SyntaxErrorException(
-                "getStmt expects '=' after variable",
-                f.lineNo()
-            );
-        }
-
-        String expression = getExpr(f);
-
-        return expression + variableExpr;
-    }
-
-    static Variable getVar(SamTokenizer f) throws CompilerException {
-        // Not a var, raise
-        if(f.peekAtKind() != TokenType.WORD) {
-            throw new SyntaxErrorException(
-                "getVar should starts with a WORD",
-                f.lineNo()
-            );
-        }
-
-        String varName = f.getWord();
-
-        // Trying to access var that has not been declared
-        Variable variable = variables.get(varName);
-        if(variable == null) {
-            throw new SyntaxErrorException(
-                "getVar trying to access variable that has not been declared",
-                f.lineNo()
-            );
-        }
-
-        return variable;
-    }
-
-    static String getExpr(SamTokenizer f) throws CompilerException {
-        String expr = "";
-
-        // Expr -> ( ... )
-        if(f.check('(')) {
-            // Do stuffs
-        }
-
-        // Expr -> Var
-        try {
-            Variable variable = getVar(f);
-
-        } catch (SyntaxErrorException e) {
-            // Expr -> Literal
-
-        }
-
-        return "";
-    }
-
-    static String getLiteral(SamTokenizer f) throws CompilerException {
-        switch (f.peekAtKind()) {
-            case INTEGER:
-                return Integer.toString(f.getInt());
-            case STRING:
-                return f.getString();
-            case WORD:
-                return f.getWord();
-            default:
-                throw new TypeErrorException(
-                    "getLiteral received invalid type",
-                    f.lineNo()
-                );
-        }
     }
 
     static String getIdentifier(SamTokenizer f) {
