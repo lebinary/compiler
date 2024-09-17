@@ -8,7 +8,7 @@ public class CompilerUtils {
         for (Map.Entry<String, Variable> entry : variables.entrySet()) {
             String varName = entry.getKey();
             Variable variable = entry.getValue();
-            System.out.printf("Name: %-10s Type: %-6s Address: %d%n",
+            System.out.printf("Name: %-6s Type: %-6s Address: %d%n",
                               varName, variable.getType(), variable.getAddress());
         }
         System.out.println();
