@@ -71,6 +71,10 @@ public class LiveOak0Compiler {
         while (f.peekAtKind() != TokenType.EOF) {
             pgm += getBody(f);
         }
+
+        System.out.println("SAM CODE:");
+        System.out.println(pgm);
+
         return pgm;
     }
 
@@ -87,7 +91,7 @@ public class LiveOak0Compiler {
         CompilerUtils.printHashmap(variables);
 
         // check EOF
-        if(f.peekAtKind() == TokenType.EOF) {
+        if (f.peekAtKind() == TokenType.EOF) {
             return sam;
         }
 
@@ -223,23 +227,44 @@ public class LiveOak0Compiler {
         // Expr -> Var
         try {
             Variable variable = getVar(f);
-            // if check Var has a value?
-            //      store value on the stack
-            // STORE
-            // return
 
-            // if(variable.getVal() != null):
-            // String variableExpr = "STOREOFF " + variable.getAddress();
-            sam += "PUSHOFF " + variable.getAddress() + "\n";
+            if (variable.hasValue()) {
+                switch (variable.getType()) {
+                    case INT:
+                        String intValue = variable.getVal();
+                        sam += "PUSHIMM " + intValue + "\n";
+                        break;
+                    case BOOL:
+                        String boolValue = variable.getVal();
+                        if (boolValue.equals("true")) {
+                            sam += "PUSHIMM 1\n";
+                        } else if (boolValue.equals("false")) {
+                            sam += "PUSHIMM 0\n";
+                        }
+                        break;
+                    case STRING:
+                        String strValue = variable.getVal();
+                        sam += "PUSHIMMSTR \"" + strValue + "\"\n";
+                        break;
+                    default:
+                        throw new TypeErrorException(
+                            "getExpr received invalid type",
+                            f.lineNo()
+                        );
+                }
+            } else {
+                sam += "PUSHOFF " + variable.getAddress() + "\n";
+            }
         } catch (SyntaxErrorException e) {
             // Expr -> Literal
-
+            sam += getLiteral(f);
         }
 
         return sam;
     }
 
     static String getLiteral(SamTokenizer f) throws CompilerException {
+        System.out.println(f.peekAtKind());
         switch (f.peekAtKind()) {
             case INTEGER:
                 int value = f.getInt();
@@ -247,11 +272,12 @@ public class LiveOak0Compiler {
             case STRING:
                 String strValue = f.getString();
                 return "PUSHIMMSTR \"" + strValue + "\"\n";
-            case WORD:
-                String word = f.getWord();
-                if (word.equals("true")) {
+            case OPERATOR:
+                char op = f.getOp();
+                System.out.println(op);
+                if (op == 'a')) {
                     return "PUSHIMM 1\n";
-                } else if (word.equals("false")) {
+                } else if (op == 'c') {
                     return "PUSHIMM 0\n";
                 } else {
                     throw new SyntaxErrorException(

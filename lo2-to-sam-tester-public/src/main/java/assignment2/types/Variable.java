@@ -1,5 +1,7 @@
 package assignment2;
 
+import java.util.Objects;
+
 public class Variable {
 
     private String name;
@@ -14,6 +16,7 @@ public class Variable {
         this.address = address;
     }
 
+    // getters
     public String getName() {
         return name;
     }
@@ -30,8 +33,14 @@ public class Variable {
         return address;
     }
 
+    // setters
     public void setVal(String val) {
         this.val = val;
+    }
+
+    // bool checks
+    public boolean hasValue() {
+        return val != null && !val.trim().isEmpty();
     }
 
     @Override
