@@ -68,7 +68,7 @@ public class LiveOak0Compiler {
         String pgm = "";
 
         // LiveOak-0
-        while(f.peekAtKind()!=TokenType.EOF) {
+        while (f.peekAtKind() != TokenType.EOF) {
             pgm += getBody(f);
         }
         return pgm;
@@ -77,22 +77,29 @@ public class LiveOak0Compiler {
     /** LiveOak 0
      **/
     static String getBody(SamTokenizer f) throws CompilerException {
-        String body = "";
+        String sam = "";
 
         // while start with "int | bool | String"
         while (f.peekAtKind() == TokenType.WORD) {
             // VarDecl will store variable in Hashmap: identifier -> { type: TokenType, relative_address: int }
-            parseVarDecl(f);
+            sam += parseVarDecl(f);
         }
         CompilerUtils.printHashmap(variables);
 
-        // Then, get Block
-        body += getBlock(f);
+        // check EOF
+        if(f.peekAtKind() == TokenType.EOF) {
+            return sam;
+        }
 
-        return body;
+        // Then, get Block
+        sam += getBlock(f);
+
+        return sam;
     }
 
-    static void parseVarDecl(SamTokenizer f) throws CompilerException {
+    static String parseVarDecl(SamTokenizer f) throws CompilerException {
+        String sam = "";
+
         // typeString = int | bool | String
         String typeString = f.getWord();
         Type varType = Type.fromString(typeString);
@@ -111,13 +118,15 @@ public class LiveOak0Compiler {
 
             // put variable in hashmap
             int address = CompilerUtils.getNextAddress(variables);
-            Variable variable = new Variable(varName, varType, address);
+            Variable variable = new Variable(varName, varType, null, address);
             variables.put(varName, variable);
 
-            if(f.check(',')) {
+            // write same code
+            sam += "PUSHOFF " + variable.getAddress() + "\n";
+
+            if (f.check(',')) {
                 continue;
-            }
-            else if(f.check(';')) {
+            } else if (f.check(';')) {
                 break;
             } else {
                 throw new SyntaxErrorException(
@@ -126,38 +135,63 @@ public class LiveOak0Compiler {
                 );
             }
         }
+
+        return sam + "\n";
     }
 
     static String getBlock(SamTokenizer f) throws CompilerException {
-        String block = "";
+        String sam = "";
 
-        // while start with "{"
-        while(f.check('{')) {
-            block += getStmt(f);
-        }
-
-        return block;
-    }
-
-    static String getStmt(SamTokenizer f) throws CompilerException {
-        Variable variable = getVar(f);
-        String variableExpr = "STOREOFF " + variable.getAddress();
-
-        if(f.check('=')) {
+        if (!f.check('{')) {
             throw new SyntaxErrorException(
-                "getStmt expects '=' after variable",
+                "getBlock expects '{' at start of block",
                 f.lineNo()
             );
         }
 
-        String expression = getExpr(f);
+        // while not "}"
+        while (!f.check('}')) {
+            sam += getStmt(f);
+        }
 
-        return expression + variableExpr;
+        return sam;
+    }
+
+    static String getStmt(SamTokenizer f) throws CompilerException {
+        String sam = "";
+
+        if (f.check(';')) {
+            return sam; // Null statement
+        }
+
+        Variable variable = getVar(f);
+
+        if (!f.check('=')) {
+            throw new SyntaxErrorException(
+                "Expected '=' after variable in assignment",
+                f.lineNo()
+            );
+        }
+
+        // getExpr() would return something on the stack
+        sam += getExpr(f);
+
+        // Store item on the stack to Variable
+        sam += "STOREOFF " + variable.getAddress() + "\n";
+
+        if (!f.check(';')) {
+            throw new SyntaxErrorException(
+                "Expected ';' at end of statement",
+                f.lineNo()
+            );
+        }
+
+        return sam;
     }
 
     static Variable getVar(SamTokenizer f) throws CompilerException {
         // Not a var, raise
-        if(f.peekAtKind() != TokenType.WORD) {
+        if (f.peekAtKind() != TokenType.WORD) {
             throw new SyntaxErrorException(
                 "getVar should starts with a WORD",
                 f.lineNo()
@@ -168,7 +202,7 @@ public class LiveOak0Compiler {
 
         // Trying to access var that has not been declared
         Variable variable = variables.get(varName);
-        if(variable == null) {
+        if (variable == null) {
             throw new SyntaxErrorException(
                 "getVar trying to access variable that has not been declared",
                 f.lineNo()
@@ -179,33 +213,52 @@ public class LiveOak0Compiler {
     }
 
     static String getExpr(SamTokenizer f) throws CompilerException {
-        String expr = "";
+        String sam = "";
 
         // Expr -> ( ... )
-        if(f.check('(')) {
+        if (f.check('(')) {
             // Do stuffs
         }
 
         // Expr -> Var
         try {
             Variable variable = getVar(f);
+            // if check Var has a value?
+            //      store value on the stack
+            // STORE
+            // return
 
+            // if(variable.getVal() != null):
+            // String variableExpr = "STOREOFF " + variable.getAddress();
+            sam += "PUSHOFF " + variable.getAddress() + "\n";
         } catch (SyntaxErrorException e) {
             // Expr -> Literal
 
         }
 
-        return "";
+        return sam;
     }
 
     static String getLiteral(SamTokenizer f) throws CompilerException {
         switch (f.peekAtKind()) {
             case INTEGER:
-                return Integer.toString(f.getInt());
+                int value = f.getInt();
+                return "PUSHIMM " + value + "\n";
             case STRING:
-                return f.getString();
+                String strValue = f.getString();
+                return "PUSHIMMSTR \"" + strValue + "\"\n";
             case WORD:
-                return f.getWord();
+                String word = f.getWord();
+                if (word.equals("true")) {
+                    return "PUSHIMM 1\n";
+                } else if (word.equals("false")) {
+                    return "PUSHIMM 0\n";
+                } else {
+                    throw new SyntaxErrorException(
+                        "getLiteral expects words of 'true' or 'false' only",
+                        f.lineNo()
+                    );
+                }
             default:
                 throw new TypeErrorException(
                     "getLiteral received invalid type",
