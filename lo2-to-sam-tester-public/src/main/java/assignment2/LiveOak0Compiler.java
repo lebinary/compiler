@@ -46,7 +46,7 @@ public class LiveOak0Compiler {
     >();
 
     static String compiler(String fileName) {
-        CompilerUtils.clearTokens();  // Clear the list before starting
+        CompilerUtils.clearTokens(); // Clear the list before starting
 
         //returns SaM code for program in file
         try {
@@ -177,7 +177,7 @@ public class LiveOak0Compiler {
 
         if (!CompilerUtils.check(f, '=')) {
             throw new SyntaxErrorException(
-                "Expected '=' after variable in assignment",
+                "getStmt expects '=' after variable",
                 f.lineNo()
             );
         }
@@ -190,7 +190,7 @@ public class LiveOak0Compiler {
 
         if (!CompilerUtils.check(f, ';')) {
             throw new SyntaxErrorException(
-                "Expected ';' at end of statement",
+                "getStmt expects ';' at end of statement",
                 f.lineNo()
             );
         }
@@ -222,35 +222,37 @@ public class LiveOak0Compiler {
     }
 
     static String getExpr(SamTokenizer f) throws CompilerException {
-        String sam = "";
-
         // Expr -> ( ... )
         if (CompilerUtils.check(f, '(')) {
+            String sam = "";
             // Do stuffs
         }
 
-        // Expr -> Var
-        try {
-            Variable variable = getVar(f);
+        // Expr -> Var or Expr -> Literal(bool)
+        if (f.peekAtKind() == TokenType.WORD) {
+            String boolOrVar = CompilerUtils.getWord(f);
+
+            // Expr -> Literal(bool)
+            if (boolOrVar.equals("true")) {
+                return "PUSHIMM 1\n";
+            }
+            if (boolOrVar.equals("false")) {
+                return "PUSHIMM 0\n";
+            }
+
+            // Expr -> Var
+            Variable variable = variables.get(boolOrVar);
 
             if (variable.hasValue()) {
                 switch (variable.getType()) {
                     case INT:
-                        String intValue = variable.getVal();
-                        sam += "PUSHIMM " + intValue + "\n";
-                        break;
+                        return "PUSHIMM " + variable.getVal() + "\n";
                     case BOOL:
-                        String boolValue = variable.getVal();
-                        if (boolValue.equals("true")) {
-                            sam += "PUSHIMM 1\n";
-                        } else if (boolValue.equals("false")) {
-                            sam += "PUSHIMM 0\n";
-                        }
-                        break;
+                        return variable.getVal().equals("true")
+                            ? "PUSHIMM 1\n"
+                            : "PUSHIMM 0\n";
                     case STRING:
-                        String strValue = variable.getVal();
-                        sam += "PUSHIMMSTR \"" + strValue + "\"\n";
-                        break;
+                        return "PUSHIMMSTR \"" + variable.getVal() + "\"\n";
                     default:
                         throw new TypeErrorException(
                             "getExpr received invalid type",
@@ -258,31 +260,29 @@ public class LiveOak0Compiler {
                         );
                 }
             } else {
-                sam += "PUSHOFF " + variable.getAddress() + "\n";
+                return "PUSHOFF " + variable.getAddress() + "\n";
             }
-        } catch (SyntaxErrorException e) {
-            // Expr -> Literal
-            sam += getLiteral(f);
         }
 
-        return sam;
+        // Expr -> Literal (not bool)
+        return getLiteral(f);
     }
 
     static String getLiteral(SamTokenizer f) throws CompilerException {
-        System.out.println(f.peekAtKind());
+        // System.out.println(f.peekAtKind());
         switch (f.peekAtKind()) {
             case INTEGER:
                 int value = CompilerUtils.getInt(f);
                 return "PUSHIMM " + value + "\n";
             case STRING:
                 String strValue = CompilerUtils.getString(f);
+                System.out.println(strValue);
                 return "PUSHIMMSTR \"" + strValue + "\"\n";
-            case OPERATOR:
-                char op = CompilerUtils.getOp(f);
-                System.out.println(op);
-                if (op == 'a') {
+            case WORD:
+                String bool = CompilerUtils.getWord(f);
+                if (bool == "true") {
                     return "PUSHIMM 1\n";
-                } else if (op == 'c') {
+                } else if (bool == "false") {
                     return "PUSHIMM 0\n";
                 } else {
                     throw new SyntaxErrorException(
