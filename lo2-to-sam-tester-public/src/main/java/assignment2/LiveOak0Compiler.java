@@ -46,6 +46,8 @@ public class LiveOak0Compiler {
     >();
 
     static String compiler(String fileName) {
+        CompilerUtils.clearTokens();  // Clear the list before starting
+
         //returns SaM code for program in file
         try {
             System.out.println("COMPILING...");
@@ -57,9 +59,11 @@ public class LiveOak0Compiler {
             return pgm;
         } catch (CompilerException e) {
             System.out.println("COMPILE ERROR: " + e.toString());
+            CompilerUtils.printTokens();
             return "STOP\n";
         } catch (Exception e) {
             System.out.println("SOMETHING WENT WRONG: " + e.toString());
+            CompilerUtils.printTokens();
             return "STOP\n";
         }
     }
@@ -106,6 +110,7 @@ public class LiveOak0Compiler {
 
         // typeString = int | bool | String
         String typeString = f.getWord();
+
         Type varType = Type.fromString(typeString);
 
         // typeString != int | bool | String
@@ -118,7 +123,7 @@ public class LiveOak0Compiler {
 
         // while varName = a | b | c | ...
         while (f.peekAtKind() == TokenType.WORD) {
-            String varName = f.getWord();
+            String varName = CompilerUtils.getWord(f);
 
             // put variable in hashmap
             int address = CompilerUtils.getNextAddress(variables);
@@ -128,9 +133,9 @@ public class LiveOak0Compiler {
             // write same code
             sam += "PUSHOFF " + variable.getAddress() + "\n";
 
-            if (f.check(',')) {
+            if (CompilerUtils.check(f, ',')) {
                 continue;
-            } else if (f.check(';')) {
+            } else if (CompilerUtils.check(f, ';')) {
                 break;
             } else {
                 throw new SyntaxErrorException(
@@ -146,7 +151,7 @@ public class LiveOak0Compiler {
     static String getBlock(SamTokenizer f) throws CompilerException {
         String sam = "";
 
-        if (!f.check('{')) {
+        if (!CompilerUtils.check(f, '{')) {
             throw new SyntaxErrorException(
                 "getBlock expects '{' at start of block",
                 f.lineNo()
@@ -154,7 +159,7 @@ public class LiveOak0Compiler {
         }
 
         // while not "}"
-        while (!f.check('}')) {
+        while (!CompilerUtils.check(f, '}')) {
             sam += getStmt(f);
         }
 
@@ -164,13 +169,13 @@ public class LiveOak0Compiler {
     static String getStmt(SamTokenizer f) throws CompilerException {
         String sam = "";
 
-        if (f.check(';')) {
+        if (CompilerUtils.check(f, ';')) {
             return sam; // Null statement
         }
 
         Variable variable = getVar(f);
 
-        if (!f.check('=')) {
+        if (!CompilerUtils.check(f, '=')) {
             throw new SyntaxErrorException(
                 "Expected '=' after variable in assignment",
                 f.lineNo()
@@ -183,7 +188,7 @@ public class LiveOak0Compiler {
         // Store item on the stack to Variable
         sam += "STOREOFF " + variable.getAddress() + "\n";
 
-        if (!f.check(';')) {
+        if (!CompilerUtils.check(f, ';')) {
             throw new SyntaxErrorException(
                 "Expected ';' at end of statement",
                 f.lineNo()
@@ -202,7 +207,7 @@ public class LiveOak0Compiler {
             );
         }
 
-        String varName = f.getWord();
+        String varName = CompilerUtils.getWord(f);
 
         // Trying to access var that has not been declared
         Variable variable = variables.get(varName);
@@ -220,7 +225,7 @@ public class LiveOak0Compiler {
         String sam = "";
 
         // Expr -> ( ... )
-        if (f.check('(')) {
+        if (CompilerUtils.check(f, '(')) {
             // Do stuffs
         }
 
@@ -267,15 +272,15 @@ public class LiveOak0Compiler {
         System.out.println(f.peekAtKind());
         switch (f.peekAtKind()) {
             case INTEGER:
-                int value = f.getInt();
+                int value = CompilerUtils.getInt(f);
                 return "PUSHIMM " + value + "\n";
             case STRING:
-                String strValue = f.getString();
+                String strValue = CompilerUtils.getString(f);
                 return "PUSHIMMSTR \"" + strValue + "\"\n";
             case OPERATOR:
-                char op = f.getOp();
+                char op = CompilerUtils.getOp(f);
                 System.out.println(op);
-                if (op == 'a')) {
+                if (op == 'a') {
                     return "PUSHIMM 1\n";
                 } else if (op == 'c') {
                     return "PUSHIMM 0\n";
