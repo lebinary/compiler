@@ -10,6 +10,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LiveOak0Compiler {
@@ -182,7 +183,7 @@ public class LiveOak0Compiler {
             );
         }
 
-        // getExpr() would return something on the stack
+        // getExpr() would return "exactly" one value on the stack
         sam += getExpr(f);
 
         // Store item on the stack to Variable
@@ -222,10 +223,34 @@ public class LiveOak0Compiler {
     }
 
     static String getExpr(SamTokenizer f) throws CompilerException {
-        // Expr -> ( ... )
+        // Expr -> (...)
         if (CompilerUtils.check(f, '(')) {
             String sam = "";
-            // Do stuffs
+
+            // Expr -> Unop Expr
+            if (f.peekAtKind() == TokenType.OPERATOR) {
+                // unop sam code
+                String unop_sam = getUnop(f);
+
+                // getExpr() would return "exactly" one value on the stack
+                sam += getExpr(f);
+
+                // apply unop to expression
+                sam += unop_sam;
+
+                if (!CompilerUtils.check(f, ')')) {
+                    throw new SyntaxErrorException(
+                        "getExpr expects ')' at end of Expr -> Unop Expr",
+                        f.lineNo()
+                    );
+                }
+
+                return sam;
+            }
+            // Expr -> Expr (...)
+            else {}
+
+            return sam;
         }
 
         // Expr -> Var or Expr -> Literal(bool)
@@ -269,26 +294,27 @@ public class LiveOak0Compiler {
     }
 
     static String getLiteral(SamTokenizer f) throws CompilerException {
-        // System.out.println(f.peekAtKind());
         switch (f.peekAtKind()) {
             case INTEGER:
                 int value = CompilerUtils.getInt(f);
                 return "PUSHIMM " + value + "\n";
             case STRING:
                 String strValue = CompilerUtils.getString(f);
-                System.out.println(strValue);
                 return "PUSHIMMSTR \"" + strValue + "\"\n";
             case WORD:
                 String bool = CompilerUtils.getWord(f);
-                if (bool == "true") {
-                    return "PUSHIMM 1\n";
-                } else if (bool == "false") {
-                    return "PUSHIMM 0\n";
-                } else {
+
+                if (!isBool(bool)) {
                     throw new SyntaxErrorException(
                         "getLiteral expects words of 'true' or 'false' only",
                         f.lineNo()
                     );
+                }
+
+                if (bool == "true") {
+                    return "PUSHIMM 1\n";
+                } else {
+                    return "PUSHIMM 0\n";
                 }
             default:
                 throw new TypeErrorException(
@@ -298,7 +324,32 @@ public class LiveOak0Compiler {
         }
     }
 
-    static String getIdentifier(SamTokenizer f) {
-        return null;
+    static String getUnop(SamTokenizer f) throws CompilerException {
+        char op = CompilerUtils.getOp(f);
+        switch (op) {
+            case '~':
+                return "PUSHIMM -1\nTIMES\nPUSHIMM 1\nSUB\n";
+            case '!':
+                return "PUSHIMM 1\nADD\nPUSHIMM 2\nMOD\n";
+            default:
+                throw new TypeErrorException(
+                    "getUnop received invalid type",
+                    f.lineNo()
+                );
+        }
+    }
+
+    /**
+     **/
+    private static boolean isBool(String bool) {
+        return List.of("true", "false").contains(bool);
+    }
+
+    private static boolean isBinop(String op) {
+        return "+-*/%&|<>=".contains(op);
+    }
+
+    private static boolean isUnop(String op) {
+        return "~!".contains(op);
     }
 }
