@@ -1,0 +1,40 @@
+PUSHOFF 0
+PUSHOFF 1
+
+// Expr -> Var
+PUSHOFF 0
+
+// Expr -> Unop Expr
+PUSHIMM -1
+TIMES
+PUSHIMM 1
+SUB
+
+// Expr -> (Expr ? Expr : Expr)
+JSR start_ternary
+start_ternary:
+    LINK
+    PUSHOFF -2 // Expr ? (...)
+
+    DUP
+    ISNIL
+    JUMPC is_false
+
+    // (...) ? Expr : (...)
+    PUSHIMM 2
+    JUMP stop_ternary
+
+    // (...) ? (..) : Expr
+    is_false:
+        PUSHIMM 1
+
+    stop_ternary:
+        // stores result
+        STOREOFF -2
+
+        ADDSP -1
+        UNLINK
+        RST
+
+STOREOFF 1
+STOP

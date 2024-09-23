@@ -4,8 +4,20 @@ import edu.utexas.cs.sam.io.SamTokenizer;
 import edu.utexas.cs.sam.io.Tokenizer.TokenType;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 
 public class CompilerUtils {
+
+    /** General utils
+     **/
+    public static String generateLabel() {
+        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        if (!Character.isLetter(uuid.charAt(0))) {
+            char randomLetter = (char) ('a' + Math.random() * ('z' - 'a' + 1));
+            uuid = randomLetter + uuid.substring(1);
+        }
+        return uuid;
+    }
 
     /** Symbol Tables Utils
      **/

@@ -57,6 +57,10 @@ public class LiveOak0Compiler {
                 SamTokenizer.TokenizerOptions.PROCESS_STRINGS
             );
             String pgm = getProgram(f);
+
+            System.out.println("SAM CODE:");
+            System.out.println(pgm);
+
             return pgm;
         } catch (CompilerException e) {
             System.out.println("COMPILE ERROR: " + e.toString());
@@ -77,8 +81,7 @@ public class LiveOak0Compiler {
             pgm += getBody(f);
         }
 
-        System.out.println("SAM CODE:");
-        System.out.println(pgm);
+        pgm += "STOP\n";
 
         return pgm;
     }
@@ -225,32 +228,55 @@ public class LiveOak0Compiler {
     static String getExpr(SamTokenizer f) throws CompilerException {
         // Expr -> (...)
         if (CompilerUtils.check(f, '(')) {
-            String sam = "";
-
-            // Expr -> Unop Expr
+            // Expr -> ( Unop Expr )
             if (f.peekAtKind() == TokenType.OPERATOR) {
-                // unop sam code
-                String unop_sam = getUnop(f);
+                return getUnopExpr(f);
+            }
 
-                // getExpr() would return "exactly" one value on the stack
+            // Expr -> ( Expr (...) )
+            else {
+                // NEXT TASK:
+                String endExpr = CompilerUtils.generateLabel();
+
+
+                String sam = "";
+
+                // Expr -> ( Expr (...) )
                 sam += getExpr(f);
 
-                // apply unop to expression
-                sam += unop_sam;
+                // Raise if Expr -> ( Expr NOT('?' | ')' | Binop) )
+                if (f.peekAtKind() != TokenType.OPERATOR) {
+                    throw new SyntaxErrorException(
+                        "Expr -> Expr (...) expects '?' | ')' | Binop",
+                        f.lineNo()
+                    );
+                }
 
+                // Expr -> ( Expr ('?' | ')' | Binop) )
+                char op = CompilerUtils.getOp(f);
+                switch (op) {
+                    case '?':
+                        sam += getTernaryExpr(f, endExpr);
+                        break;
+                    // case ')':
+                    // case isBinop(op):
+                    default:
+                        throw new SyntaxErrorException(
+                            "Expr -> Expr ('?' | ')' | Binop) received invalid operation",
+                            f.lineNo()
+                        );
+                }
+
+                // Check closing ')'
                 if (!CompilerUtils.check(f, ')')) {
                     throw new SyntaxErrorException(
-                        "getExpr expects ')' at end of Expr -> Unop Expr",
+                        "getExpr expects ')' at end of Expr -> ( Expr (...) )",
                         f.lineNo()
                     );
                 }
 
                 return sam;
             }
-            // Expr -> Expr (...)
-            else {}
-
-            return sam;
         }
 
         // Expr -> Var or Expr -> Literal(bool)
@@ -294,7 +320,8 @@ public class LiveOak0Compiler {
     }
 
     static String getLiteral(SamTokenizer f) throws CompilerException {
-        switch (f.peekAtKind()) {
+        TokenType type = f.peekAtKind();
+        switch (type) {
             case INTEGER:
                 int value = CompilerUtils.getInt(f);
                 return "PUSHIMM " + value + "\n";
@@ -318,10 +345,32 @@ public class LiveOak0Compiler {
                 }
             default:
                 throw new TypeErrorException(
-                    "getLiteral received invalid type",
+                    "getLiteral received invalid type " + type,
                     f.lineNo()
                 );
         }
+    }
+
+    static String getUnopExpr(SamTokenizer f) throws CompilerException {
+        String sam = "";
+
+        // unop sam code
+        String unop_sam = getUnop(f);
+
+        // getExpr() would return "exactly" one value on the stack
+        sam += getExpr(f);
+
+        // apply unop on expression
+        sam += unop_sam;
+
+        if (!CompilerUtils.check(f, ')')) {
+            throw new SyntaxErrorException(
+                "getExpr expects ')' at end of Expr -> Unop Expr",
+                f.lineNo()
+            );
+        }
+
+        return sam;
     }
 
     static String getUnop(SamTokenizer f) throws CompilerException {
@@ -339,17 +388,65 @@ public class LiveOak0Compiler {
         }
     }
 
-    /**
+    static String getTernaryExpr(SamTokenizer f, String endExprLabel) throws CompilerException {
+        // labels used
+        String start_ternary = CompilerUtils.generateLabel();
+        String stop_ternary = CompilerUtils.generateLabel();
+        String false_expr = CompilerUtils.generateLabel();
+
+        // Generate sam code
+        String sam = "";
+
+        // Start Frame
+        sam += "JSR " + start_ternary + "\n";
+        sam += "JUMP " + endExprLabel + "\n";
+        sam += start_ternary + ":\n";
+        sam += "LINK\n";
+
+        // Expr ? (...) : (...)
+        sam += "PUSHOFF -2\n";
+        sam += "DUP\n";
+        sam += "ISNIL\n";
+        sam += "JUMPC " + false_expr + "\n";
+
+
+        // Truth expression:  (...) ? Expr : (..)
+        sam += getExpr(f);
+        sam += "JUMP " + stop_ternary + "\n";
+
+        // Checks ':'
+        if (!CompilerUtils.check(f, ':')) {
+            throw new SyntaxErrorException(
+                "Ternary expects ':' between expressions",
+                f.lineNo()
+            );
+        }
+
+        // False expression: (...) ? (...) : Expr
+        sam += false_expr + ":\n";
+        sam += getExpr(f);
+
+        // Stop Frame
+        sam += stop_ternary + ":\n";
+        sam += "STOREOFF -2\n"; // store result on TOS
+        sam += "ADDSP -1\n";
+        sam += "UNLINK\n";
+        sam += "RST\n";
+
+        return sam;
+    }
+
+    /** PRIVATE
      **/
     private static boolean isBool(String bool) {
         return List.of("true", "false").contains(bool);
     }
 
-    private static boolean isBinop(String op) {
-        return "+-*/%&|<>=".contains(op);
+    private static boolean isBinop(char op) {
+        return "+-*/%&|<>=".indexOf(op) != -1;
     }
 
-    private static boolean isUnop(String op) {
-        return "~!".contains(op);
+    private static boolean isUnop(char op) {
+        return "~!".indexOf(op) != -1;
     }
 }
