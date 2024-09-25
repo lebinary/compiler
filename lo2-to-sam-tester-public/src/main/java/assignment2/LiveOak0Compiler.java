@@ -74,13 +74,20 @@ public class LiveOak0Compiler {
     }
 
     static String getProgram(SamTokenizer f) throws CompilerException {
+        String endProgramLabel = CompilerUtils.generateLabel();
+
         String pgm = "";
 
         // LiveOak-0
         while (f.peekAtKind() != TokenType.EOF) {
             pgm += getBody(f);
         }
+        pgm += "JUMP " + endProgramLabel + "\n";
 
+        // define all the methods
+        pgm += CompilerUtils.getMethodsSam(variables);
+
+        pgm += endProgramLabel + ":\n";
         pgm += "STOP\n";
 
         return pgm;
@@ -96,7 +103,7 @@ public class LiveOak0Compiler {
             // VarDecl will store variable in Hashmap: identifier -> { type: TokenType, relative_address: int }
             sam += parseVarDecl(f);
         }
-        CompilerUtils.printHashmap(variables);
+        CompilerUtils.printVariables(variables);
 
         // check EOF
         if (f.peekAtKind() == TokenType.EOF) {
@@ -232,13 +239,8 @@ public class LiveOak0Compiler {
             if (f.peekAtKind() == TokenType.OPERATOR) {
                 return getUnopExpr(f);
             }
-
             // Expr -> ( Expr (...) )
             else {
-                // NEXT TASK:
-                String endExpr = CompilerUtils.generateLabel();
-
-
                 String sam = "";
 
                 // Expr -> ( Expr (...) )
@@ -256,7 +258,7 @@ public class LiveOak0Compiler {
                 char op = CompilerUtils.getOp(f);
                 switch (op) {
                     case '?':
-                        sam += getTernaryExpr(f, endExpr);
+                        sam += getTernaryExpr(f);
                         break;
                     // case ')':
                     // case isBinop(op):
@@ -388,7 +390,7 @@ public class LiveOak0Compiler {
         }
     }
 
-    static String getTernaryExpr(SamTokenizer f, String endExprLabel) throws CompilerException {
+    static String getTernaryExpr(SamTokenizer f) throws CompilerException {
         // labels used
         String start_ternary = CompilerUtils.generateLabel();
         String stop_ternary = CompilerUtils.generateLabel();
@@ -398,8 +400,6 @@ public class LiveOak0Compiler {
         String sam = "";
 
         // Start Frame
-        sam += "JSR " + start_ternary + "\n";
-        sam += "JUMP " + endExprLabel + "\n";
         sam += start_ternary + ":\n";
         sam += "LINK\n";
 
@@ -408,7 +408,6 @@ public class LiveOak0Compiler {
         sam += "DUP\n";
         sam += "ISNIL\n";
         sam += "JUMPC " + false_expr + "\n";
-
 
         // Truth expression:  (...) ? Expr : (..)
         sam += getExpr(f);
@@ -433,7 +432,12 @@ public class LiveOak0Compiler {
         sam += "UNLINK\n";
         sam += "RST\n";
 
-        return sam;
+        // Define the method
+        int address = CompilerUtils.getNextAddress(variables);
+        Variable sam_func = new Variable(start_ternary, Type.SAM, sam, address);
+        variables.put(start_ternary, sam_func);
+
+        return "JSR " + start_ternary + "\n";
     }
 
     /** PRIVATE

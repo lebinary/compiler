@@ -3,7 +3,8 @@ package assignment2;
 public enum Type {
     INT("int"),
     BOOL("bool"),
-    STRING("String");
+    STRING("String"),
+    SAM("sam");
 
     private final String typeName;
 

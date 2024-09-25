@@ -21,12 +21,24 @@ public class CompilerUtils {
 
     /** Symbol Tables Utils
      **/
-    public static void printHashmap(Map<String, Variable> variables) {
+    public static String getMethodsSam(Map<String, Variable> variables) {
+        String sam = "";
+        for (Map.Entry<String, Variable> entry : variables.entrySet()) {
+            Variable variable = entry.getValue();
+            if (variable.getType() == Type.SAM) {
+                sam += variable.getVal();
+            }
+        }
+        return sam;
+    }
+
+    public static void printVariables(Map<String, Variable> variables) {
         System.out.println("Current variables:");
         for (Map.Entry<String, Variable> entry : variables.entrySet()) {
-            String varName = entry.getKey();
             Variable variable = entry.getValue();
-            System.out.println(variable.toString());
+            if (variable.getType() != Type.SAM) {
+                System.out.println(variable.toString());
+            }
         }
         System.out.println();
     }
