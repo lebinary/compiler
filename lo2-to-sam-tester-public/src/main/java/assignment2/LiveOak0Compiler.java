@@ -234,15 +234,16 @@ public class LiveOak0Compiler {
 
     static String getExpr(SamTokenizer f) throws CompilerException {
         // Expr -> (...)
+        String sam = "";
+
+        // TODO: Before getTerminal and getUnopExpr, make sure the FBR on TOS
+        // OR: maybe simplify this shit and remove all the JSR
+
         if (CompilerUtils.check(f, '(')) {
             // Expr -> ( Unop Expr )
-            if (f.peekAtKind() == TokenType.OPERATOR) {
-                return getUnopExpr(f);
-            }
-            // Expr -> ( Expr (...) )
-            else {
-                String sam = "";
-
+            try {
+                sam += getUnopExpr(f);
+            } catch (TypeErrorException e) {
                 // Expr -> ( Expr (...) )
                 sam += getExpr(f);
 
@@ -255,71 +256,35 @@ public class LiveOak0Compiler {
                 }
 
                 // Expr -> ( Expr ) , ends early
-                if (CompilerUtils.check(f, ')')) {
-                    return sam;
-                }
-
-                // Exprt -> (Expr ? Expr : Expr)
-                if (CompilerUtils.check(f, '?')) {
-                    sam += getTernaryExpr(f);
-                } else {
-                    // Exprt -> (Expr Binop Expr)
-                    sam += getBinopExpr(f);
-                }
-
-                // Check closing ')'
                 if (!CompilerUtils.check(f, ')')) {
-                    throw new SyntaxErrorException(
-                        "getExpr expects ')' at end of Expr -> ( Expr (...) )",
-                        f.lineNo()
-                    );
-                }
+                    // Exprt -> (Expr ? Expr : Expr)
+                    if (CompilerUtils.check(f, '?')) {
+                        sam += getTernaryExpr(f);
+                    }
+                    // Exprt -> (Expr Binop Expr)
+                    else {
+                        sam += getBinopExpr(f);
+                    }
 
-                return sam;
-            }
-        }
-
-        // Expr -> Var or Expr -> Literal(bool)
-        if (f.peekAtKind() == TokenType.WORD) {
-            String boolOrVar = CompilerUtils.getWord(f);
-
-            // Expr -> Literal(bool)
-            if (boolOrVar.equals("true")) {
-                return "PUSHIMM 1\n";
-            }
-            if (boolOrVar.equals("false")) {
-                return "PUSHIMM 0\n";
-            }
-
-            // Expr -> Var
-            Variable variable = variables.get(boolOrVar);
-
-            if (variable.hasValue()) {
-                switch (variable.getType()) {
-                    case INT:
-                        return "PUSHIMM " + variable.getVal() + "\n";
-                    case BOOL:
-                        return variable.getVal().equals("true")
-                            ? "PUSHIMM 1\n"
-                            : "PUSHIMM 0\n";
-                    case STRING:
-                        return "PUSHIMMSTR \"" + variable.getVal() + "\"\n";
-                    default:
-                        throw new TypeErrorException(
-                            "getExpr received invalid type",
+                    // Check closing ')'
+                    if (!CompilerUtils.check(f, ')')) {
+                        throw new SyntaxErrorException(
+                            "getExpr expects ')' at end of Expr -> ( Expr (...) )",
                             f.lineNo()
                         );
+                    }
                 }
-            } else {
-                return "PUSHOFF " + variable.getAddress() + "\n";
             }
         }
+        // Expr -> Var | Literal
+        else {
+            sam += getTerminal(f);
+        }
 
-        // Expr -> Literal (not bool)
-        return getLiteral(f);
+        return sam;
     }
 
-    static String getLiteral(SamTokenizer f) throws CompilerException {
+    static String getTerminal(SamTokenizer f) throws CompilerException {
         TokenType type = f.peekAtKind();
         switch (type) {
             case INTEGER:
@@ -329,23 +294,47 @@ public class LiveOak0Compiler {
                 String strValue = CompilerUtils.getString(f);
                 return "PUSHIMMSTR \"" + strValue + "\"\n";
             case WORD:
-                String bool = CompilerUtils.getWord(f);
+                String boolOrVar = CompilerUtils.getWord(f);
 
-                if (!isBool(bool)) {
+                // Expr -> Literal(bool)
+                if (boolOrVar.equals("true")) {
+                    return "PUSHIMM 1\n";
+                }
+                if (boolOrVar.equals("false")) {
+                    return "PUSHIMM 0\n";
+                }
+
+                // Expr -> Var
+                Variable variable = variables.get(boolOrVar);
+                if (variable == null) {
                     throw new SyntaxErrorException(
-                        "getLiteral expects words of 'true' or 'false' only",
+                        "getVar trying to access variable that has not been declared",
                         f.lineNo()
                     );
                 }
 
-                if (bool == "true") {
-                    return "PUSHIMM 1\n";
+                if (variable.hasValue()) {
+                    switch (variable.getType()) {
+                        case INT:
+                            return "PUSHIMM " + variable.getVal() + "\n";
+                        case BOOL:
+                            return variable.getVal().equals("true")
+                                ? "PUSHIMM 1\n"
+                                : "PUSHIMM 0\n";
+                        case STRING:
+                            return "PUSHIMMSTR \"" + variable.getVal() + "\"\n";
+                        default:
+                            throw new TypeErrorException(
+                                "getExpr received invalid type",
+                                f.lineNo()
+                            );
+                    }
                 } else {
-                    return "PUSHIMM 0\n";
+                    return "PUSHOFF " + variable.getAddress() + "\n";
                 }
             default:
                 throw new TypeErrorException(
-                    "getLiteral received invalid type " + type,
+                    "getTerminal received invalid type " + type,
                     f.lineNo()
                 );
         }
@@ -363,13 +352,6 @@ public class LiveOak0Compiler {
         // apply unop on expression
         sam += unop_sam;
 
-        if (!CompilerUtils.check(f, ')')) {
-            throw new SyntaxErrorException(
-                "getExpr expects ')' at end of Expr -> Unop Expr",
-                f.lineNo()
-            );
-        }
-
         return sam;
     }
 
@@ -377,49 +359,47 @@ public class LiveOak0Compiler {
         // binop sam code
         String binop_sam = getBinop(f);
 
-        // labels used
-        String binop_label = CompilerUtils.generateLabel();
-
         // Generate sam code
         String sam = "";
 
-        // Start Frame
-        sam += binop_label + ":\n";
-        sam += "LINK\n";
+        // // labels used
+        // String binop_label = CompilerUtils.generateLabel();
 
-        sam += "PUSHOFF -2\n";
+        // // Start Frame
+        // sam += binop_label + ":\n";
+        // sam += "LINK\n";
+
+        // sam += "PUSHOFF -2\n";
         sam += getExpr(f);
         sam += binop_sam;
 
-        // Stop Frame
-        sam += "STOREOFF -2\n"; // store result on TOS
-        sam += "UNLINK\n";
-        sam += "RST\n";
+        // // Stop Frame
+        // sam += "STOREOFF -2\n"; // store result on TOS
+        // sam += "UNLINK\n";
+        // sam += "RST\n";
 
-        // Save the method in symbol table
-        int address = CompilerUtils.getNextAddress(variables);
-        Variable sam_func = new Variable(binop_label, Type.SAM, sam, address);
-        variables.put(binop_label, sam_func);
+        // // Save the method in symbol table
+        // int address = CompilerUtils.getNextAddress(variables);
+        // Variable sam_func = new Variable(binop_label, Type.SAM, sam, address);
+        // variables.put(binop_label, sam_func);
 
-        return "JSR " + binop_label + "\n";
+        return sam;
     }
 
     static String getTernaryExpr(SamTokenizer f) throws CompilerException {
-        // labels used
-        String start_ternary = CompilerUtils.generateLabel();
-        String stop_ternary = CompilerUtils.generateLabel();
-        String false_expr = CompilerUtils.generateLabel();
-
         // Generate sam code
         String sam = "";
 
-        // Start Frame
-        sam += start_ternary + ":\n";
-        sam += "LINK\n";
+        // // labels used
+        // String start_ternary = CompilerUtils.generateLabel();
+        String stop_ternary = CompilerUtils.generateLabel();
+        String false_expr = CompilerUtils.generateLabel();
 
-        // Expr ? (...) : (...)
-        sam += "PUSHOFF -2\n";
-        sam += "DUP\n";
+        // // Start Frame
+        // sam += start_ternary + ":\n";
+        // sam += "LINK\n";
+
+        // // Expr ? (...) : (...)
         sam += "ISNIL\n";
         sam += "JUMPC " + false_expr + "\n";
 
@@ -441,17 +421,13 @@ public class LiveOak0Compiler {
 
         // Stop Frame
         sam += stop_ternary + ":\n";
-        sam += "STOREOFF -2\n"; // store result on TOS
-        sam += "ADDSP -1\n";
-        sam += "UNLINK\n";
-        sam += "RST\n";
 
-        // Save the method in symbol table
-        int address = CompilerUtils.getNextAddress(variables);
-        Variable sam_func = new Variable(start_ternary, Type.SAM, sam, address);
-        variables.put(start_ternary, sam_func);
+        // // Save the method in symbol table
+        // int address = CompilerUtils.getNextAddress(variables);
+        // Variable sam_func = new Variable(start_ternary, Type.SAM, sam, address);
+        // variables.put(start_ternary, sam_func);
 
-        return "JSR " + start_ternary + "\n";
+        return sam;
     }
 
     /** PRIVATE
@@ -465,17 +441,15 @@ public class LiveOak0Compiler {
     }
 
     private static String getUnop(SamTokenizer f) throws CompilerException {
-        char op = CompilerUtils.getOp(f);
-        switch (op) {
-            case '~':
-                return "PUSHIMM -1\nTIMES\nPUSHIMM 1\nSUB\n";
-            case '!':
-                return "PUSHIMM 1\nADD\nPUSHIMM 2\nMOD\n";
-            default:
-                throw new TypeErrorException(
-                    "getUnop received invalid input",
-                    f.lineNo()
-                );
+        if (CompilerUtils.check(f, '~')) {
+            return "PUSHIMM -1\nTIMES\nPUSHIMM 1\nSUB\n";
+        } else if (CompilerUtils.check(f, '!')) {
+            return "PUSHIMM 1\nADD\nPUSHIMM 2\nMOD\n";
+        } else {
+            throw new TypeErrorException(
+                "getUnop received invalid input",
+                f.lineNo()
+            );
         }
     }
 
@@ -484,33 +458,31 @@ public class LiveOak0Compiler {
     }
 
     private static String getBinop(SamTokenizer f) throws CompilerException {
-        char op = CompilerUtils.getOp(f);
-        switch (op) {
-            case '+':
-                return "ADD\n";
-            case '-':
-                return "SUB\n";
-            case '*':
-                return "TIMES\n";
-            case '/':
-                return "DIV\n";
-            case '%':
-                return "MOD\n";
-            case '&':
-                return "AND\n";
-            case '|':
-                return "OR\n";
-            case '>':
-                return "GREATER\n";
-            case '<':
-                return "LESS\n";
-            case '=':
-                return "EQUAL\n";
-            default:
-                throw new TypeErrorException(
-                    "getBinop received invalid input",
-                    f.lineNo()
-                );
+        if (CompilerUtils.check(f, '+')) {
+            return "ADD\n";
+        } else if (CompilerUtils.check(f, '-')) {
+            return "SUB\n";
+        } else if (CompilerUtils.check(f, '*')) {
+            return "TIMES\n";
+        } else if (CompilerUtils.check(f, '/')) {
+            return "DIV\n";
+        } else if (CompilerUtils.check(f, '%')) {
+            return "MOD\n";
+        } else if (CompilerUtils.check(f, '&')) {
+            return "AND\n";
+        } else if (CompilerUtils.check(f, '|')) {
+            return "OR\n";
+        } else if (CompilerUtils.check(f, '>')) {
+            return "GREATER\n";
+        } else if (CompilerUtils.check(f, '<')) {
+            return "LESS\n";
+        } else if (CompilerUtils.check(f, '=')) {
+            return "EQUAL\n";
+        } else {
+            throw new TypeErrorException(
+                "getBinop received invalid input",
+                f.lineNo()
+            );
         }
     }
 }
