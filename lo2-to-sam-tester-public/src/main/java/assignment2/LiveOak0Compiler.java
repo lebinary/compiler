@@ -26,7 +26,6 @@ public class LiveOak0Compiler {
 
         try {
             String samCode = compiler(inFileName);
-            System.out.println(samCode);
             try (
                 BufferedWriter writer = new BufferedWriter(
                     new FileWriter(outFileName)
@@ -48,26 +47,37 @@ public class LiveOak0Compiler {
 
     static String compiler(String fileName) {
         CompilerUtils.clearTokens(); // Clear the list before starting
+        variables.clear(); // reset symbol table
 
         //returns SaM code for program in file
         try {
-            System.out.println("COMPILING...");
             SamTokenizer f = new SamTokenizer(
                 fileName,
                 SamTokenizer.TokenizerOptions.PROCESS_STRINGS
             );
             String pgm = getProgram(f);
 
-            System.out.println("SAM CODE:");
-            System.out.println(pgm);
-
             return pgm;
         } catch (CompilerException e) {
-            System.out.println("COMPILE ERROR: " + e.toString());
+            String errorMessage = String.format(
+                "COMPILE ERROR:\n" + "File: %s\n" + "Message: %s\n",
+                fileName,
+                e.getMessage()
+            );
+            System.out.println(errorMessage);
             CompilerUtils.printTokens();
             return "STOP\n";
         } catch (Exception e) {
-            System.out.println("SOMETHING WENT WRONG: " + e.toString());
+            String errorMessage = String.format(
+                "UNEXPECTED ERROR:\n" +
+                "File: %s\n" +
+                "Type: %s\n" +
+                "Message: %s\n",
+                fileName,
+                e.getClass().getSimpleName(),
+                e.getMessage()
+            );
+            System.out.println(errorMessage);
             CompilerUtils.printTokens();
             return "STOP\n";
         }
@@ -103,7 +113,6 @@ public class LiveOak0Compiler {
             // VarDecl will store variable in Hashmap: identifier -> { type: TokenType, relative_address: int }
             sam += parseVarDecl(f);
         }
-        CompilerUtils.printVariables(variables);
 
         // check EOF
         if (f.peekAtKind() == TokenType.EOF) {
