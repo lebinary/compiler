@@ -193,6 +193,77 @@ public class LiveOak0Compiler {
             return sam; // Null statement
         }
 
+        if (f.peekAtKind() != TokenType.WORD) {
+            throw new SyntaxErrorException(
+                "getStmt expects TokenType.WORD at beginning of statement",
+                f.lineNo()
+            );
+        }
+
+        String word = f.getWord();
+        if (word.equals("if")) {
+            sam += getIfStmt(f);
+        } else {
+            sam += getVarStmt(f);
+        }
+
+        return sam;
+    }
+
+    static String getIfStmt(SamTokenizer f) throws CompilerException {
+        // Generate sam code
+        String sam = "";
+
+        // labels used
+        String stop_stmt = CompilerUtils.generateLabel();
+        String false_block = CompilerUtils.generateLabel();
+
+        // if ( Expr ) ...
+        if (!CompilerUtils.check(f, '(')) {
+            throw new SyntaxErrorException(
+                "if statement expects '(' at beginining of condition",
+                f.lineNo()
+            );
+        }
+
+        sam += getExpr(f);
+
+        if (!CompilerUtils.check(f, ')')) {
+            throw new SyntaxErrorException(
+                "if statement expects '(' at end of condition",
+                f.lineNo()
+            );
+        }
+
+        sam += "ISNIL\n";
+        sam += "JUMPC " + false_block + "\n";
+
+        // Truth expression:  // if ( Expr ) Block ...
+        sam += getBlock(f);
+        sam += "JUMP " + stop_stmt + "\n";
+
+        // Checks 'else'
+        if (!CompilerUtils.getWord(f).equals("else")) {
+            throw new SyntaxErrorException(
+                "if statement expects 'else' between expressions",
+                f.lineNo()
+            );
+        }
+
+        // False expression: (...) ? (...) : Expr
+        sam += false_block + ":\n";
+        sam += getBlock(f);
+
+        // Stop Frame
+        sam += stop_stmt + ":\n";
+
+        return sam;
+    }
+
+    static String getVarStmt(SamTokenizer f) throws CompilerException {
+        f.pushBack();
+
+        String sam = "";
         Variable variable = getVar(f);
 
         if (!CompilerUtils.check(f, '=')) {

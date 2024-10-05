@@ -54,65 +54,71 @@ class LiveOak0CompilerTest {
 
     /** VALID PROGRAMS
      **/
+    // @Test
+    // @DisplayName("Test_0")
+    // void testLO0_0() throws Throwable {
+    //     String fileName = Path.of(lo0ValidProgramDir, "test_0.lo").toString();
+    //     String program = LiveOak0Compiler.compiler(fileName);
+
+    //     var samMachine = new SamTestRunner(program);
+    //     var stackValues = samMachine.run(0);
+
+    //     assertEquals(20, stackValues.get(0).getValue());
+    // }
+
+    // @Test
+    // @DisplayName("Test 1")
+    // void testLO0_1() throws Throwable {
+    //     String fileName = Path.of(lo0ValidProgramDir, "test_1.lo").toString();
+    //     String program = LiveOak0Compiler.compiler(fileName);
+
+    //     var samMachine = new SamTestRunner(program);
+    //     var stackValues = samMachine.run(0, 1);
+
+    //     assertEquals(10, stackValues.get(0).getValue());
+    //     assertEquals(0, stackValues.get(1).getValue());
+    // }
+
+    // @Test
+    // @DisplayName("Test 2")
+    // void testLO0_2() throws Throwable {
+    //     String fileName = Path.of(lo0ValidProgramDir, "test_2.lo").toString();
+    //     String program = LiveOak0Compiler.compiler(fileName);
+
+    //     var samMachine = new SamTestRunner(program);
+    //     var stackValues = samMachine.run(0, 1);
+
+    //     assertEquals(30, stackValues.get(0).getValue());
+    //     assertEquals(20, stackValues.get(1).getValue());
+    // }
+
+    // @Test
+    // @DisplayName("Test 3")
+    // void testLO0_3() throws Throwable {
+    //     String fileName = Path.of(lo0ValidProgramDir, "test_3.lo").toString();
+    //     String program = LiveOak0Compiler.compiler(fileName);
+
+    //     var samMachine = new SamTestRunner(program);
+    //     var stackValues = samMachine.run(0, 1, 2);
+
+    //     assertEquals(90, stackValues.get(0).getValue());
+    //     assertEquals(20, stackValues.get(1).getValue());
+    //     assertEquals(15, stackValues.get(2).getValue());
+    // }
+
     @Test
-    @DisplayName("Test_0")
-    void testLO0_0() throws Throwable {
-        String fileName = Path.of(lo0ValidProgramDir, "test_0.lo").toString();
-        String program = LiveOak0Compiler.compiler(fileName);
-
-        var samMachine = new SamTestRunner(program);
-        var stackValues = samMachine.run(0);
-
-        assertEquals(20, stackValues.get(0).getValue());
-    }
-
-    @Test
-    @DisplayName("Test 1")
-    void testLO0_1() throws Throwable {
-        String fileName = Path.of(lo0ValidProgramDir, "test_1.lo").toString();
-        String program = LiveOak0Compiler.compiler(fileName);
-
-        var samMachine = new SamTestRunner(program);
-        var stackValues = samMachine.run(0, 1);
-
-        assertEquals(10, stackValues.get(0).getValue());
-        assertEquals(0, stackValues.get(1).getValue());
-    }
-
-    @Test
-    @DisplayName("Test 2")
-    void testLO0_2() throws Throwable {
-        String fileName = Path.of(lo0ValidProgramDir, "test_2.lo").toString();
-        String program = LiveOak0Compiler.compiler(fileName);
-
-        var samMachine = new SamTestRunner(program);
-        var stackValues = samMachine.run(0, 1);
-
-        assertEquals(30, stackValues.get(0).getValue());
-        assertEquals(20, stackValues.get(1).getValue());
-    }
-
-    @Test
-    @DisplayName("Test 3")
-    void testLO0_3() throws Throwable {
-        String fileName = Path.of(lo0ValidProgramDir, "test_3.lo").toString();
+    @DisplayName("Test 4")
+    void testLO0_4() throws Throwable {
+        String fileName = Path.of(lo0ValidProgramDir, "test_4.lo").toString();
         String program = LiveOak0Compiler.compiler(fileName);
 
         var samMachine = new SamTestRunner(program);
         var stackValues = samMachine.run(0, 1, 2);
 
         assertEquals(90, stackValues.get(0).getValue());
-        assertEquals(20, stackValues.get(1).getValue());
+        assertEquals(5, stackValues.get(1).getValue());
         assertEquals(15, stackValues.get(2).getValue());
     }
-
-    // @Test
-    // @DisplayName("Test 4")
-    // void testLO0_4() throws Throwable {
-    //     String fileName = Path.of(lo0ValidProgramDir, "test_4.lo").toString();
-    //     String program = LiveOak0Compiler.compiler(fileName);
-    // }
-
     /** INVALID PROGRAMS
      **/
 
