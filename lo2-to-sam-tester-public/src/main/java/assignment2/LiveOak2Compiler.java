@@ -40,7 +40,7 @@ public class LiveOak2Compiler {
     }
 
     // maps identifier -> variable
-    public static Map<String, Variable> variables = new HashMap<
+    public static Map<String, Variable> symbolTable = new HashMap<
         String,
         Variable
     >();

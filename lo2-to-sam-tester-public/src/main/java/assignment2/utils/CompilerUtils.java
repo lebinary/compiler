@@ -21,9 +21,9 @@ public class CompilerUtils {
 
     /** Symbol Tables Utils
      **/
-    public static String getMethodsSam(Map<String, Variable> variables) {
+    public static String getMethodsSam(Map<String, Variable> symbolTable) {
         String sam = "";
-        for (Map.Entry<String, Variable> entry : variables.entrySet()) {
+        for (Map.Entry<String, Variable> entry : symbolTable.entrySet()) {
             Variable variable = entry.getValue();
             if (variable.getType() == Type.SAM) {
                 sam += variable.getVal();
@@ -32,9 +32,9 @@ public class CompilerUtils {
         return sam;
     }
 
-    public static void printVariables(Map<String, Variable> variables) {
-        System.out.println("Current variables:");
-        for (Map.Entry<String, Variable> entry : variables.entrySet()) {
+    public static void printSymbolTable(Map<String, Variable> symbolTable) {
+        System.out.println("Current symbolTable:");
+        for (Map.Entry<String, Variable> entry : symbolTable.entrySet()) {
             Variable variable = entry.getValue();
             if (variable.getType() != Type.SAM) {
                 System.out.println(variable.toString());
@@ -43,9 +43,9 @@ public class CompilerUtils {
         System.out.println();
     }
 
-    public static int getNextAddress(Map<String, Variable> variables) {
+    public static int getNextAddress(Map<String, Variable> symbolTable) {
         return (
-            variables
+            symbolTable
                 .values()
                 .stream()
                 .mapToInt(variable -> variable.getAddress())
