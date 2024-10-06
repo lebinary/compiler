@@ -3,8 +3,7 @@ package assignment2;
 public enum Type {
     INT("int"),
     BOOL("bool"),
-    STRING("String"),
-    SAM("sam");
+    STRING("String");
 
     private final String typeName;
 
@@ -24,5 +23,9 @@ public enum Type {
             }
         }
         return null;
+    }
+
+    public boolean isCompatibleWith(Type other) {
+        return this == other;
     }
 }

@@ -40,10 +40,7 @@ public class LiveOak0Compiler {
     }
 
     // maps identifier -> variable
-    public static Map<String, Node> symbolTable = new HashMap<
-        String,
-        Node
-    >();
+    public static Map<String, Node> symbolTable = new HashMap<String, Node>();
 
     static String compiler(String fileName) {
         CompilerUtils.clearTokens(); // Clear the list before starting
@@ -95,7 +92,7 @@ public class LiveOak0Compiler {
         pgm += "JUMP " + endProgramLabel + "\n";
 
         // define all the methods
-        pgm += CompilerUtils.getMethodsSam(symbolTable);
+        // pgm += CompilerUtils.getMethodsSam(symbolTable);
 
         pgm += endProgramLabel + ":\n";
         pgm += "STOP\n";
@@ -128,12 +125,12 @@ public class LiveOak0Compiler {
     static String parseVarDecl(SamTokenizer f) throws CompilerException {
         String sam = "";
 
-        // typeString = int | bool | String
+        // typeString = "int" | "bool" | "String"
         String typeString = f.getWord();
 
         Type varType = Type.fromString(typeString);
 
-        // typeString != int | bool | String
+        // typeString != INT | BOOL | STRING
         if (varType == null) {
             throw new TypeErrorException(
                 "Invalid type: " + typeString,
@@ -226,7 +223,7 @@ public class LiveOak0Compiler {
             );
         }
 
-        sam += getExpr(f);
+        sam += getExpr(f).samCode;
 
         if (!CompilerUtils.check(f, ')')) {
             throw new SyntaxErrorException(
@@ -274,7 +271,7 @@ public class LiveOak0Compiler {
         }
 
         // getExpr() would return "exactly" one value on the stack
-        sam += getExpr(f);
+        sam += getExpr(f).samCode;
 
         // Store item on the stack to Node
         sam += "STOREOFF " + variable.getAddress() + "\n";
@@ -312,20 +309,17 @@ public class LiveOak0Compiler {
         return variable;
     }
 
-    static String getExpr(SamTokenizer f) throws CompilerException {
-        // Expr -> (...)
-        String sam = "";
-
+    static Expression getExpr(SamTokenizer f) throws CompilerException {
         // TODO: Before getTerminal and getUnopExpr, make sure the FBR on TOS
         // OR: maybe simplify this shit and remove all the JSR
 
         if (CompilerUtils.check(f, '(')) {
             // Expr -> ( Unop Expr )
             try {
-                sam += getUnopExpr(f);
+                return getUnopExpr(f);
             } catch (TypeErrorException e) {
                 // Expr -> ( Expr (...) )
-                sam += getExpr(f);
+                Expression expr = getExpr(f);
 
                 // Raise if Expr -> ( Expr NOT('?' | ')' | Binop) )
                 if (f.peekAtKind() != TokenType.OPERATOR) {
@@ -339,11 +333,11 @@ public class LiveOak0Compiler {
                 if (!CompilerUtils.check(f, ')')) {
                     // Exprt -> (Expr ? Expr : Expr)
                     if (CompilerUtils.check(f, '?')) {
-                        sam += getTernaryExpr(f);
+                        expr.samCode += getTernaryExpr(f).samCode;
                     }
                     // Exprt -> (Expr Binop Expr)
                     else {
-                        sam += getBinopExpr(f);
+                        expr.samCode += getBinopExpr(f).samCode;
                     }
 
                     // Check closing ')'
@@ -354,34 +348,37 @@ public class LiveOak0Compiler {
                         );
                     }
                 }
+
+                return expr;
             }
         }
         // Expr -> Var | Literal
         else {
-            sam += getTerminal(f);
+            return getTerminal(f);
         }
-
-        return sam;
     }
 
-    static String getTerminal(SamTokenizer f) throws CompilerException {
+    static Expression getTerminal(SamTokenizer f) throws CompilerException {
         TokenType type = f.peekAtKind();
         switch (type) {
             case INTEGER:
                 int value = CompilerUtils.getInt(f);
-                return "PUSHIMM " + value + "\n";
+                return new Expression("PUSHIMM " + value + "\n", Type.INT);
             case STRING:
                 String strValue = CompilerUtils.getString(f);
-                return "PUSHIMMSTR \"" + strValue + "\"\n";
+                return new Expression(
+                    "PUSHIMMSTR " + strValue + "\n",
+                    Type.STRING
+                );
             case WORD:
                 String boolOrVar = CompilerUtils.getWord(f);
 
                 // Expr -> Literal(bool)
                 if (boolOrVar.equals("true")) {
-                    return "PUSHIMM 1\n";
+                    return new Expression("PUSHIMM 1\n", Type.BOOL);
                 }
                 if (boolOrVar.equals("false")) {
-                    return "PUSHIMM 0\n";
+                    return new Expression("PUSHIMM 0\n", Type.BOOL);
                 }
 
                 // Expr -> Var
@@ -396,13 +393,19 @@ public class LiveOak0Compiler {
                 if (variable.hasValue()) {
                     switch (variable.getType()) {
                         case INT:
-                            return "PUSHIMM " + variable.getVal() + "\n";
+                            return new Expression(
+                                "PUSHIMM " + variable.getVal() + "\n",
+                                Type.INT
+                            );
                         case BOOL:
-                            return variable.getVal().equals("true")
-                                ? "PUSHIMM 1\n"
-                                : "PUSHIMM 0\n";
+                            return new Expression(
+                                variable.getVal().equals("true")
+                                    ? "PUSHIMM 1\n"
+                                    : "PUSHIMM 0\n",
+                                Type.BOOL
+                            );
                         case STRING:
-                            return "PUSHIMMSTR \"" + variable.getVal() + "\"\n";
+                            return new Expression("PUSHIMMSTR " + variable.getVal() + "\n", Type.STRING);
                         default:
                             throw new TypeErrorException(
                                 "getExpr received invalid type",
@@ -410,7 +413,7 @@ public class LiveOak0Compiler {
                             );
                     }
                 } else {
-                    return "PUSHOFF " + variable.getAddress() + "\n";
+                    return new Expression("PUSHOFF " + variable.getAddress() + "\n", variable.getType());
                 }
             default:
                 throw new TypeErrorException(
@@ -420,27 +423,22 @@ public class LiveOak0Compiler {
         }
     }
 
-    static String getUnopExpr(SamTokenizer f) throws CompilerException {
-        String sam = "";
-
+    static Expression getUnopExpr(SamTokenizer f) throws CompilerException {
         // unop sam code
         String unop_sam = getUnop(f);
 
         // getExpr() would return "exactly" one value on the stack
-        sam += getExpr(f);
+        Expression expr = getExpr(f);
 
         // apply unop on expression
-        sam += unop_sam;
+        expr.samCode += unop_sam;
 
-        return sam;
+        return expr;
     }
 
-    static String getBinopExpr(SamTokenizer f) throws CompilerException {
+    static Expression getBinopExpr(SamTokenizer f) throws CompilerException {
         // binop sam code
         String binop_sam = getBinop(f);
-
-        // Generate sam code
-        String sam = "";
 
         // // labels used
         // String binop_label = CompilerUtils.generateLabel();
@@ -450,8 +448,8 @@ public class LiveOak0Compiler {
         // sam += "LINK\n";
 
         // sam += "PUSHOFF -2\n";
-        sam += getExpr(f);
-        sam += binop_sam;
+        Expression expr = getExpr(f);
+        expr.samCode += binop_sam;
 
         // // Stop Frame
         // sam += "STOREOFF -2\n"; // store result on TOS
@@ -463,12 +461,12 @@ public class LiveOak0Compiler {
         // Node sam_func = new Node(binop_label, Type.SAM, sam, address);
         // symbolTable.put(binop_label, sam_func);
 
-        return sam;
+        return expr;
     }
 
-    static String getTernaryExpr(SamTokenizer f) throws CompilerException {
+    static Expression getTernaryExpr(SamTokenizer f) throws CompilerException {
         // Generate sam code
-        String sam = "";
+        Expression expr = new Expression();
 
         // // labels used
         // String start_ternary = CompilerUtils.generateLabel();
@@ -480,12 +478,12 @@ public class LiveOak0Compiler {
         // sam += "LINK\n";
 
         // // Expr ? (...) : (...)
-        sam += "ISNIL\n";
-        sam += "JUMPC " + false_expr + "\n";
+        expr.samCode += "ISNIL\n";
+        expr.samCode += "JUMPC " + false_expr + "\n";
 
         // Truth expression:  (...) ? Expr : (..)
-        sam += getExpr(f);
-        sam += "JUMP " + stop_ternary + "\n";
+        expr.samCode += getExpr(f).samCode;
+        expr.samCode += "JUMP " + stop_ternary + "\n";
 
         // Checks ':'
         if (!CompilerUtils.check(f, ':')) {
@@ -496,18 +494,18 @@ public class LiveOak0Compiler {
         }
 
         // False expression: (...) ? (...) : Expr
-        sam += false_expr + ":\n";
-        sam += getExpr(f);
+        expr.samCode += false_expr + ":\n";
+        expr.samCode += getExpr(f).samCode;
 
         // Stop Frame
-        sam += stop_ternary + ":\n";
+        expr.samCode += stop_ternary + ":\n";
 
         // // Save the method in symbol table
         // int address = CompilerUtils.getNextAddress(symbolTable);
         // Node sam_func = new Node(start_ternary, Type.SAM, sam, address);
         // symbolTable.put(start_ternary, sam_func);
 
-        return sam;
+        return expr;
     }
 
     /** PRIVATE

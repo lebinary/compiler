@@ -25,9 +25,9 @@ public class CompilerUtils {
         String sam = "";
         for (Map.Entry<String, Node> entry : symbolTable.entrySet()) {
             Node node = entry.getValue();
-            if (node.getType() == Type.SAM) {
-                sam += node.getVal();
-            }
+
+            // add an if here to fiter out functions
+            sam += node.getVal();
         }
         return sam;
     }
@@ -36,9 +36,7 @@ public class CompilerUtils {
         System.out.println("Current symbolTable:");
         for (Map.Entry<String, Node> entry : symbolTable.entrySet()) {
             Node node = entry.getValue();
-            if (node.getType() != Type.SAM) {
                 System.out.println(node.toString());
-            }
         }
         System.out.println();
     }
