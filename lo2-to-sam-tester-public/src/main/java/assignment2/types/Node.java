@@ -2,14 +2,14 @@ package assignment2;
 
 import java.util.Objects;
 
-public class Variable {
+public class Node {
 
     private String name;
     private Type type;
     private String val;
     private int address;
 
-    public Variable(String name, Type type, String val, int address) {
+    public Node(String name, Type type, String val, int address) {
         this.name = name;
         this.type = type;
         this.val = val;
@@ -47,11 +47,11 @@ public class Variable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Variable variable = (Variable) o;
+        Node node = (Node) o;
         return (
-            address == variable.address &&
-            name.equals(variable.name) &&
-            type == variable.type
+            address == node.address &&
+            name.equals(node.name) &&
+            type == node.type
         );
     }
 

@@ -21,34 +21,34 @@ public class CompilerUtils {
 
     /** Symbol Tables Utils
      **/
-    public static String getMethodsSam(Map<String, Variable> symbolTable) {
+    public static String getMethodsSam(Map<String, Node> symbolTable) {
         String sam = "";
-        for (Map.Entry<String, Variable> entry : symbolTable.entrySet()) {
-            Variable variable = entry.getValue();
-            if (variable.getType() == Type.SAM) {
-                sam += variable.getVal();
+        for (Map.Entry<String, Node> entry : symbolTable.entrySet()) {
+            Node node = entry.getValue();
+            if (node.getType() == Type.SAM) {
+                sam += node.getVal();
             }
         }
         return sam;
     }
 
-    public static void printSymbolTable(Map<String, Variable> symbolTable) {
+    public static void printSymbolTable(Map<String, Node> symbolTable) {
         System.out.println("Current symbolTable:");
-        for (Map.Entry<String, Variable> entry : symbolTable.entrySet()) {
-            Variable variable = entry.getValue();
-            if (variable.getType() != Type.SAM) {
-                System.out.println(variable.toString());
+        for (Map.Entry<String, Node> entry : symbolTable.entrySet()) {
+            Node node = entry.getValue();
+            if (node.getType() != Type.SAM) {
+                System.out.println(node.toString());
             }
         }
         System.out.println();
     }
 
-    public static int getNextAddress(Map<String, Variable> symbolTable) {
+    public static int getNextAddress(Map<String, Node> symbolTable) {
         return (
             symbolTable
                 .values()
                 .stream()
-                .mapToInt(variable -> variable.getAddress())
+                .mapToInt(node -> node.getAddress())
                 .max()
                 .orElse(-1) +
             1

@@ -40,9 +40,9 @@ public class LiveOak0Compiler {
     }
 
     // maps identifier -> variable
-    public static Map<String, Variable> symbolTable = new HashMap<
+    public static Map<String, Node> symbolTable = new HashMap<
         String,
-        Variable
+        Node
     >();
 
     static String compiler(String fileName) {
@@ -147,7 +147,7 @@ public class LiveOak0Compiler {
 
             // put variable in hashmap
             int address = CompilerUtils.getNextAddress(symbolTable);
-            Variable variable = new Variable(varName, varType, null, address);
+            Node variable = new Node(varName, varType, null, address);
             symbolTable.put(varName, variable);
 
             // write same code
@@ -264,7 +264,7 @@ public class LiveOak0Compiler {
         f.pushBack();
 
         String sam = "";
-        Variable variable = getVar(f);
+        Node variable = getVar(f);
 
         if (!CompilerUtils.check(f, '=')) {
             throw new SyntaxErrorException(
@@ -276,7 +276,7 @@ public class LiveOak0Compiler {
         // getExpr() would return "exactly" one value on the stack
         sam += getExpr(f);
 
-        // Store item on the stack to Variable
+        // Store item on the stack to Node
         sam += "STOREOFF " + variable.getAddress() + "\n";
 
         if (!CompilerUtils.check(f, ';')) {
@@ -289,7 +289,7 @@ public class LiveOak0Compiler {
         return sam;
     }
 
-    static Variable getVar(SamTokenizer f) throws CompilerException {
+    static Node getVar(SamTokenizer f) throws CompilerException {
         // Not a var, raise
         if (f.peekAtKind() != TokenType.WORD) {
             throw new SyntaxErrorException(
@@ -301,7 +301,7 @@ public class LiveOak0Compiler {
         String varName = CompilerUtils.getWord(f);
 
         // Trying to access var that has not been declared
-        Variable variable = symbolTable.get(varName);
+        Node variable = symbolTable.get(varName);
         if (variable == null) {
             throw new SyntaxErrorException(
                 "getVar trying to access variable that has not been declared",
@@ -385,7 +385,7 @@ public class LiveOak0Compiler {
                 }
 
                 // Expr -> Var
-                Variable variable = symbolTable.get(boolOrVar);
+                Node variable = symbolTable.get(boolOrVar);
                 if (variable == null) {
                     throw new SyntaxErrorException(
                         "getVar trying to access variable that has not been declared",
@@ -460,7 +460,7 @@ public class LiveOak0Compiler {
 
         // // Save the method in symbol table
         // int address = CompilerUtils.getNextAddress(symbolTable);
-        // Variable sam_func = new Variable(binop_label, Type.SAM, sam, address);
+        // Node sam_func = new Node(binop_label, Type.SAM, sam, address);
         // symbolTable.put(binop_label, sam_func);
 
         return sam;
@@ -504,7 +504,7 @@ public class LiveOak0Compiler {
 
         // // Save the method in symbol table
         // int address = CompilerUtils.getNextAddress(symbolTable);
-        // Variable sam_func = new Variable(start_ternary, Type.SAM, sam, address);
+        // Node sam_func = new Node(start_ternary, Type.SAM, sam, address);
         // symbolTable.put(start_ternary, sam_func);
 
         return sam;

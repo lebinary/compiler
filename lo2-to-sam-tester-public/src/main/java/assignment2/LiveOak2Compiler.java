@@ -40,9 +40,9 @@ public class LiveOak2Compiler {
     }
 
     // maps identifier -> variable
-    public static Map<String, Variable> symbolTable = new HashMap<
+    public static Map<String, Node> symbolTable = new HashMap<
         String,
-        Variable
+        Node
     >();
 
     static String compiler(String fileName) {
