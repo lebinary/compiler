@@ -33,8 +33,14 @@ public class LiveOak0Compiler {
             ) {
                 writer.write(samCode);
             }
+        } catch (CompilerException e) {
+            System.err.println("Compiler error: " + e.getMessage());
+            e.printStackTrace();
         } catch (IOException e) {
             System.err.println("Error processing files: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -42,7 +48,7 @@ public class LiveOak0Compiler {
     // maps identifier -> variable
     public static Map<String, Node> symbolTable = new HashMap<String, Node>();
 
-    static String compiler(String fileName) {
+    static String compiler(String fileName) throws Exception {
         CompilerUtils.clearTokens(); // Clear the list before starting
         symbolTable.clear(); // reset symbol table
 
@@ -57,26 +63,22 @@ public class LiveOak0Compiler {
             return pgm;
         } catch (CompilerException e) {
             String errorMessage = String.format(
-                "COMPILE ERROR:\n" + "File: %s\n" + "Message: %s\n",
+                "Failed to compile %s.\nError Message: %s\n",
                 fileName,
                 e.getMessage()
             );
-            System.out.println(errorMessage);
+            System.err.println(errorMessage);
             CompilerUtils.printTokens();
-            return "STOP\n";
+            throw e;
         } catch (Exception e) {
             String errorMessage = String.format(
-                "UNEXPECTED ERROR:\n" +
-                "File: %s\n" +
-                "Type: %s\n" +
-                "Message: %s\n",
+                "Failed to compile %s.\nError Message: %s\n",
                 fileName,
-                e.getClass().getSimpleName(),
                 e.getMessage()
             );
-            System.out.println(errorMessage);
+            System.err.println(errorMessage);
             CompilerUtils.printTokens();
-            return "STOP\n";
+            throw e;
         }
     }
 
@@ -337,7 +339,7 @@ public class LiveOak0Compiler {
                     }
                     // Exprt -> (Expr Binop Expr)
                     else {
-                        expr.samCode += getBinopExpr(f).samCode;
+                        expr.samCode += getBinopExpr(f, expr).samCode;
                     }
 
                     // Check closing ')'
@@ -405,7 +407,10 @@ public class LiveOak0Compiler {
                                 Type.BOOL
                             );
                         case STRING:
-                            return new Expression("PUSHIMMSTR " + variable.getVal() + "\n", Type.STRING);
+                            return new Expression(
+                                "PUSHIMMSTR " + variable.getVal() + "\n",
+                                Type.STRING
+                            );
                         default:
                             throw new TypeErrorException(
                                 "getExpr received invalid type",
@@ -413,7 +418,10 @@ public class LiveOak0Compiler {
                             );
                     }
                 } else {
-                    return new Expression("PUSHOFF " + variable.getAddress() + "\n", variable.getType());
+                    return new Expression(
+                        "PUSHOFF " + variable.getAddress() + "\n",
+                        variable.getType()
+                    );
                 }
             default:
                 throw new TypeErrorException(
@@ -436,7 +444,8 @@ public class LiveOak0Compiler {
         return expr;
     }
 
-    static Expression getBinopExpr(SamTokenizer f) throws CompilerException {
+    static Expression getBinopExpr(SamTokenizer f, Expression prevExpr)
+        throws CompilerException {
         // binop sam code
         String binop_sam = getBinop(f);
 
@@ -449,6 +458,18 @@ public class LiveOak0Compiler {
 
         // sam += "PUSHOFF -2\n";
         Expression expr = getExpr(f);
+
+        // Type check
+        if (!expr.type.isCompatibleWith(prevExpr.type)) {
+            throw new TypeErrorException(
+                "Binop expr type mismatch: " +
+                prevExpr.type +
+                " and " +
+                expr.type,
+                f.lineNo()
+            );
+        }
+
         expr.samCode += binop_sam;
 
         // // Stop Frame

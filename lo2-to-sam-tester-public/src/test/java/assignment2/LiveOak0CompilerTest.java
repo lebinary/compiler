@@ -2,6 +2,7 @@ package assignment2;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import assignment2.errors.TypeErrorException;
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
  *
  * *******************/
 class LiveOak0CompilerTest {
+
     private static final String lo0ValidProgramDir = Path.of(
         "src",
         "test",
@@ -58,7 +60,6 @@ class LiveOak0CompilerTest {
     void testLO0_0() throws Throwable {
         String fileName = Path.of(lo0ValidProgramDir, "test_0.lo").toString();
         String program = LiveOak0Compiler.compiler(fileName);
-
         var samMachine = new SamTestRunner(program);
         var stackValues = samMachine.run(0);
 
@@ -126,15 +127,15 @@ class LiveOak0CompilerTest {
     void testLO0_5() throws Throwable {
         String fileName = Path.of(lo0InvalidProgramDir, "test_5.lo").toString();
         assertThrows(
-            Error.class,
+            TypeErrorException.class,
             () -> LiveOak0Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_5.lo"
         );
-        // assertTrue(
-        //     getStdErr()
-        //         .contains(
-        //             "Failed to compile src/test/resources/LO-0/InvalidPrograms/test_5.lo"
-        //         )
-        // );
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-0/InvalidPrograms/test_5.lo"
+                )
+        );
     }
 }
