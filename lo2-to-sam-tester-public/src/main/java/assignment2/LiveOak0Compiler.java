@@ -120,18 +120,8 @@ public class LiveOak0Compiler {
     static String parseVarDecl(SamTokenizer f) throws CompilerException {
         String sam = "";
 
-        // typeString = "int" | "bool" | "String"
-        String typeString = f.getWord();
-
-        Type varType = Type.fromString(typeString);
-
-        // typeString != INT | BOOL | STRING
-        if (varType == null) {
-            throw new TypeErrorException(
-                "Invalid type: " + typeString,
-                f.lineNo()
-            );
-        }
+        // VarDecl -> Type ...
+        Type varType = getType(f);
 
         // while varName = a | b | c | ...
         while (f.peekAtKind() == TokenType.WORD) {
@@ -345,6 +335,22 @@ public class LiveOak0Compiler {
         return variable;
     }
 
+    static Type getType(SamTokenizer f) throws CompilerException {
+        // typeString = "int" | "bool" | "String"
+        String typeString = CompilerUtils.getWord(f);
+        Type type = Type.fromString(typeString);
+
+        // typeString != INT | BOOL | STRING
+        if (type == null) {
+            throw new TypeErrorException(
+                "Invalid type: " + typeString,
+                f.lineNo()
+            );
+        }
+
+        return type;
+    }
+
     static Expression getExpr(SamTokenizer f) throws CompilerException {
         // TODO: Before getTerminal and getUnopExpr, make sure the FBR on TOS
         // OR: maybe simplify this shit and remove all the JSR
@@ -391,77 +397,6 @@ public class LiveOak0Compiler {
         // Expr -> Var | Literal
         else {
             return getTerminal(f);
-        }
-    }
-
-    static Expression getTerminal(SamTokenizer f) throws CompilerException {
-        TokenType type = f.peekAtKind();
-        switch (type) {
-            case INTEGER:
-                int value = CompilerUtils.getInt(f);
-                return new Expression("PUSHIMM " + value + "\n", Type.INT);
-            case STRING:
-                String strValue = CompilerUtils.getString(f);
-                return new Expression(
-                    "PUSHIMMSTR " + strValue + "\n",
-                    Type.STRING
-                );
-            case WORD:
-                String boolOrVar = CompilerUtils.getWord(f);
-
-                // Expr -> Literal(bool)
-                if (boolOrVar.equals("true")) {
-                    return new Expression("PUSHIMM 1\n", Type.BOOL);
-                }
-                if (boolOrVar.equals("false")) {
-                    return new Expression("PUSHIMM 0\n", Type.BOOL);
-                }
-
-                // Expr -> Var
-                Node variable = symbolTable.get(boolOrVar);
-                if (variable == null) {
-                    throw new SyntaxErrorException(
-                        "getVar trying to access variable that has not been declared",
-                        f.lineNo()
-                    );
-                }
-
-                if (variable.hasValue()) {
-                    switch (variable.getType()) {
-                        case INT:
-                            return new Expression(
-                                "PUSHIMM " + variable.getVal() + "\n",
-                                Type.INT
-                            );
-                        case BOOL:
-                            return new Expression(
-                                variable.getVal().equals("true")
-                                    ? "PUSHIMM 1\n"
-                                    : "PUSHIMM 0\n",
-                                Type.BOOL
-                            );
-                        case STRING:
-                            return new Expression(
-                                "PUSHIMMSTR " + variable.getVal() + "\n",
-                                Type.STRING
-                            );
-                        default:
-                            throw new TypeErrorException(
-                                "getExpr received invalid type",
-                                f.lineNo()
-                            );
-                    }
-                } else {
-                    return new Expression(
-                        "PUSHOFF " + variable.getAddress() + "\n",
-                        variable.getType()
-                    );
-                }
-            default:
-                throw new TypeErrorException(
-                    "getTerminal received invalid type " + type,
-                    f.lineNo()
-                );
         }
     }
 
@@ -561,6 +496,77 @@ public class LiveOak0Compiler {
         // symbolTable.put(start_ternary, sam_func);
 
         return expr;
+    }
+
+    static Expression getTerminal(SamTokenizer f) throws CompilerException {
+        TokenType type = f.peekAtKind();
+        switch (type) {
+            case INTEGER:
+                int value = CompilerUtils.getInt(f);
+                return new Expression("PUSHIMM " + value + "\n", Type.INT);
+            case STRING:
+                String strValue = CompilerUtils.getString(f);
+                return new Expression(
+                    "PUSHIMMSTR " + strValue + "\n",
+                    Type.STRING
+                );
+            case WORD:
+                String boolOrVar = CompilerUtils.getWord(f);
+
+                // Expr -> Literal(bool)
+                if (boolOrVar.equals("true")) {
+                    return new Expression("PUSHIMM 1\n", Type.BOOL);
+                }
+                if (boolOrVar.equals("false")) {
+                    return new Expression("PUSHIMM 0\n", Type.BOOL);
+                }
+
+                // Expr -> Var
+                Node variable = symbolTable.get(boolOrVar);
+                if (variable == null) {
+                    throw new SyntaxErrorException(
+                        "getVar trying to access variable that has not been declared",
+                        f.lineNo()
+                    );
+                }
+
+                if (variable.hasValue()) {
+                    switch (variable.getType()) {
+                        case INT:
+                            return new Expression(
+                                "PUSHIMM " + variable.getVal() + "\n",
+                                Type.INT
+                            );
+                        case BOOL:
+                            return new Expression(
+                                variable.getVal().equals("true")
+                                    ? "PUSHIMM 1\n"
+                                    : "PUSHIMM 0\n",
+                                Type.BOOL
+                            );
+                        case STRING:
+                            return new Expression(
+                                "PUSHIMMSTR " + variable.getVal() + "\n",
+                                Type.STRING
+                            );
+                        default:
+                            throw new TypeErrorException(
+                                "getExpr received invalid type",
+                                f.lineNo()
+                            );
+                    }
+                } else {
+                    return new Expression(
+                        "PUSHOFF " + variable.getAddress() + "\n",
+                        variable.getType()
+                    );
+                }
+            default:
+                throw new TypeErrorException(
+                    "getTerminal received invalid type " + type,
+                    f.lineNo()
+                );
+        }
     }
 
     /** PRIVATE
