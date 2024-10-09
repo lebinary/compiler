@@ -103,7 +103,7 @@ public class LiveOak0Compiler {
         // while start with "int | bool | String"
         while (f.peekAtKind() == TokenType.WORD) {
             // VarDecl will store variable in Hashmap: identifier -> { type: TokenType, relative_address: int }
-            sam += parseVarDecl(f);
+            sam += getVarDecl(f);
         }
 
         // check EOF
@@ -117,7 +117,7 @@ public class LiveOak0Compiler {
         return sam;
     }
 
-    static String parseVarDecl(SamTokenizer f) throws CompilerException {
+    static String getVarDecl(SamTokenizer f) throws CompilerException {
         String sam = "";
 
         // VarDecl -> Type ...
