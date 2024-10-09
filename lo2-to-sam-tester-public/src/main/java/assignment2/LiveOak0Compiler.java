@@ -83,20 +83,13 @@ public class LiveOak0Compiler {
     }
 
     static String getProgram(SamTokenizer f) throws CompilerException {
-        String endProgramLabel = CompilerUtils.generateLabel();
-
         String pgm = "";
 
         // LiveOak-0
         while (f.peekAtKind() != TokenType.EOF) {
             pgm += getBody(f);
         }
-        pgm += "JUMP " + endProgramLabel + "\n";
 
-        // define all the methods
-        // pgm += CompilerUtils.getMethodsSam(symbolTable);
-
-        pgm += endProgramLabel + ":\n";
         pgm += "STOP\n";
 
         return pgm;
