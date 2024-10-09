@@ -120,21 +120,35 @@ class LiveOak0CompilerTest {
         assertEquals(15, stackValues.get(2).getValue());
     }
 
+    @Test
+    @DisplayName("Test 5")
+    void testLO0_5() throws Throwable {
+        String fileName = Path.of(lo0ValidProgramDir, "test_5.lo").toString();
+        String program = LiveOak0Compiler.compiler(fileName);
+
+        var samMachine = new SamTestRunner(program);
+        var stackValues = samMachine.run(0, 1, 2);
+
+        assertEquals(100, stackValues.get(0).getValue());
+        assertEquals(10, stackValues.get(1).getValue());
+        assertEquals(10, stackValues.get(2).getValue());
+    }
+
     /** INVALID PROGRAMS
      **/
     @Test
-    @DisplayName("Test_5")
-    void testLO0_5() throws Throwable {
-        String fileName = Path.of(lo0InvalidProgramDir, "test_5.lo").toString();
+    @DisplayName("Test_6")
+    void testLO0_6() throws Throwable {
+        String fileName = Path.of(lo0InvalidProgramDir, "test_6.lo").toString();
         assertThrows(
             TypeErrorException.class,
             () -> LiveOak0Compiler.compiler(fileName),
-            "Expected parse error to be thrown for file test_5.lo"
+            "Expected parse error to be thrown for file test_6.lo"
         );
         assertTrue(
             getStdErr()
                 .contains(
-                    "Failed to compile src/test/resources/LO-0/InvalidPrograms/test_5.lo"
+                    "Failed to compile src/test/resources/LO-0/InvalidPrograms/test_6.lo"
                 )
         );
     }

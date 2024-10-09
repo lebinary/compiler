@@ -108,9 +108,22 @@ public class CompilerUtils {
     }
 
     public static void printTokens() {
-        System.out.println("PROCESSED TOKENS:");
-        for (String token : processedTokens) {
-            System.out.print(token + " ");
+        printTokens("info");
+    }
+
+    public static void printTokens(String level) {
+        if ("info".equals(level)) {
+            System.out.println("PROCESSED TOKENS:");
+            for (String token : processedTokens) {
+                System.out.print(token + " ");
+            }
+            System.out.println("\n");
+        } else {
+            System.err.println("PROCESSED TOKENS:");
+            for (String token : processedTokens) {
+                System.err.print(token + " ");
+            }
+            System.err.println("\n");
         }
     }
 }

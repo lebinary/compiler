@@ -68,7 +68,7 @@ public class LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            CompilerUtils.printTokens("debug");
             throw e;
         } catch (Exception e) {
             String errorMessage = String.format(
@@ -77,7 +77,7 @@ public class LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            CompilerUtils.printTokens("debug");
             throw e;
         }
     }
@@ -199,9 +199,11 @@ public class LiveOak0Compiler {
             );
         }
 
-        String word = f.getWord();
+        String word = CompilerUtils.getWord(f);
         if (word.equals("if")) {
             sam += getIfStmt(f);
+        } else if (word.equals("while")) {
+            sam += getWhileStmt(f);
         } else {
             sam += getVarStmt(f);
         }
@@ -229,7 +231,7 @@ public class LiveOak0Compiler {
 
         if (!CompilerUtils.check(f, ')')) {
             throw new SyntaxErrorException(
-                "if statement expects '(' at end of condition",
+                "if statement expects ')' at end of condition",
                 f.lineNo()
             );
         }
@@ -237,7 +239,7 @@ public class LiveOak0Compiler {
         sam += "ISNIL\n";
         sam += "JUMPC " + false_block + "\n";
 
-        // Truth expression:  // if ( Expr ) Block ...
+        // Truth block:  // if ( Expr ) Block ...
         sam += getBlock(f);
         sam += "JUMP " + stop_stmt + "\n";
 
@@ -249,12 +251,51 @@ public class LiveOak0Compiler {
             );
         }
 
-        // False expression: (...) ? (...) : Expr
+        // False block: (...) ? (...) : Expr
         sam += false_block + ":\n";
         sam += getBlock(f);
 
-        // Stop Frame
+        // Done if statement
         sam += stop_stmt + ":\n";
+
+        return sam;
+    }
+
+    static String getWhileStmt(SamTokenizer f) throws CompilerException {
+        // Generate sam code
+        String sam = "";
+
+        // labels used
+        String start_loop = CompilerUtils.generateLabel();
+        String stop_loop = CompilerUtils.generateLabel();
+
+        // while ( Expr ) ...
+        if (!CompilerUtils.check(f, '(')) {
+            throw new SyntaxErrorException(
+                "while statement expects '(' at beginining of condition",
+                f.lineNo()
+            );
+        }
+
+        sam += start_loop + ":\n";
+        sam += getExpr(f).samCode;
+
+        if (!CompilerUtils.check(f, ')')) {
+            throw new SyntaxErrorException(
+                "while statement expects ')' at end of condition",
+                f.lineNo()
+            );
+        }
+
+        sam += "ISNIL\n";
+        sam += "JUMPC " + stop_loop + "\n";
+
+        // Continue loop
+        sam += getBlock(f);
+        sam += "JUMP " + start_loop + "\n";
+
+        // Stop loop
+        sam += stop_loop + ":\n";
 
         return sam;
     }
@@ -297,7 +338,7 @@ public class LiveOak0Compiler {
             );
         }
 
-        String varName = CompilerUtils.getWord(f);
+        String varName = f.getWord();
 
         // Trying to access var that has not been declared
         Node variable = symbolTable.get(varName);
