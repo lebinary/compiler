@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+
 
 public class LiveOak0Compiler {
 
@@ -125,7 +127,8 @@ public class LiveOak0Compiler {
 
         // while varName = a | b | c | ...
         while (f.peekAtKind() == TokenType.WORD) {
-            String varName = CompilerUtils.getWord(f);
+            // VarDecl -> Type Identifier1, Identifier2
+            String varName = getIdentifier(f);
 
             // put variable in hashmap
             int address = CompilerUtils.getNextAddress(symbolTable);
@@ -501,9 +504,11 @@ public class LiveOak0Compiler {
     static Expression getTerminal(SamTokenizer f) throws CompilerException {
         TokenType type = f.peekAtKind();
         switch (type) {
+            // Literal -> Num
             case INTEGER:
                 int value = CompilerUtils.getInt(f);
                 return new Expression("PUSHIMM " + value + "\n", Type.INT);
+            // Literal -> String
             case STRING:
                 String strValue = CompilerUtils.getString(f);
                 return new Expression(
@@ -513,7 +518,7 @@ public class LiveOak0Compiler {
             case WORD:
                 String boolOrVar = CompilerUtils.getWord(f);
 
-                // Expr -> Literal(bool)
+                // Literal -> "true" | "false"
                 if (boolOrVar.equals("true")) {
                     return new Expression("PUSHIMM 1\n", Type.BOOL);
                 }
@@ -521,7 +526,7 @@ public class LiveOak0Compiler {
                     return new Expression("PUSHIMM 0\n", Type.BOOL);
                 }
 
-                // Expr -> Var
+                // Var -> Identifier
                 Node variable = symbolTable.get(boolOrVar);
                 if (variable == null) {
                     throw new SyntaxErrorException(
@@ -551,7 +556,7 @@ public class LiveOak0Compiler {
                             );
                         default:
                             throw new TypeErrorException(
-                                "getExpr received invalid type",
+                                "getTerminal received invalid type " + variable.getType(),
                                 f.lineNo()
                             );
                     }
@@ -569,8 +574,18 @@ public class LiveOak0Compiler {
         }
     }
 
+    static String getIdentifier(SamTokenizer f) throws CompilerException {
+        String identifier = CompilerUtils.getWord(f);
+        if (!IDENTIFIER_PATTERN.matcher(identifier).matches()) {
+            throw new SyntaxErrorException("Invalid identifier: " + identifier, f.lineNo());
+        }
+        return identifier;
+    }
+
     /** PRIVATE
      **/
+    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^[a-zA-Z]([a-zA-Z0-9'_'])*$");
+
     private static boolean isBool(String bool) {
         return List.of("true", "false").contains(bool);
     }
