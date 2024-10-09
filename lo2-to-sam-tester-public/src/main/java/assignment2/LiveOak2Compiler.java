@@ -12,90 +12,29 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LiveOak2Compiler {
-
-    public static void main(String[] args) throws IOException {
-        if (args.length < 2) {
-            System.err.println("Usage: java ProgramName inputFile outputFile");
-            System.exit(1);
-        }
-
-        String inFileName = args[0];
-        String outFileName = args[1];
-
-        try {
-            String samCode = compiler(inFileName);
-            System.out.println(samCode);
-            try (
-                BufferedWriter writer = new BufferedWriter(
-                    new FileWriter(outFileName)
-                )
-            ) {
-                writer.write(samCode);
-            }
-        } catch (IOException e) {
-            System.err.println("Error processing files: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // maps identifier -> variable
-    public static Map<String, Node> symbolTable = new HashMap<
-        String,
-        Node
-    >();
-
-    static String compiler(String fileName) {
-        //returns SaM code for program in file
-        try {
-            System.out.println("COMPILING...");
-            SamTokenizer f = new SamTokenizer(
-                fileName,
-                SamTokenizer.TokenizerOptions.PROCESS_STRINGS
-            );
-            String pgm = getProgram(f);
-            return pgm;
-        } catch (CompilerException e) {
-            System.out.println("COMPILE ERROR: " + e.toString());
-            return "STOP\n";
-        } catch (Exception e) {
-            System.out.println("SOMETHING WENT WRONG: " + e.toString());
-            return "STOP\n";
-        }
-    }
+public class LiveOak2Compiler extends LiveOak0Compiler {
 
     static String getProgram(SamTokenizer f) throws CompilerException {
         String pgm = "";
-        // LiveOak-2
-        while(f.peekAtKind()!=TokenType.EOF) {
-            pgm+= getMethod(f);
+
+        // LiveOak-0
+        while (f.peekAtKind() != TokenType.EOF) {
+            pgm += getMethodDecl(f);
         }
+        pgm += "STOP\n";
+
+        // define all the methods
+        // pgm += CompilerUtils.getMethodsSam(symbolTable);
 
         return pgm;
     }
 
-    static String getMethod(SamTokenizer f) {
-        //TODO: add code to convert a method declaration to SaM code.
-        //TODO: add appropriate exception handlers to generate useful error msgs.
-        f.check("int"); //must match at begining
-        String methodName = f.getString();
-        f.check("("); // must be an opening parenthesis
-        String formals = getFormals(f);
-        f.check(")"); // must be an closing parenthesis
-        //You would need to read in formals if any
-        //And then have calls to getDeclarations and getStatements.
-        return null;
-    }
+    static String getMethodDecl(SamTokenizer f) throws CompilerException{
+        String sam = "";
 
-    static String getExp(SamTokenizer f) {
+        // MethodDecl -> Type ...
+        Type methodType = getType(f);
+
         return "";
-    }
-
-    static String getFormals(SamTokenizer f) {
-        return null;
-    }
-
-    static String getIdentifier(SamTokenizer f) {
-        return null;
     }
 }
