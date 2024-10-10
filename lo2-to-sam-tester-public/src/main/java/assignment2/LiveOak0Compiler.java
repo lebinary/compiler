@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-
 public class LiveOak0Compiler {
 
     public static void main(String[] args) throws IOException {
@@ -49,10 +48,15 @@ public class LiveOak0Compiler {
 
     // maps identifier -> variable
     public static Map<String, Node> symbolTable = new HashMap<String, Node>();
+    public static Map<String, Method> methodTable = new HashMap<
+        String,
+        Method
+    >();
 
     static String compiler(String fileName) throws Exception {
         CompilerUtils.clearTokens(); // Clear the list before starting
         symbolTable.clear(); // reset symbol table
+        methodTable.clear(); // reset symbol table
 
         //returns SaM code for program in file
         try {
@@ -105,7 +109,7 @@ public class LiveOak0Compiler {
         // while start with "int | bool | String"
         while (f.peekAtKind() == TokenType.WORD) {
             // VarDecl will store variable in Hashmap: identifier -> { type: TokenType, relative_address: int }
-            sam += getVarDecl(f);
+            sam += getVarDecl(f, MainMethod.getInstance());
         }
 
         // check EOF
@@ -119,7 +123,7 @@ public class LiveOak0Compiler {
         return sam;
     }
 
-    static String getVarDecl(SamTokenizer f) throws CompilerException {
+    static String getVarDecl(SamTokenizer f, Method method) throws CompilerException {
         String sam = "";
 
         // VarDecl -> Type ...
@@ -130,13 +134,26 @@ public class LiveOak0Compiler {
             // VarDecl -> Type Identifier1, Identifier2
             String varName = getIdentifier(f);
 
+            // Check if the variable is already defined in the current scope
+            if (symbolTable.containsKey(varName)) {
+                Node existingVar = symbolTable.get(varName);
+                if (existingVar.method == method) {
+                    throw new CompilerException(
+                        "Variable '" +
+                        varName +
+                        "' is already defined in this scope",
+                        f.lineNo()
+                    );
+                }
+            }
+
             // put variable in hashmap
-            int address = CompilerUtils.getNextAddress(symbolTable);
-            Node variable = new Node(varName, varType, null, address);
+            int nextAddress = CompilerUtils.getNextAddress(symbolTable);
+            Node variable = new Node(varName, varType, nextAddress);
             symbolTable.put(varName, variable);
 
-            // write same code
-            sam += "PUSHOFF " + variable.getAddress() + "\n";
+            // write sam code
+            sam += "PUSHIMM 0\n";
 
             if (CompilerUtils.check(f, ',')) {
                 continue;
@@ -185,10 +202,9 @@ public class LiveOak0Compiler {
             );
         }
 
-        String word = CompilerUtils.getWord(f);
-        if (word.equals("if")) {
+        if (f.test("if")) {
             sam += getIfStmt(f);
-        } else if (word.equals("while")) {
+        } else if (f.test("while")) {
             sam += getWhileStmt(f);
         } else {
             sam += getVarStmt(f);
@@ -198,6 +214,13 @@ public class LiveOak0Compiler {
     }
 
     static String getIfStmt(SamTokenizer f) throws CompilerException {
+        if (!CompilerUtils.check(f, "if")) {
+            throw new SyntaxErrorException(
+                "if statement expects 'if' at beginining",
+                f.lineNo()
+            );
+        }
+
         // Generate sam code
         String sam = "";
 
@@ -248,6 +271,13 @@ public class LiveOak0Compiler {
     }
 
     static String getWhileStmt(SamTokenizer f) throws CompilerException {
+        if (!CompilerUtils.check(f, "while")) {
+            throw new SyntaxErrorException(
+                "while statement expects 'while' at beginining",
+                f.lineNo()
+            );
+        }
+
         // Generate sam code
         String sam = "";
 
@@ -287,8 +317,6 @@ public class LiveOak0Compiler {
     }
 
     static String getVarStmt(SamTokenizer f) throws CompilerException {
-        f.pushBack();
-
         String sam = "";
         Node variable = getVar(f);
 
@@ -303,7 +331,7 @@ public class LiveOak0Compiler {
         sam += getExpr(f).samCode;
 
         // Store item on the stack to Node
-        sam += "STOREOFF " + variable.getAddress() + "\n";
+        sam += "STOREOFF " + variable.address + "\n";
 
         if (!CompilerUtils.check(f, ';')) {
             throw new SyntaxErrorException(
@@ -536,34 +564,35 @@ public class LiveOak0Compiler {
                 }
 
                 if (variable.hasValue()) {
-                    switch (variable.getType()) {
+                    switch (variable.type) {
                         case INT:
                             return new Expression(
-                                "PUSHIMM " + variable.getVal() + "\n",
+                                "PUSHIMM " + variable.val + "\n",
                                 Type.INT
                             );
                         case BOOL:
                             return new Expression(
-                                variable.getVal().equals("true")
+                                variable.val.equals("true")
                                     ? "PUSHIMM 1\n"
                                     : "PUSHIMM 0\n",
                                 Type.BOOL
                             );
                         case STRING:
                             return new Expression(
-                                "PUSHIMMSTR " + variable.getVal() + "\n",
+                                "PUSHIMMSTR " + variable.val + "\n",
                                 Type.STRING
                             );
                         default:
                             throw new TypeErrorException(
-                                "getTerminal received invalid type " + variable.getType(),
+                                "getTerminal received invalid type " +
+                                variable.type,
                                 f.lineNo()
                             );
                     }
                 } else {
                     return new Expression(
-                        "PUSHOFF " + variable.getAddress() + "\n",
-                        variable.getType()
+                        "PUSHOFF " + variable.address + "\n",
+                        variable.type
                     );
                 }
             default:
@@ -577,14 +606,19 @@ public class LiveOak0Compiler {
     static String getIdentifier(SamTokenizer f) throws CompilerException {
         String identifier = CompilerUtils.getWord(f);
         if (!IDENTIFIER_PATTERN.matcher(identifier).matches()) {
-            throw new SyntaxErrorException("Invalid identifier: " + identifier, f.lineNo());
+            throw new SyntaxErrorException(
+                "Invalid identifier: " + identifier,
+                f.lineNo()
+            );
         }
         return identifier;
     }
 
     /** PRIVATE
      **/
-    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^[a-zA-Z]([a-zA-Z0-9'_'])*$");
+    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile(
+        "^[a-zA-Z]([a-zA-Z0-9'_'])*$"
+    );
 
     private static boolean isBool(String bool) {
         return List.of("true", "false").contains(bool);

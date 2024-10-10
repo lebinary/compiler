@@ -5,6 +5,7 @@ import edu.utexas.cs.sam.io.Tokenizer.TokenType;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
+import java.io.PrintStream;
 
 public class CompilerUtils {
 
@@ -27,7 +28,7 @@ public class CompilerUtils {
             Node node = entry.getValue();
 
             // add an if here to fiter out functions
-            sam += node.getVal();
+            sam += node.val;
         }
         return sam;
     }
@@ -36,7 +37,7 @@ public class CompilerUtils {
         System.out.println("Current symbolTable:");
         for (Map.Entry<String, Node> entry : symbolTable.entrySet()) {
             Node node = entry.getValue();
-                System.out.println(node.toString());
+            System.out.println(node.toString());
         }
         System.out.println();
     }
@@ -46,7 +47,7 @@ public class CompilerUtils {
             symbolTable
                 .values()
                 .stream()
-                .mapToInt(node -> node.getAddress())
+                .mapToInt(node -> node.address)
                 .max()
                 .orElse(-1) +
             1
@@ -107,23 +108,12 @@ public class CompilerUtils {
         return kind;
     }
 
-    public static void printTokens() {
-        printTokens("info");
-    }
-
     public static void printTokens(String level) {
-        if ("info".equals(level)) {
-            System.out.println("PROCESSED TOKENS:");
-            for (String token : processedTokens) {
-                System.out.print(token + " ");
-            }
-            System.out.println("\n");
-        } else {
-            System.err.println("PROCESSED TOKENS:");
-            for (String token : processedTokens) {
-                System.err.print(token + " ");
-            }
-            System.err.println("\n");
+        PrintStream stream = "debug".equals(level) ? System.err : System.out;
+        stream.println("PROCESSED TOKENS:");
+        for (String token : processedTokens) {
+            stream.print(token + " ");
         }
+        stream.println("\n");
     }
 }
