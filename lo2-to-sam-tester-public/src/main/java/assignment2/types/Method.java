@@ -31,8 +31,12 @@ public class Method {
         this(name, returnType, new ArrayList<>(), new ArrayList<>());
     }
 
-    public int getNextAddress() {
+    public int getNextParamAddress() {
         return -(1 + parameters.size());
+    }
+
+    public int getNextLocalAddress() {
+        return 2 + localVariables.size();
     }
 
     @Override

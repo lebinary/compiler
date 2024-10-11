@@ -14,4 +14,8 @@ public class MainMethod extends Method {
         }
         return instance;
     }
+
+    public static synchronized void reset() {
+        instance = null;
+    }
 }

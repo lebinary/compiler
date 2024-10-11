@@ -60,10 +60,7 @@ class LiveOak0CompilerTest {
     void testLO0_0() throws Throwable {
         String fileName = Path.of(lo0ValidProgramDir, "test_0.lo").toString();
         String program = LiveOak0Compiler.compiler(fileName);
-        var samMachine = new SamTestRunner(program);
-        var stackValues = samMachine.run(0);
-
-        assertEquals(20, stackValues.get(0).getValue());
+        SamTestRunner.checkReturnValue(program, 20);
     }
 
     @Test
@@ -71,12 +68,7 @@ class LiveOak0CompilerTest {
     void testLO0_1() throws Throwable {
         String fileName = Path.of(lo0ValidProgramDir, "test_1.lo").toString();
         String program = LiveOak0Compiler.compiler(fileName);
-
-        var samMachine = new SamTestRunner(program);
-        var stackValues = samMachine.run(0, 1);
-
-        assertEquals(10, stackValues.get(0).getValue());
-        assertEquals(0, stackValues.get(1).getValue());
+        SamTestRunner.checkReturnValue(program, 0);
     }
 
     @Test
@@ -84,12 +76,7 @@ class LiveOak0CompilerTest {
     void testLO0_2() throws Throwable {
         String fileName = Path.of(lo0ValidProgramDir, "test_2.lo").toString();
         String program = LiveOak0Compiler.compiler(fileName);
-
-        var samMachine = new SamTestRunner(program);
-        var stackValues = samMachine.run(0, 1);
-
-        assertEquals(30, stackValues.get(0).getValue());
-        assertEquals(20, stackValues.get(1).getValue());
+        SamTestRunner.checkReturnValue(program, 30);
     }
 
     @Test
@@ -97,13 +84,7 @@ class LiveOak0CompilerTest {
     void testLO0_3() throws Throwable {
         String fileName = Path.of(lo0ValidProgramDir, "test_3.lo").toString();
         String program = LiveOak0Compiler.compiler(fileName);
-
-        var samMachine = new SamTestRunner(program);
-        var stackValues = samMachine.run(0, 1, 2);
-
-        assertEquals(90, stackValues.get(0).getValue());
-        assertEquals(20, stackValues.get(1).getValue());
-        assertEquals(15, stackValues.get(2).getValue());
+        SamTestRunner.checkReturnValue(program, 90);
     }
 
     @Test
@@ -112,12 +93,7 @@ class LiveOak0CompilerTest {
         String fileName = Path.of(lo0ValidProgramDir, "test_4.lo").toString();
         String program = LiveOak0Compiler.compiler(fileName);
 
-        var samMachine = new SamTestRunner(program);
-        var stackValues = samMachine.run(0, 1, 2);
-
-        assertEquals(90, stackValues.get(0).getValue());
-        assertEquals(5, stackValues.get(1).getValue());
-        assertEquals(15, stackValues.get(2).getValue());
+        SamTestRunner.checkReturnValue(program, 90);
     }
 
     @Test
@@ -125,17 +101,11 @@ class LiveOak0CompilerTest {
     void testLO0_5() throws Throwable {
         String fileName = Path.of(lo0ValidProgramDir, "test_5.lo").toString();
         String program = LiveOak0Compiler.compiler(fileName);
-
-        var samMachine = new SamTestRunner(program);
-        var stackValues = samMachine.run(0, 1, 2);
-
-        assertEquals(100, stackValues.get(0).getValue());
-        assertEquals(10, stackValues.get(1).getValue());
-        assertEquals(10, stackValues.get(2).getValue());
+        SamTestRunner.checkReturnValue(program, 100);
     }
 
-    /** INVALID PROGRAMS
-     **/
+    // /** INVALID PROGRAMS
+    //  **/
     @Test
     @DisplayName("Test_6")
     void testLO0_6() throws Throwable {

@@ -31,7 +31,8 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
     }
 
     static String getMethodDecl(SamTokenizer f) throws CompilerException {
-        String sam = "PUSHIMM 0\n"; // return value
+        // Generate sam code
+        String sam = "";
 
         // MethodDecl -> Type ...
         Type returnType = getType(f);
@@ -39,8 +40,16 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         // MethodDecl -> Type MethodName ...
         String name = getIdentifier(f);
 
-        // create Method object
-        Method method = new Method(name, returnType);
+        // Check if the method is already defined
+        if (methodTable.containsKey(name)) {
+            throw new CompilerException(
+                "Method '" + name + "' is already defined",
+                f.lineNo()
+            );
+        }
+
+        // Valid method, start generating...
+        sam += name + ":\n";
 
         // MethodDecl -> Type MethodName (...
         if (!CompilerUtils.check(f, '(')) {
@@ -50,13 +59,43 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
         }
 
-        // Save params in symbol table and method object
-        getFormals(f, method);
+        // Init method
+        Method method = null;
+        if (name == "main") {
+            method = MainMethod.getInstance();
+        } else {
+            // create Method object
+            method = new Method(name, returnType);
 
-        // MethodDecl -> Type MethodName (...
+            // Save params in symbol table and method object
+            getFormals(f, method);
+        }
+        // Save method in method table
+        methodTable.put(name, method);
+
+        // MethodDecl -> Type MethodName ( Formals? ) ...
         if (!CompilerUtils.check(f, ')')) {
             throw new SyntaxErrorException(
                 "get method expects ')' at end of get formals",
+                f.lineNo()
+            );
+        }
+
+        // MethodDecl -> Type MethodName ( Formals? ) { ...
+        if (!CompilerUtils.check(f, '{')) {
+            throw new SyntaxErrorException(
+                "get method expects '{' at start of body",
+                f.lineNo()
+            );
+        }
+
+        // MethodDecl -> Type MethodName ( Formals? ) { Body ...
+        sam += getBody(f, method);
+
+        // MethodDecl -> Type MethodName ( Formals? ) { Body }
+        if (!CompilerUtils.check(f, '}')) {
+            throw new SyntaxErrorException(
+                "get method expects '}' at end of body",
                 f.lineNo()
             );
         }
@@ -74,7 +113,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             String formalName = getIdentifier(f);
 
             // put formals in symbol table
-            int nextAddress = method.getNextAddress();
+            int nextAddress = method.getNextParamAddress();
             Node formal = new Node(formalName, formalType, nextAddress, method);
             symbolTable.put(formalName, formal);
 

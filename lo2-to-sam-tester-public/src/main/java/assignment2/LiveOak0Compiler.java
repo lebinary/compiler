@@ -57,6 +57,7 @@ public class LiveOak0Compiler {
         CompilerUtils.clearTokens(); // Clear the list before starting
         symbolTable.clear(); // reset symbol table
         methodTable.clear(); // reset symbol table
+        MainMethod.reset(); // reset main method
 
         //returns SaM code for program in file
         try {
@@ -74,7 +75,7 @@ public class LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            CompilerUtils.printTokens("debug");
+            // CompilerUtils.printTokens();
             throw e;
         } catch (Exception e) {
             String errorMessage = String.format(
@@ -83,33 +84,43 @@ public class LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            CompilerUtils.printTokens("debug");
+            // CompilerUtils.printTokens();
             throw e;
         }
     }
 
     static String getProgram(SamTokenizer f) throws CompilerException {
         String pgm = "";
+        pgm += "PUSHIMM 0\n";
+        pgm += "LINK\n";
+        pgm += "JSR main\n";
+        pgm += "UNLINK\n";
+        pgm += "STOP\n";
 
         // LiveOak-0
-        while (f.peekAtKind() != TokenType.EOF) {
-            pgm += getBody(f);
-        }
+        pgm += "main:\n";
+        pgm += getBody(f, MainMethod.getInstance());
 
-        pgm += "STOP\n";
+        // Return whatever on top of the stack
+        pgm += "DUP\n";
+        pgm += "STOREOFF -1\n";
+        pgm +=
+        "ADDSP -" + MainMethod.getInstance().localVariables.size() + "\n";
+        pgm += "RST\n";
 
         return pgm;
     }
 
     /** LiveOak 0
      **/
-    static String getBody(SamTokenizer f) throws CompilerException {
+    static String getBody(SamTokenizer f, Method method)
+        throws CompilerException {
         String sam = "";
 
         // while start with "int | bool | String"
         while (f.peekAtKind() == TokenType.WORD) {
             // VarDecl will store variable in Hashmap: identifier -> { type: TokenType, relative_address: int }
-            sam += getVarDecl(f, MainMethod.getInstance());
+            sam += getVarDecl(f, method);
         }
 
         // check EOF
@@ -123,7 +134,8 @@ public class LiveOak0Compiler {
         return sam;
     }
 
-    static String getVarDecl(SamTokenizer f, Method method) throws CompilerException {
+    static String getVarDecl(SamTokenizer f, Method method)
+        throws CompilerException {
         String sam = "";
 
         // VarDecl -> Type ...
@@ -147,10 +159,13 @@ public class LiveOak0Compiler {
                 }
             }
 
-            // put variable in hashmap
-            int nextAddress = CompilerUtils.getNextAddress(symbolTable);
+            // put variable in symbol table
+            int nextAddress = method.getNextLocalAddress();
             Node variable = new Node(varName, varType, nextAddress);
             symbolTable.put(varName, variable);
+
+            // update localVariables of method
+            method.localVariables.add(variable);
 
             // write sam code
             sam += "PUSHIMM 0\n";

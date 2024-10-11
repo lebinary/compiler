@@ -108,12 +108,11 @@ public class CompilerUtils {
         return kind;
     }
 
-    public static void printTokens(String level) {
-        PrintStream stream = "debug".equals(level) ? System.err : System.out;
-        stream.println("PROCESSED TOKENS:");
+    public static void printTokens() {
+        System.out.println("PROCESSED TOKENS:");
         for (String token : processedTokens) {
-            stream.print(token + " ");
+            System.out.print(token + " ");
         }
-        stream.println("\n");
+        System.out.println("\n");
     }
 }
