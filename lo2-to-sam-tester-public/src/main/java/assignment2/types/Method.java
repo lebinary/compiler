@@ -39,6 +39,14 @@ public class Method {
         return 2 + localVariables.size();
     }
 
+    public int returnAddress() {
+        return -(1 + parameters.size());
+    }
+
+    public int numLocalVariables() {
+        return localVariables.size();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

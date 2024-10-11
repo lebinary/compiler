@@ -75,7 +75,7 @@ public class LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
+            CompilerUtils.printTokens();
             throw e;
         } catch (Exception e) {
             String errorMessage = String.format(
@@ -105,7 +105,7 @@ public class LiveOak0Compiler {
         pgm += "DUP\n";
         pgm += "STOREOFF -1\n";
         pgm +=
-        "ADDSP -" + MainMethod.getInstance().localVariables.size() + "\n";
+        "ADDSP -" + MainMethod.getInstance().numLocalVariables() + "\n";
         pgm += "RST\n";
 
         return pgm;

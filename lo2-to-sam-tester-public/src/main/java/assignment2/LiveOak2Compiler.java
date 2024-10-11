@@ -14,6 +14,42 @@ import java.util.Map;
 
 public class LiveOak2Compiler extends LiveOak0Compiler {
 
+    static String compiler(String fileName) throws Exception {
+        CompilerUtils.clearTokens(); // Clear the list before starting
+        symbolTable.clear(); // reset symbol table
+        methodTable.clear(); // reset symbol table
+        MainMethod.reset(); // reset main method
+
+        //returns SaM code for program in file
+        try {
+            SamTokenizer f = new SamTokenizer(
+                fileName,
+                SamTokenizer.TokenizerOptions.PROCESS_STRINGS
+            );
+            String pgm = getProgram(f);
+
+            return pgm;
+        } catch (CompilerException e) {
+            String errorMessage = String.format(
+                "Failed to compile %s.\nError Message: %s\n",
+                fileName,
+                e.getMessage()
+            );
+            System.err.println(errorMessage);
+            CompilerUtils.printTokens();
+            throw e;
+        } catch (Exception e) {
+            String errorMessage = String.format(
+                "Failed to compile %s.\nError Message: %s\n",
+                fileName,
+                e.getMessage()
+            );
+            System.err.println(errorMessage);
+            // CompilerUtils.printTokens();
+            throw e;
+        }
+    }
+
     static String getProgram(SamTokenizer f) throws CompilerException {
         String pgm = "";
         pgm += "PUSHIMM 0\n";
@@ -100,7 +136,14 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
         }
 
-        return "";
+        // Return whatever on top of the stack
+        sam += "DUP\n";
+        sam += "STOREOFF " + method.returnAddress() + "\n";
+        sam +=
+        "ADDSP -" + method.localVariables.size() + "\n";
+        sam += "RST\n";
+
+        return sam;
     }
 
     static void getFormals(SamTokenizer f, Method method)
