@@ -68,7 +68,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
     static String getMethodDecl(SamTokenizer f) throws CompilerException {
         // Generate sam code
-        String sam = "";
+        String sam = "\n";
 
         // MethodDecl -> Type ...
         Type returnType = getType(f);
@@ -136,13 +136,6 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
         }
 
-        // Return whatever on top of the stack
-        sam += "DUP\n";
-        sam += "STOREOFF " + method.returnAddress() + "\n";
-        sam +=
-        "ADDSP -" + method.localVariables.size() + "\n";
-        sam += "RST\n";
-
         return sam;
     }
 
@@ -167,5 +160,95 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 break;
             }
         }
+    }
+
+    static String getBody(SamTokenizer f, Method method)
+        throws CompilerException {
+        String sam = "";
+
+        // while start with "int | bool | String"
+        while (f.peekAtKind() == TokenType.WORD) {
+            // VarDecl will store variable in Hashmap: identifier -> { type: TokenType, relative_address: int }
+            sam += getVarDecl(f, method);
+        }
+
+        // check EOF
+        if (f.peekAtKind() == TokenType.EOF) {
+            return sam;
+        }
+
+        // Then, get Block
+        sam += getBlock(f, method);
+
+        return sam;
+    }
+
+    static String getBlock(SamTokenizer f, Method method) throws CompilerException {
+        String sam = "";
+
+        if (!CompilerUtils.check(f, '{')) {
+            throw new SyntaxErrorException(
+                "getBlock expects '{' at start of block",
+                f.lineNo()
+            );
+        }
+
+        // while not "}"
+        while (!CompilerUtils.check(f, '}')) {
+            sam += getStmt(f, method);
+        }
+
+        return sam;
+    }
+
+    static String getStmt(SamTokenizer f, Method method)
+        throws CompilerException {
+
+        String sam = "";
+
+        if (CompilerUtils.check(f, ';')) {
+            return sam; // Null statement
+        }
+
+        if (f.peekAtKind() != TokenType.WORD) {
+            throw new SyntaxErrorException(
+                "getStmt expects TokenType.WORD at beginning of statement",
+                f.lineNo()
+            );
+        }
+
+        if (f.test("return")) {
+            sam += getReturnStmt(f, method);
+        } else if (f.test("if")) {
+            sam += getIfStmt(f);
+        } else if (f.test("while")) {
+            sam += getWhileStmt(f);
+        } else {
+            sam += getVarStmt(f);
+        }
+
+        return sam;
+    }
+
+    static String getReturnStmt(SamTokenizer f, Method method)
+        throws CompilerException {
+        if (!CompilerUtils.check(f, "return")) {
+            throw new SyntaxErrorException(
+                "getReturnStmt expects 'return' at beginining",
+                f.lineNo()
+            );
+        }
+
+        String sam = "";
+
+        Expression expr = getExpr(f);
+        sam += expr.samCode;
+
+        // Return whatever on top of the stack
+        sam += "STOREOFF " + method.returnAddress() + "\n";
+        sam += "ADDSP -" + method.numLocalVariables() + "\n";
+        sam += "RST\n";
+
+        return sam;
     }
 }

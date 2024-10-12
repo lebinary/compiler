@@ -168,7 +168,7 @@ public class LiveOak0Compiler {
             method.localVariables.add(variable);
 
             // write sam code
-            sam += "PUSHIMM 0\n";
+            sam += "PUSHIMM 0";
 
             if (CompilerUtils.check(f, ',')) {
                 continue;
@@ -367,13 +367,13 @@ public class LiveOak0Compiler {
             );
         }
 
-        String varName = f.getWord();
+        String varName = CompilerUtils.getWord(f);
 
         // Trying to access var that has not been declared
         Node variable = symbolTable.get(varName);
         if (variable == null) {
             throw new SyntaxErrorException(
-                "getVar trying to access variable that has not been declared",
+                "getVar trying to access variable that has not been declared: Variable " + varName,
                 f.lineNo()
             );
         }
@@ -573,7 +573,7 @@ public class LiveOak0Compiler {
                 Node variable = symbolTable.get(boolOrVar);
                 if (variable == null) {
                     throw new SyntaxErrorException(
-                        "getVar trying to access variable that has not been declared",
+                        "getVar trying to access variable that has not been declared: Variable" + boolOrVar,
                         f.lineNo()
                     );
                 }
