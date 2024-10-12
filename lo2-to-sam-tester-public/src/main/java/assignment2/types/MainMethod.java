@@ -1,11 +1,13 @@
 package assignment2;
 
-public class MainMethod extends Method {
+import java.util.ArrayList;
+
+public class MainMethod extends MethodNode {
 
     private static MainMethod instance = null;
 
     private MainMethod() {
-        super("main", Type.INT);
+        super(null, new ArrayList<>(), "main", Type.INT, 0);
     }
 
     public static synchronized MainMethod getInstance() {
@@ -15,7 +17,7 @@ public class MainMethod extends Method {
         return instance;
     }
 
-    public static synchronized void reset() {
+    public static synchronized void resetInstance() {
         instance = null;
     }
 }

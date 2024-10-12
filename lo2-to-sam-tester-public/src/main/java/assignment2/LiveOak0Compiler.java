@@ -46,18 +46,29 @@ public class LiveOak0Compiler {
         }
     }
 
-    // maps identifier -> variable
-    public static Map<String, Node> symbolTable = new HashMap<String, Node>();
-    public static Map<String, Method> methodTable = new HashMap<
-        String,
-        Method
-    >();
+    //             globalNode
+    //                 |
+    //             mainMethod
+    //             /         \
+    //          local1       local2 ...
+
+    public static Node globalNode = new Node();
+    public static MethodNode mainMethod = MainMethod.getInstance();
+
+    static {
+        globalNode.addChild(mainMethod);
+    }
+
+    public static void reset() {
+        CompilerUtils.clearTokens();
+        globalNode = new Node();
+        MainMethod.resetInstance();
+        mainMethod = MainMethod.getInstance();
+        globalNode.addChild(mainMethod);
+    }
 
     static String compiler(String fileName) throws Exception {
-        CompilerUtils.clearTokens(); // Clear the list before starting
-        symbolTable.clear(); // reset symbol table
-        methodTable.clear(); // reset symbol table
-        MainMethod.reset(); // reset main method
+        reset();
 
         //returns SaM code for program in file
         try {
@@ -99,13 +110,12 @@ public class LiveOak0Compiler {
 
         // LiveOak-0
         pgm += "main:\n";
-        pgm += getBody(f, MainMethod.getInstance());
+        pgm += getBody(f);
 
         // Return whatever on top of the stack
         pgm += "DUP\n";
         pgm += "STOREOFF -1\n";
-        pgm +=
-        "ADDSP -" + MainMethod.getInstance().numLocalVariables() + "\n";
+        pgm += "ADDSP -" + mainMethod.numLocalVariables() + "\n";
         pgm += "RST\n";
 
         return pgm;
@@ -113,14 +123,13 @@ public class LiveOak0Compiler {
 
     /** LiveOak 0
      **/
-    static String getBody(SamTokenizer f, Method method)
-        throws CompilerException {
+    static String getBody(SamTokenizer f) throws CompilerException {
         String sam = "";
 
         // while start with "int | bool | String"
         while (f.peekAtKind() == TokenType.WORD) {
             // VarDecl will store variable in Hashmap: identifier -> { type: TokenType, relative_address: int }
-            sam += getVarDecl(f, method);
+            sam += getVarDecl(f);
         }
 
         // check EOF
@@ -134,8 +143,7 @@ public class LiveOak0Compiler {
         return sam;
     }
 
-    static String getVarDecl(SamTokenizer f, Method method)
-        throws CompilerException {
+    static String getVarDecl(SamTokenizer f) throws CompilerException {
         String sam = "";
 
         // VarDecl -> Type ...
@@ -147,25 +155,19 @@ public class LiveOak0Compiler {
             String varName = getIdentifier(f);
 
             // Check if the variable is already defined in the current scope
-            if (symbolTable.containsKey(varName)) {
-                Node existingVar = symbolTable.get(varName);
-                if (existingVar.method == method) {
-                    throw new CompilerException(
-                        "Variable '" +
-                        varName +
-                        "' is already defined in this scope",
-                        f.lineNo()
-                    );
-                }
+            Node existNode = mainMethod.lookupSymbol(varName);
+            if (existNode != null) {
+                throw new CompilerException(
+                    "Variable '" +
+                    varName +
+                    "' is already defined in this scope",
+                    f.lineNo()
+                );
             }
 
             // put variable in symbol table
-            int nextAddress = method.getNextLocalAddress();
-            Node variable = new Node(varName, varType, nextAddress);
-            symbolTable.put(varName, variable);
-
-            // update localVariables of method
-            method.localVariables.add(variable);
+            VariableNode variable = new VariableNode(varName, varType, false);
+            mainMethod.addChild(variable);
 
             // write sam code
             sam += "PUSHIMM 0";
@@ -370,10 +372,11 @@ public class LiveOak0Compiler {
         String varName = CompilerUtils.getWord(f);
 
         // Trying to access var that has not been declared
-        Node variable = symbolTable.get(varName);
+        Node variable = mainMethod.lookupSymbol(varName);
         if (variable == null) {
             throw new SyntaxErrorException(
-                "getVar trying to access variable that has not been declared: Variable " + varName,
+                "getVar trying to access variable that has not been declared: Variable " +
+                varName,
                 f.lineNo()
             );
         }
@@ -570,46 +573,19 @@ public class LiveOak0Compiler {
                 }
 
                 // Var -> Identifier
-                Node variable = symbolTable.get(boolOrVar);
+                Node variable = mainMethod.lookupSymbol(boolOrVar);
                 if (variable == null) {
                     throw new SyntaxErrorException(
-                        "getVar trying to access variable that has not been declared: Variable" + boolOrVar,
+                        "getVar trying to access variable that has not been declared: Variable" +
+                        boolOrVar,
                         f.lineNo()
                     );
                 }
 
-                if (variable.hasValue()) {
-                    switch (variable.type) {
-                        case INT:
-                            return new Expression(
-                                "PUSHIMM " + variable.val + "\n",
-                                Type.INT
-                            );
-                        case BOOL:
-                            return new Expression(
-                                variable.val.equals("true")
-                                    ? "PUSHIMM 1\n"
-                                    : "PUSHIMM 0\n",
-                                Type.BOOL
-                            );
-                        case STRING:
-                            return new Expression(
-                                "PUSHIMMSTR " + variable.val + "\n",
-                                Type.STRING
-                            );
-                        default:
-                            throw new TypeErrorException(
-                                "getTerminal received invalid type " +
-                                variable.type,
-                                f.lineNo()
-                            );
-                    }
-                } else {
-                    return new Expression(
-                        "PUSHOFF " + variable.address + "\n",
-                        variable.type
-                    );
-                }
+                return new Expression(
+                    "PUSHOFF " + variable.address + "\n",
+                    variable.type
+                );
             default:
                 throw new TypeErrorException(
                     "getTerminal received invalid type " + type,

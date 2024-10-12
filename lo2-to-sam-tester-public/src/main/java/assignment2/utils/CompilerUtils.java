@@ -28,7 +28,7 @@ public class CompilerUtils {
             Node node = entry.getValue();
 
             // add an if here to fiter out functions
-            sam += node.val;
+            sam += node.value;
         }
         return sam;
     }
