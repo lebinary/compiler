@@ -50,10 +50,6 @@ public class Node {
         this(null, new ArrayList<>(), "", Type.INT, 0, null);
     }
 
-    public void updateValue(Object value) {
-        this.value = value;
-    }
-
     public void addChild(Node child) {
         child.parent = this;
         children.add(child);
@@ -66,8 +62,7 @@ public class Node {
         Node symbol = symbols.get(name);
         if (symbol != null) return symbol;
 
-        // Not allowing access to parent scope at the moment
-        // if (parent != null) return parent.lookupSymbol(name);
+        if (parent != null) return parent.lookupSymbol(name);
         return null;
     }
 

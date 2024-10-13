@@ -87,7 +87,7 @@ public class LiveOak0Compiler {
             );
             System.err.println(errorMessage);
             CompilerUtils.printTokens();
-            throw e;
+            throw new Error(errorMessage, e);
         } catch (Exception e) {
             String errorMessage = String.format(
                 "Failed to compile %s.\nError Message: %s\n",
@@ -96,7 +96,7 @@ public class LiveOak0Compiler {
             );
             System.err.println(errorMessage);
             // CompilerUtils.printTokens();
-            throw e;
+            throw new Error(errorMessage, e);
         }
     }
 

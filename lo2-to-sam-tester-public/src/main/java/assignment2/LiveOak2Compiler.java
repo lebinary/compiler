@@ -40,7 +40,6 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 SamTokenizer.TokenizerOptions.PROCESS_STRINGS
             );
             populateSymbolTable(firstPass);
-            TreeUtils.printTree(globalNode);
 
             SamTokenizer secondPass = new SamTokenizer(
                 fileName,
@@ -55,7 +54,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
             System.err.println(errorMessage);
             CompilerUtils.printTokens();
-            throw e;
+            throw new Error(errorMessage, e);
         } catch (Exception e) {
             String errorMessage = String.format(
                 "Failed to compile %s.\nError Message: %s\n",
@@ -64,7 +63,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
             System.err.println(errorMessage);
             CompilerUtils.printTokens();
-            throw e;
+            throw new Error(errorMessage, e);
         }
     }
 
@@ -243,7 +242,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         while (f.peekAtKind() != TokenType.EOF) {
             pgm += getMethodDecl(f);
         }
-
+        TreeUtils.printTree(globalNode);
         return pgm;
     }
 
@@ -384,8 +383,21 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
 
         // while not "}"
+        boolean hasReturnStmt = false;
+
         while (!CompilerUtils.check(f, '}')) {
             sam += getStmt(f, method);
+
+            if (f.test("return")) {
+                hasReturnStmt = true;
+            }
+        }
+
+        if (!hasReturnStmt) {
+            throw new SyntaxErrorException(
+                "getBlock expects 'return' statement at the end",
+                f.lineNo()
+            );
         }
 
         return sam;
@@ -569,9 +581,23 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
         }
 
-        // getExpr() would return "exactly" one value on the stack
-        Expression resExpr = getExpr(f, method);
-        sam += resExpr.samCode;
+        Expression expr = getExpr(f, method);
+        // Type check
+        if (!expr.type.isCompatibleWith(variable.type)) {
+            throw new TypeErrorException(
+                "getVarStmt type mismatch: " +
+                variable.type +
+                " and " +
+                expr.type,
+                f.lineNo()
+            );
+        }
+
+        // write sam code
+        sam += expr.samCode;
+
+        // update value in symbol
+        variable.value = expr.value;
 
         // Store item on the stack to Node
         sam += "STOREOFF " + variable.address + "\n";
@@ -627,7 +653,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 return expr;
             }
         }
-        // Expr -> Var | Literal
+        // Expr -> MethodName | Var | Literal
         else {
             return getTerminal(f, method);
         }
@@ -708,48 +734,158 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         return expr;
     }
 
-    /*** Non-recursive operations. Override "gerTerminal" and "getVar", inherit the rest from LiveOak0Compiler
-     ***/
+    static Expression getMethodCallExpr(
+        SamTokenizer f,
+        MethodNode scopeMethod,
+        MethodNode callingMethod
+    ) throws CompilerException {
+        String sam = "";
+        sam += "PUSHIMM 0\n"; // return value
+
+        if (!CompilerUtils.check(f, '(')) {
+            throw new SyntaxErrorException(
+                "getMethodCallExpr expects '(' at the start of actuals",
+                f.lineNo()
+            );
+        }
+
+        sam += getActuals(f, scopeMethod, callingMethod);
+        sam += "LINK\n";
+        sam += "JSR " + callingMethod.name + "\n";
+        sam += "UNLINK\n";
+
+        if (!CompilerUtils.check(f, ')')) {
+            throw new SyntaxErrorException(
+                "getMethodCallExpr expects ')' at the end of actuals",
+                f.lineNo()
+            );
+        }
+
+        return new Expression(sam, callingMethod.type);
+    }
+
+    static String getActuals(
+        SamTokenizer f,
+        MethodNode scopeMethod,
+        MethodNode callingMethod
+    ) throws CompilerException {
+        String sam = "";
+        int paramCount = callingMethod.numParameters();
+        int argCount = 0;
+
+        do {
+            if (argCount >= paramCount) {
+                throw new SyntaxErrorException(
+                    "Too many arguments provided for method '" +
+                    callingMethod.name +
+                    "'. Expected " +
+                    paramCount +
+                    " but got more.",
+                    f.lineNo()
+                );
+            }
+
+            VariableNode currParam = callingMethod.parameters.get(argCount);
+            Expression expr = getExpr(f, scopeMethod);
+
+            // Type check
+            if (!expr.type.isCompatibleWith(currParam.type)) {
+                throw new TypeErrorException(
+                    "Argument type mismatch for parameter '" +
+                    currParam.name +
+                    "': expected " +
+                    currParam.type +
+                    " but got " +
+                    expr.type,
+                    f.lineNo()
+                );
+            }
+
+            // write sam code
+            sam += expr.samCode;
+
+            // save value in symbol
+            currParam.value = expr.value;
+
+            argCount++;
+        } while (CompilerUtils.check(f, ','));
+
+        if (argCount < paramCount) {
+            throw new SyntaxErrorException(
+                "Not enough arguments provided for method '" +
+                callingMethod.name +
+                "'. Expected " +
+                paramCount +
+                " but got " +
+                argCount,
+                f.lineNo()
+            );
+        }
+
+        return sam;
+    }
+
+    // getTerminal is now a recursive operation
     static Expression getTerminal(SamTokenizer f, MethodNode method)
         throws CompilerException {
         TokenType type = f.peekAtKind();
         switch (type) {
-            // Literal -> Num
+            // Expr -> Literal -> Num
             case INTEGER:
                 int value = CompilerUtils.getInt(f);
-                return new Expression("PUSHIMM " + value + "\n", Type.INT);
-            // Literal -> String
+                return new Expression(
+                    "PUSHIMM " + value + "\n",
+                    Type.INT,
+                    value
+                );
+            // Expr -> Literal -> String
             case STRING:
                 String strValue = CompilerUtils.getString(f);
                 return new Expression(
                     "PUSHIMMSTR " + strValue + "\n",
-                    Type.STRING
+                    Type.STRING,
+                    strValue
                 );
+            // Expr -> MethodName | Var | Literal
             case WORD:
-                String boolOrVar = CompilerUtils.getWord(f);
+                String name = CompilerUtils.getWord(f);
 
-                // Literal -> "true" | "false"
-                if (boolOrVar.equals("true")) {
-                    return new Expression("PUSHIMM 1\n", Type.BOOL);
+                // Expr -> Literal -> "true" | "false"
+                if (name.equals("true")) {
+                    return new Expression("PUSHIMM 1\n", Type.BOOL, true);
                 }
-                if (boolOrVar.equals("false")) {
-                    return new Expression("PUSHIMM 0\n", Type.BOOL);
+                if (name.equals("false")) {
+                    return new Expression("PUSHIMM 0\n", Type.BOOL, false);
                 }
 
-                // Var -> Identifier
-                Node variable = method.lookupSymbol(boolOrVar);
-                if (variable == null) {
-                    throw new SyntaxErrorException(
-                        "getTerminal trying to access variable that has not been declared: Variable" +
-                        boolOrVar,
+                // Expr -> MethodName | Var
+                Node node = method.lookupSymbol(name);
+                if (node == null) {
+                    throw new CompilerException(
+                        "getTerminal trying to access symbol that has not been declared: Node " +
+                        node,
                         f.lineNo()
                     );
                 }
 
-                return new Expression(
-                    "PUSHOFF " + variable.address + "\n",
-                    variable.type
-                );
+                // Expr -> MethodName ( Actuals )
+                if (node instanceof MethodNode) {
+                    return getMethodCallExpr(f, method, (MethodNode) node);
+                }
+                // Expr -> Var
+                else if (node instanceof VariableNode) {
+                    return new Expression(
+                        "PUSHOFF " + node.address + "\n",
+                        node.type,
+                        node.value
+                    );
+                } else {
+                    throw new CompilerException(
+                        "getTerminal trying to access invalid symbol: Node " +
+                        node,
+                        f.lineNo()
+                    );
+                }
             default:
                 throw new TypeErrorException(
                     "getTerminal received invalid type " + type,
@@ -758,6 +894,8 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
     }
 
+    /*** Non-recursive operations. Override "getVar", inherit the rest from LiveOak0Compiler
+     ***/
     static Node getVar(SamTokenizer f, MethodNode method)
         throws CompilerException {
         // Not a var, raise

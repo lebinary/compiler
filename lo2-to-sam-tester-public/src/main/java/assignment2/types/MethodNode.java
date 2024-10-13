@@ -41,8 +41,13 @@ public class MethodNode extends Node {
     public void udpateParamsAndLocals(Node child) {
         VariableNode castChild = (VariableNode) child;
         if (castChild.isParameter) {
-            castChild.address = getNextParamAddress();
+            castChild.address = -1;
             parameters.add(castChild);
+
+            // correct address of other params
+            for (int i = parameters.size() - 2; i >= 0; i--) {
+                parameters.get(i).address -= 1;
+            }
         } else {
             castChild.address = getNextLocalAddress();
             localVariables.add(castChild);
@@ -78,6 +83,10 @@ public class MethodNode extends Node {
 
     public int numLocalVariables() {
         return localVariables.size();
+    }
+
+    public int numParameters() {
+        return parameters.size();
     }
 
     @Override

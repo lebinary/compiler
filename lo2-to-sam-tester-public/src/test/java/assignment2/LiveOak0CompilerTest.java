@@ -111,7 +111,7 @@ class LiveOak0CompilerTest {
     void testLO0_6() throws Throwable {
         String fileName = Path.of(lo0InvalidProgramDir, "test_6.lo").toString();
         assertThrows(
-            TypeErrorException.class,
+            Error.class,
             () -> LiveOak0Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_6.lo"
         );

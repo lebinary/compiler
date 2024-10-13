@@ -20,40 +20,6 @@ public class CompilerUtils {
         return uuid;
     }
 
-    /** Symbol Tables Utils
-     **/
-    public static String getMethodsSam(Map<String, Node> symbolTable) {
-        String sam = "";
-        for (Map.Entry<String, Node> entry : symbolTable.entrySet()) {
-            Node node = entry.getValue();
-
-            // add an if here to fiter out functions
-            sam += node.value;
-        }
-        return sam;
-    }
-
-    public static void printSymbolTable(Map<String, Node> symbolTable) {
-        System.out.println("Current symbolTable:");
-        for (Map.Entry<String, Node> entry : symbolTable.entrySet()) {
-            Node node = entry.getValue();
-            System.out.println(node.toString());
-        }
-        System.out.println();
-    }
-
-    public static int getNextAddress(Map<String, Node> symbolTable) {
-        return (
-            symbolTable
-                .values()
-                .stream()
-                .mapToInt(node -> node.address)
-                .max()
-                .orElse(-1) +
-            1
-        ); // Start at 0 if the map is empty
-    }
-
     /** Processed Tokens Utils
      **/
     public static ArrayList<String> processedTokens = new ArrayList<>();
