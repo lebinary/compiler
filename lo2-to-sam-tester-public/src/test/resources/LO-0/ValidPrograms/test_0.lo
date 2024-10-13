@@ -1,20 +1,4 @@
-
-int add(int a, int b) {
-    {
-        return (a + b);
-    }
-}
-
-int subtract(int a, int b) {
-    {
-        return (a - b);
-    }
-}
-
-int main() {
-    int a;
-    {
-        a = (10 * 2);
-        return a;
-    }
+int a;
+{
+    a = (10 * 2);
 }

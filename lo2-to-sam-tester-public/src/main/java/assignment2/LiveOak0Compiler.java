@@ -68,7 +68,7 @@ public class LiveOak0Compiler {
     }
 
     static String compiler(String fileName) throws Exception {
-        reset();
+        reset(); // Clear the list before starting
 
         //returns SaM code for program in file
         try {
@@ -121,8 +121,8 @@ public class LiveOak0Compiler {
         return pgm;
     }
 
-    /** LiveOak 0
-     **/
+    /*** Recursive operations
+     ***/
     static String getBody(SamTokenizer f) throws CompilerException {
         String sam = "";
 
@@ -360,46 +360,6 @@ public class LiveOak0Compiler {
         return sam;
     }
 
-    static Node getVar(SamTokenizer f) throws CompilerException {
-        // Not a var, raise
-        if (f.peekAtKind() != TokenType.WORD) {
-            throw new SyntaxErrorException(
-                "getVar should starts with a WORD",
-                f.lineNo()
-            );
-        }
-
-        String varName = CompilerUtils.getWord(f);
-
-        // Trying to access var that has not been declared
-        Node variable = mainMethod.lookupSymbol(varName);
-        if (variable == null) {
-            throw new SyntaxErrorException(
-                "getVar trying to access variable that has not been declared: Variable " +
-                varName,
-                f.lineNo()
-            );
-        }
-
-        return variable;
-    }
-
-    static Type getType(SamTokenizer f) throws CompilerException {
-        // typeString = "int" | "bool" | "String"
-        String typeString = CompilerUtils.getWord(f);
-        Type type = Type.fromString(typeString);
-
-        // typeString != INT | BOOL | STRING
-        if (type == null) {
-            throw new TypeErrorException(
-                "Invalid type: " + typeString,
-                f.lineNo()
-            );
-        }
-
-        return type;
-    }
-
     static Expression getExpr(SamTokenizer f) throws CompilerException {
         // TODO: Before getTerminal and getUnopExpr, make sure the FBR on TOS
         // OR: maybe simplify this shit and remove all the JSR
@@ -547,6 +507,48 @@ public class LiveOak0Compiler {
         return expr;
     }
 
+    /*** Non-recursive operations
+     ***/
+    static Node getVar(SamTokenizer f) throws CompilerException {
+        // Not a var, raise
+        if (f.peekAtKind() != TokenType.WORD) {
+            throw new SyntaxErrorException(
+                "getVar should starts with a WORD",
+                f.lineNo()
+            );
+        }
+
+        String varName = CompilerUtils.getWord(f);
+
+        // Trying to access var that has not been declared
+        Node variable = mainMethod.lookupSymbol(varName);
+        if (variable == null) {
+            throw new SyntaxErrorException(
+                "getVar trying to access variable that has not been declared: Variable " +
+                varName,
+                f.lineNo()
+            );
+        }
+
+        return variable;
+    }
+
+    static Type getType(SamTokenizer f) throws CompilerException {
+        // typeString = "int" | "bool" | "String"
+        String typeString = CompilerUtils.getWord(f);
+        Type type = Type.fromString(typeString);
+
+        // typeString != INT | BOOL | STRING
+        if (type == null) {
+            throw new TypeErrorException(
+                "Invalid type: " + typeString,
+                f.lineNo()
+            );
+        }
+
+        return type;
+    }
+
     static Expression getTerminal(SamTokenizer f) throws CompilerException {
         TokenType type = f.peekAtKind();
         switch (type) {
@@ -576,7 +578,7 @@ public class LiveOak0Compiler {
                 Node variable = mainMethod.lookupSymbol(boolOrVar);
                 if (variable == null) {
                     throw new SyntaxErrorException(
-                        "getVar trying to access variable that has not been declared: Variable" +
+                        "getVar trying to access variable that has not been declared: Variable " +
                         boolOrVar,
                         f.lineNo()
                     );
@@ -605,21 +607,21 @@ public class LiveOak0Compiler {
         return identifier;
     }
 
-    /** PRIVATE
-     **/
-    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile(
+    /*** HELPERS
+     ***/
+    public static final Pattern IDENTIFIER_PATTERN = Pattern.compile(
         "^[a-zA-Z]([a-zA-Z0-9'_'])*$"
     );
 
-    private static boolean isBool(String bool) {
+    public static boolean isBool(String bool) {
         return List.of("true", "false").contains(bool);
     }
 
-    private static boolean isUnop(char op) {
+    public static boolean isUnop(char op) {
         return "~!".indexOf(op) != -1;
     }
 
-    private static String getUnop(SamTokenizer f) throws CompilerException {
+    public static String getUnop(SamTokenizer f) throws CompilerException {
         if (CompilerUtils.check(f, '~')) {
             return "PUSHIMM -1\nTIMES\nPUSHIMM 1\nSUB\n";
         } else if (CompilerUtils.check(f, '!')) {
@@ -632,11 +634,11 @@ public class LiveOak0Compiler {
         }
     }
 
-    private static boolean isBinop(char op) {
+    public static boolean isBinop(char op) {
         return "+-*/%&|<>=".indexOf(op) != -1;
     }
 
-    private static String getBinop(SamTokenizer f) throws CompilerException {
+    public static String getBinop(SamTokenizer f) throws CompilerException {
         if (CompilerUtils.check(f, '+')) {
             return "ADD\n";
         } else if (CompilerUtils.check(f, '-')) {

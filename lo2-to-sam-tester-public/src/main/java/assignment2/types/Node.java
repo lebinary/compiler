@@ -71,6 +71,12 @@ public class Node {
         return null;
     }
 
+    public boolean existSymbol(String name) {
+        Node exist = lookupSymbol(name);
+
+        return exist == null ? false : true;
+    }
+
     public void reset() {
         this.parent = null;
         this.symbols.clear();

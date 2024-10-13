@@ -2,10 +2,10 @@ package assignment2;
 
 import edu.utexas.cs.sam.io.SamTokenizer;
 import edu.utexas.cs.sam.io.Tokenizer.TokenType;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
-import java.io.PrintStream;
 
 public class CompilerUtils {
 
@@ -102,10 +102,9 @@ public class CompilerUtils {
         return op;
     }
 
-    public static SamTokenizer.TokenType peekKind(SamTokenizer f) {
-        TokenType kind = f.peekAtKind();
-        processedTokens.add("PeekKind: " + kind.toString());
-        return kind;
+    public static void skipToken(SamTokenizer f) {
+        f.skipToken();
+        processedTokens.add(".");
     }
 
     public static void printTokens() {
