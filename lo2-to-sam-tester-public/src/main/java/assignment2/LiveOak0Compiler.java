@@ -95,7 +95,7 @@ public class LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
+            CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         }
     }
@@ -560,7 +560,7 @@ public class LiveOak0Compiler {
             case STRING:
                 String strValue = CompilerUtils.getString(f);
                 return new Expression(
-                    "PUSHIMMSTR " + strValue + "\n",
+                    "PUSHIMMSTR \"" + strValue + "\"\n",
                     Type.STRING
                 );
             case WORD:

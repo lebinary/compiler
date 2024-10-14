@@ -23,13 +23,11 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
     //   local1       local2
 
     public static Node globalNode = new Node();
-    public static MethodNode mainMethod = MainMethod.getInstance();
 
     public static void reset() {
         CompilerUtils.clearTokens();
         globalNode = new Node();
         MainMethod.resetInstance();
-        mainMethod = MainMethod.getInstance();
     }
 
     static String compiler(String fileName) throws Exception {
@@ -114,8 +112,8 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                     f.lineNo()
                 );
             }
-
             method = MainMethod.getInstance();
+            method.type = returnType; // update return type for main method
         } else {
             // create Method object
             method = new MethodNode(methodName, returnType);
@@ -681,12 +679,14 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
     static Expression getExpr(SamTokenizer f, MethodNode method)
         throws CompilerException {
         if (CompilerUtils.check(f, '(')) {
+            Expression expr = null;
+
             // Expr -> ( Unop Expr )
             try {
-                return getUnopExpr(f, method);
+                expr = getUnopExpr(f, method);
             } catch (TypeErrorException e) {
                 // Expr -> ( Expr (...) )
-                Expression expr = getExpr(f, method);
+                expr = getExpr(f, method);
 
                 // Raise if Expr -> ( Expr NOT('?' | ')' | Binop) )
                 if (f.peekAtKind() != TokenType.OPERATOR) {
@@ -697,27 +697,29 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 }
 
                 // Expr -> ( Expr ) , ends early
-                if (!CompilerUtils.check(f, ')')) {
-                    // Exprt -> (Expr ? Expr : Expr)
-                    if (CompilerUtils.check(f, '?')) {
-                        expr.samCode += getTernaryExpr(f, method).samCode;
-                    }
-                    // Exprt -> (Expr Binop Expr)
-                    else {
-                        expr.samCode += getBinopExpr(f, expr, method).samCode;
-                    }
-
-                    // Check closing ')'
-                    if (!CompilerUtils.check(f, ')')) {
-                        throw new SyntaxErrorException(
-                            "getExpr expects ')' at end of Expr -> ( Expr (...) )",
-                            f.lineNo()
-                        );
-                    }
+                if (CompilerUtils.check(f, ')')) {
+                    return expr;
                 }
 
-                return expr;
+                // Exprt -> (Expr ? Expr : Expr)
+                if (CompilerUtils.check(f, '?')) {
+                    expr.samCode += getTernaryExpr(f, method).samCode;
+                }
+                // Exprt -> (Expr Binop Expr)
+                else {
+                    expr.samCode += getBinopExpr(f, expr, method).samCode;
+                }
             }
+
+            // Check closing ')'
+            if (!CompilerUtils.check(f, ')')) {
+                throw new SyntaxErrorException(
+                    "getExpr expects ')' at end of Expr -> ( Expr (...) )",
+                    f.lineNo()
+                );
+            }
+
+            return expr;
         }
         // Expr -> MethodName | Var | Literal
         else {
@@ -909,7 +911,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             case STRING:
                 String strValue = CompilerUtils.getString(f);
                 return new Expression(
-                    "PUSHIMMSTR " + strValue + "\n",
+                    "PUSHIMMSTR \"" + strValue + "\"\n",
                     Type.STRING,
                     strValue
                 );
