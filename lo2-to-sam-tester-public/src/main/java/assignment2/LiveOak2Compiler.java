@@ -106,7 +106,15 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
         // Init method
         MethodNode method = null;
-        if (methodName == "main") {
+        if (methodName.equals("main")) {
+            // MethodDecl -> Type main() ...
+            if (!CompilerUtils.check(f, ')')) {
+                throw new SyntaxErrorException(
+                    "main method should not receive formals",
+                    f.lineNo()
+                );
+            }
+
             method = MainMethod.getInstance();
         } else {
             // create Method object
@@ -114,17 +122,17 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
             // Save params in symbol table and method object
             populateParams(f, method);
+
+            // MethodDecl -> Type MethodName ( Formals? ) ...
+            if (!CompilerUtils.check(f, ')')) {
+                throw new SyntaxErrorException(
+                    "get method expects ')' at end of get formals",
+                    f.lineNo()
+                );
+            }
         }
         // Save Method in global scope
         globalNode.addChild(method);
-
-        // MethodDecl -> Type MethodName ( Formals? ) ...
-        if (!CompilerUtils.check(f, ')')) {
-            throw new SyntaxErrorException(
-                "get method expects ')' at end of get formals",
-                f.lineNo()
-            );
-        }
 
         // MethodDecl -> Type MethodName ( Formals? ) { ...
         if (!CompilerUtils.check(f, '{')) {
