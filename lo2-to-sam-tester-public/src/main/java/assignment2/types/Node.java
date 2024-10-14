@@ -95,17 +95,14 @@ public class Node {
         if (o == null || getClass() != o.getClass()) return false;
         Node node = (Node) o;
         return (
-            Objects.equals(parent, node.parent) &&
-            Objects.equals(children, node.children) &&
+            address == node.address &&
             Objects.equals(name, node.name) &&
-            Objects.equals(value, node.value) &&
-            type == node.type &&
-            address == node.address
+            type == node.type
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(parent, children, name, type, address);
+        return Objects.hash(name, type, address); // dont hash parent and children to avoid stack overflow
     }
 }

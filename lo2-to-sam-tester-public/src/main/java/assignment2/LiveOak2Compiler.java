@@ -9,6 +9,8 @@ import edu.utexas.cs.sam.io.Tokenizer.TokenType;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +47,9 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 fileName,
                 SamTokenizer.TokenizerOptions.PROCESS_STRINGS
             );
-            return getProgram(secondPass);
+            String program = getProgram(secondPass);
+
+            return program;
         } catch (CompilerException e) {
             String errorMessage = String.format(
                 "Failed to compile %s.\nError Message: %s\n",
@@ -218,12 +222,36 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             }
         }
 
-        // check if there is a body
-        if (CompilerUtils.check(f, '{')) {
-            // Skip the entire body
-            while (!CompilerUtils.check(f, '}')) {
+        // MethodDecl -> Type MethodName ( Formals? ) { VarDecl [skipBlock] }
+        skipBlock(f);
+    }
+
+    static void skipBlock(SamTokenizer f) throws CompilerException {
+        // Skip the entire block in first pass
+        Deque<Character> stack = new ArrayDeque<>();
+
+        if (!CompilerUtils.check(f, '{')) {
+            throw new SyntaxErrorException(
+                "skipBlock expects '{' at start of block",
+                f.lineNo()
+            );
+        }
+        stack.push('{');
+
+        while (stack.size() > 0 && f.peekAtKind() != TokenType.EOF) {
+            if (CompilerUtils.check(f, '{')) {
+                stack.push('{');
+            } else if (CompilerUtils.check(f, '}')) {
+                stack.pop();
+            } else {
                 CompilerUtils.skipToken(f);
             }
+        }
+        if (stack.size() > 0) {
+            throw new SyntaxErrorException(
+                "skipBlock missed a closing parentheses",
+                f.lineNo()
+            );
         }
     }
 
@@ -242,7 +270,6 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         while (f.peekAtKind() != TokenType.EOF) {
             pgm += getMethodDecl(f);
         }
-        TreeUtils.printTree(globalNode);
         return pgm;
     }
 
@@ -315,6 +342,16 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 f.lineNo()
             );
         }
+
+        // Check return method at the end
+        String[] samArray = sam.split("\n");
+        if (!samArray[samArray.length - 1].equals("RST")) {
+            throw new SyntaxErrorException(
+                "get method expects 'return' at end",
+                f.lineNo()
+            );
+        }
+
         return sam;
     }
 
@@ -382,22 +419,8 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
         }
 
-        // while not "}"
-        boolean hasReturnStmt = false;
-
         while (!CompilerUtils.check(f, '}')) {
             sam += getStmt(f, method);
-
-            if (f.test("return")) {
-                hasReturnStmt = true;
-            }
-        }
-
-        if (!hasReturnStmt) {
-            throw new SyntaxErrorException(
-                "getBlock expects 'return' statement at the end",
-                f.lineNo()
-            );
         }
 
         return sam;
@@ -407,6 +430,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         throws CompilerException {
         String sam = "";
 
+        // Stmt -> ;
         if (CompilerUtils.check(f, ';')) {
             return sam; // Null statement
         }
@@ -418,18 +442,32 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
         }
 
+        // Stmt -> break;
+        // if (f.test("break")) {
+        //     sam += getBreakStmt(f, method);
+        // }
+        // Stmt -> return Expr;
         if (f.test("return")) {
             sam += getReturnStmt(f, method);
+            // Stmt -> if (Expr) Block else Block;
         } else if (f.test("if")) {
             sam += getIfStmt(f, method);
+            // Stmt -> while (Expr) Block;
         } else if (f.test("while")) {
             sam += getWhileStmt(f, method);
+            // Stmt -> Var = Expr;
         } else {
             sam += getVarStmt(f, method);
         }
 
         return sam;
     }
+
+    // static String getBreakStmt(SamTokenizer f, MethodNode method)
+    //     throws CompilerException {
+    //     String sam = "";
+    //     return sam;
+    // }
 
     static String getReturnStmt(SamTokenizer f, MethodNode method)
         throws CompilerException {
@@ -860,6 +898,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
                 // Expr -> MethodName | Var
                 Node node = method.lookupSymbol(name);
+
                 if (node == null) {
                     throw new CompilerException(
                         "getTerminal trying to access symbol that has not been declared: Node " +
