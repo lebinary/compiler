@@ -411,7 +411,7 @@ public class LiveOak0Compiler {
 
     static Expression getUnopExpr(SamTokenizer f) throws CompilerException {
         // unop sam code
-        String unop_sam = getUnop(f);
+        String unop_sam = getUnop(CompilerUtils.getOp(f));
 
         // getExpr() would return "exactly" one value on the stack
         Expression expr = getExpr(f);
@@ -425,7 +425,7 @@ public class LiveOak0Compiler {
     static Expression getBinopExpr(SamTokenizer f, Expression prevExpr)
         throws CompilerException {
         // binop sam code
-        String binop_sam = getBinop(f);
+        String binop_sam = getBinop(CompilerUtils.getOp(f));
 
         // // labels used
         // String binop_label = CompilerUtils.generateLabel();
@@ -613,57 +613,47 @@ public class LiveOak0Compiler {
         "^[a-zA-Z]([a-zA-Z0-9'_'])*$"
     );
 
-    public static boolean isBool(String bool) {
-        return List.of("true", "false").contains(bool);
-    }
-
-    public static boolean isUnop(char op) {
-        return "~!".indexOf(op) != -1;
-    }
-
-    public static String getUnop(SamTokenizer f) throws CompilerException {
-        if (CompilerUtils.check(f, '~')) {
-            return "PUSHIMM -1\nTIMES\nPUSHIMM 1\nSUB\n";
-        } else if (CompilerUtils.check(f, '!')) {
-            return "PUSHIMM 1\nADD\nPUSHIMM 2\nMOD\n";
-        } else {
-            throw new TypeErrorException(
-                "getUnop received invalid input",
-                f.lineNo()
-            );
+    public static String getUnop(char op) throws CompilerException {
+        switch (op) {
+            case '~':
+                return "PUSHIMM -1\nTIMES\nPUSHIMM 1\nSUB\n";
+            case '!':
+                return "PUSHIMM 1\nADD\nPUSHIMM 2\nMOD\n";
+            default:
+                throw new TypeErrorException(
+                    "getUnop received invalid input: " + op,
+                    -1
+                );
         }
     }
 
-    public static boolean isBinop(char op) {
-        return "+-*/%&|<>=".indexOf(op) != -1;
-    }
-
-    public static String getBinop(SamTokenizer f) throws CompilerException {
-        if (CompilerUtils.check(f, '+')) {
-            return "ADD\n";
-        } else if (CompilerUtils.check(f, '-')) {
-            return "SUB\n";
-        } else if (CompilerUtils.check(f, '*')) {
-            return "TIMES\n";
-        } else if (CompilerUtils.check(f, '/')) {
-            return "DIV\n";
-        } else if (CompilerUtils.check(f, '%')) {
-            return "MOD\n";
-        } else if (CompilerUtils.check(f, '&')) {
-            return "AND\n";
-        } else if (CompilerUtils.check(f, '|')) {
-            return "OR\n";
-        } else if (CompilerUtils.check(f, '>')) {
-            return "GREATER\n";
-        } else if (CompilerUtils.check(f, '<')) {
-            return "LESS\n";
-        } else if (CompilerUtils.check(f, '=')) {
-            return "EQUAL\n";
-        } else {
-            throw new TypeErrorException(
-                "getBinop received invalid input",
-                f.lineNo()
-            );
+    public static String getBinop(char op) throws CompilerException {
+        switch (op) {
+            case '+':
+                return "ADD\n";
+            case '-':
+                return "SUB\n";
+            case '*':
+                return "TIMES\n";
+            case '/':
+                return "DIV\n";
+            case '%':
+                return "MOD\n";
+            case '&':
+                return "AND\n";
+            case '|':
+                return "OR\n";
+            case '>':
+                return "GREATER\n";
+            case '<':
+                return "LESS\n";
+            case '=':
+                return "EQUAL\n";
+            default:
+                throw new TypeErrorException(
+                    "getBinop received invalid input: " + op,
+                    -1
+                );
         }
     }
 }

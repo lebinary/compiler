@@ -682,9 +682,9 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             Expression expr = null;
 
             // Expr -> ( Unop Expr )
-            try {
+            if (f.test('~') || f.test('!')) {
                 expr = getUnopExpr(f, method);
-            } catch (TypeErrorException e) {
+            } else {
                 // Expr -> ( Expr (...) )
                 expr = getExpr(f, method);
 
@@ -729,11 +729,29 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
     static Expression getUnopExpr(SamTokenizer f, MethodNode method)
         throws CompilerException {
+        // Not an operator, raise
+        if (f.peekAtKind() != TokenType.OPERATOR) {
+            throw new TypeErrorException(
+                "getUnopExpr expects an OPERATOR",
+                f.lineNo()
+            );
+        }
+        char op = CompilerUtils.getOp(f);
+
         // unop sam code
-        String unop_sam = getUnop(f);
+        String unop_sam = getUnop(op);
 
         // getExpr() would return "exactly" one value on the stack
         Expression expr = getExpr(f, method);
+
+        // Type check
+        if (op == '~' && expr.type != Type.INT) {
+            throw new TypeErrorException(
+                "Bitwise NOT operation requires INT operand, but got " +
+                expr.type,
+                f.lineNo()
+            );
+        }
 
         // apply unop on expression
         expr.samCode += unop_sam;
@@ -746,14 +764,39 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         Expression prevExpr,
         MethodNode method
     ) throws CompilerException {
+        // Not an operator, raise
+        if (f.peekAtKind() != TokenType.OPERATOR) {
+            throw new TypeErrorException(
+                "getBinopExpr expects an OPERATOR",
+                f.lineNo()
+            );
+        }
+        char op = CompilerUtils.getOp(f);
+
         // binop sam code
-        String binop_sam = getBinop(f);
+        String binop_sam = getBinop(op);
         Expression expr = getExpr(f, method);
 
-        // Type check
+        // Type check return
         if (!expr.type.isCompatibleWith(prevExpr.type)) {
             throw new TypeErrorException(
                 "Binop expr type mismatch: " +
+                prevExpr.type +
+                " and " +
+                expr.type,
+                f.lineNo()
+            );
+        }
+
+        // Type check for Logical operations
+        if (
+            (op == '&' || op == '|') &&
+            (prevExpr.type != Type.BOOL || expr.type != Type.BOOL)
+        ) {
+            throw new TypeErrorException(
+                "Logical operation '" +
+                op +
+                "' requires BOOL operands, but got " +
                 prevExpr.type +
                 " and " +
                 expr.type,
