@@ -57,7 +57,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Exception e) {
             String errorMessage = String.format(
@@ -66,7 +66,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         }
     }
@@ -443,11 +443,11 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
 
         // Stmt -> break;
-        // if (f.test("break")) {
-        //     sam += getBreakStmt(f, method);
-        // }
+        if (f.test("break")) {
+            sam += getBreakStmt(f, method);
+        }
         // Stmt -> return Expr;
-        if (f.test("return")) {
+        else if (f.test("return")) {
             sam += getReturnStmt(f, method);
             // Stmt -> if (Expr) Block else Block;
         } else if (f.test("if")) {
@@ -463,11 +463,25 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         return sam;
     }
 
-    // static String getBreakStmt(SamTokenizer f, MethodNode method)
-    //     throws CompilerException {
-    //     String sam = "";
-    //     return sam;
-    // }
+    static String getBreakStmt(SamTokenizer f, MethodNode method)
+        throws CompilerException {
+        if (!CompilerUtils.check(f, "break")) {
+            throw new SyntaxErrorException(
+                "break statement expects 'break'",
+                f.lineNo()
+            );
+        }
+
+        String exitLabel = method.peekLoopExitLabel();
+        if (exitLabel == null) {
+            throw new SyntaxErrorException(
+                "break statement outside of a loop",
+                f.lineNo()
+            );
+        }
+
+        return "JUMP " + exitLabel + "\n";
+    }
 
     static String getReturnStmt(SamTokenizer f, MethodNode method)
         throws CompilerException {
@@ -576,6 +590,9 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         String start_loop = CompilerUtils.generateLabel();
         String stop_loop = CompilerUtils.generateLabel();
 
+        // Push exit label to use for break statement
+        method.pushLoopExitLabel(stop_loop);
+
         // while ( Expr ) ...
         if (!CompilerUtils.check(f, '(')) {
             throw new SyntaxErrorException(
@@ -603,6 +620,9 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
         // Stop loop
         sam += stop_loop + ":\n";
+
+        // Pop label when done
+        method.popLoopExitLabel();
 
         return sam;
     }
@@ -791,6 +811,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         sam += "LINK\n";
         sam += "JSR " + callingMethod.name + "\n";
         sam += "UNLINK\n";
+        sam += "ADDSP -" + callingMethod.numLocalVariables() + "\n";
 
         if (!CompilerUtils.check(f, ')')) {
             throw new SyntaxErrorException(

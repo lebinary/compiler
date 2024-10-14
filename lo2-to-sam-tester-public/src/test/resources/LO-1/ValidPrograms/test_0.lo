@@ -1,15 +1,23 @@
+// *Good testcase*
+// Factorial
+// main return value: 120
+// Author: Fall 2021 TAs
 
-int add(int a, int b) {
+int main() {
     {
-        return (a + b);
+     return fact(5);
     }
 }
 
-int main() {
-    int a, b;
+int fact(int a) {
+    int b;
     {
-        a = 20;
-        b = (a * 2);
-        return a;
+      if ((a=0)) {
+        b = 1;
+      }
+      else {
+        b = (a * fact((a-1)));
+      }
+      return b;
     }
 }

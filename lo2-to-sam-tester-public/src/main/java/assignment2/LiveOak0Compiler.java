@@ -170,7 +170,7 @@ public class LiveOak0Compiler {
             mainMethod.addChild(variable);
 
             // write sam code
-            sam += "PUSHIMM 0";
+            sam += "PUSHIMM 0\n";
 
             if (CompilerUtils.check(f, ',')) {
                 continue;

@@ -34,6 +34,22 @@ class LiveOak1CompilerTest {
         "LO-1",
         "InvalidPrograms"
     ).toString();
+
+    private static final String lo2ValidProgramDir = Path.of(
+        "src",
+        "test",
+        "resources",
+        "LO-2",
+        "ValidPrograms"
+    ).toString();
+    private static final String lo2InvalidProgramDir = Path.of(
+        "src",
+        "test",
+        "resources",
+        "LO-2",
+        "InvalidPrograms"
+    ).toString();
+
     private static ByteArrayOutputStream errContent;
 
     @BeforeEach
@@ -60,8 +76,8 @@ class LiveOak1CompilerTest {
     void testL01_0() throws Throwable {
         String fileName = Path.of(lo1ValidProgramDir, "test_0.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
-
         System.out.println(program);
+        SamTestRunner.checkReturnValue(program, 120);
         // SamTestRunner.checkReturnValue(program, 20);
     }
 }

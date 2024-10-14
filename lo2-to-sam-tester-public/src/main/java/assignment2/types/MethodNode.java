@@ -1,6 +1,8 @@
 package assignment2;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 
@@ -8,6 +10,7 @@ public class MethodNode extends Node {
 
     public List<VariableNode> parameters;
     public List<VariableNode> localVariables;
+    private Deque<String> loopExitLabels;
 
     public MethodNode(
         Node parent,
@@ -19,6 +22,7 @@ public class MethodNode extends Node {
         super(parent, children, name, returnType, address, null);
         this.parameters = new ArrayList<>();
         this.localVariables = new ArrayList<>();
+        this.loopExitLabels = new ArrayDeque<>();
 
         // Populate parameters and localVariables
         for (Node child : children) {
@@ -54,6 +58,7 @@ public class MethodNode extends Node {
         }
     }
 
+    // Tree operations
     public void addChild(Node child) {
         super.addChild(child);
 
@@ -69,6 +74,7 @@ public class MethodNode extends Node {
         this.localVariables.clear();
     }
 
+    // Params and Locals operations
     public int getNextParamAddress() {
         return -(1 + parameters.size());
     }
@@ -87,6 +93,19 @@ public class MethodNode extends Node {
 
     public int numParameters() {
         return parameters.size();
+    }
+
+    // Exit loops stack operations
+    public void pushLoopExitLabel(String label) {
+        loopExitLabels.push(label);
+    }
+
+    public String popLoopExitLabel() {
+        return loopExitLabels.pop();
+    }
+
+    public String peekLoopExitLabel() {
+        return loopExitLabels.isEmpty() ? null : loopExitLabels.peek();
     }
 
     @Override
