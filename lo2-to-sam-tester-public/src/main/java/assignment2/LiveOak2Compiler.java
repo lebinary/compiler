@@ -745,9 +745,9 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         Expression expr = getExpr(f, method);
 
         // Type check
-        if (op == '~' && expr.type != Type.INT) {
+        if (op == '~' && expr.type != Type.INT && expr.type != Type.STRING) {
             throw new TypeErrorException(
-                "Bitwise NOT operation requires INT operand, but got " +
+                "Bitwise NOT operation requires INT | STRING operand, but got " +
                 expr.type,
                 f.lineNo()
             );
