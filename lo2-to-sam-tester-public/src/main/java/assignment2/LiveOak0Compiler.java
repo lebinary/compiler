@@ -657,4 +657,27 @@ public class LiveOak0Compiler {
                 );
         }
     }
+
+    public static BinopType getBinopType(char op) throws CompilerException {
+        switch (op) {
+            case '+':
+            case '-':
+            case '*':
+            case '/':
+            case '%':
+                return BinopType.ARITHMETIC;
+            case '&':
+            case '|':
+                return BinopType.BITWISE;
+            case '>':
+            case '<':
+            case '=':
+                return BinopType.COMPARISON;
+            default:
+                throw new TypeErrorException(
+                    "categorizeBinop received invalid input: " + op,
+                    -1
+                );
+        }
+    }
 }

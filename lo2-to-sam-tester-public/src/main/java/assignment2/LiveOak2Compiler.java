@@ -729,11 +729,15 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
                 // Exprt -> (Expr ? Expr : Expr)
                 if (CompilerUtils.check(f, '?')) {
-                    expr.samCode += getTernaryExpr(f, method).samCode;
+                    Expression ternaryExpr = getTernaryExpr(f, method);
+                    expr.samCode += ternaryExpr.samCode;
+                    expr.type = ternaryExpr.type;
                 }
                 // Exprt -> (Expr Binop Expr)
                 else {
-                    expr.samCode += getBinopExpr(f, expr, method).samCode;
+                    Expression binopExpr = getBinopExpr(f, expr, method);
+                    expr.samCode += binopExpr.samCode;
+                    expr.type = binopExpr.type;
                 }
             }
 
@@ -816,7 +820,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
         // Type check for Logical operations
         if (
-            (op == '&' || op == '|') &&
+            getBinopType(op) == BinopType.BITWISE &&
             (prevExpr.type != Type.BOOL || expr.type != Type.BOOL)
         ) {
             throw new TypeErrorException(
@@ -831,7 +835,10 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
 
         expr.samCode += binop_sam;
-
+        // Change return type to boolean if binop is Comparison
+        if (getBinopType(op) == BinopType.COMPARISON) {
+            expr.type = Type.BOOL;
+        }
         return expr;
     }
 
@@ -850,7 +857,8 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         expr.samCode += "JUMPC " + false_expr + "\n";
 
         // Truth expression:  (...) ? Expr : (..)
-        expr.samCode += getExpr(f, method).samCode;
+        Expression truthExpr = getExpr(f, method);
+        expr.samCode += truthExpr.samCode;
         expr.samCode += "JUMP " + stop_ternary + "\n";
 
         // Checks ':'
@@ -863,7 +871,20 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
         // False expression: (...) ? (...) : Expr
         expr.samCode += false_expr + ":\n";
-        expr.samCode += getExpr(f, method).samCode;
+        Expression falseExpr = getExpr(f, method);
+        expr.samCode += falseExpr.samCode;
+
+        // Type check return
+        if (!truthExpr.type.isCompatibleWith(falseExpr.type)) {
+            throw new TypeErrorException(
+                "Ternary expr type mismatch: " +
+                truthExpr.type +
+                " and " +
+                falseExpr.type,
+                f.lineNo()
+            );
+        }
+        expr.type = truthExpr.type;
 
         // Stop Frame
         expr.samCode += stop_ternary + ":\n";
