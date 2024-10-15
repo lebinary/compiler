@@ -290,7 +290,10 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         String methodName = getIdentifier(f);
 
         // Pull method from global scope
-        Node method = globalNode.lookupSymbol(methodName);
+        MethodNode method = globalNode.lookupSymbol(
+            methodName,
+            MethodNode.class
+        );
         if (method == null) {
             throw new CompilerException(
                 "get method cannot find method " +
@@ -339,7 +342,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
 
         // MethodDecl -> Type MethodName ( Formals? ) { Body ...
-        sam += getBody(f, (MethodNode) method);
+        sam += getBody(f, method);
 
         // MethodDecl -> Type MethodName ( Formals? ) { Body }
         if (!CompilerUtils.check(f, '}')) {
@@ -350,10 +353,12 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
 
         // Check return method at the end
-        String[] samArray = sam.split("\n");
-        if (!samArray[samArray.length - 1].equals("RST")) {
+        if (
+            method.peekStatement() != Statement.RETURN ||
+            !method.hasStatement(Statement.RETURN)
+        ) {
             throw new SyntaxErrorException(
-                "get method expects 'return' at end",
+                "get method missing return statement",
                 f.lineNo()
             );
         }
@@ -460,20 +465,25 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
         // Stmt -> break;
         if (f.test("break")) {
+            method.pushStatement(Statement.BREAK);
             sam += getBreakStmt(f, method);
         }
         // Stmt -> return Expr;
         else if (f.test("return")) {
             // TODO: ONLY 1 return STMT at the end, all other return STMT "jump" to that end
+            method.pushStatement(Statement.RETURN);
             sam += getReturnStmt(f, method);
             // Stmt -> if (Expr) Block else Block;
         } else if (f.test("if")) {
+            method.pushStatement(Statement.CONDITIONAL);
             sam += getIfStmt(f, method);
             // Stmt -> while (Expr) Block;
         } else if (f.test("while")) {
+            method.pushStatement(Statement.LOOP);
             sam += getWhileStmt(f, method);
             // Stmt -> Var = Expr;
         } else {
+            method.pushStatement(Statement.ASSIGN);
             sam += getVarStmt(f, method);
         }
 
