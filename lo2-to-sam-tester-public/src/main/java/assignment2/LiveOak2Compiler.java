@@ -378,8 +378,18 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             return sam;
         }
 
+        String cleanupLabel = CompilerUtils.generateLabel();
+        method.pushExitLabel(cleanupLabel);
+
         // Then, get Block
         sam += getBlock(f, method);
+
+        // Cleanup procedure
+        sam += cleanupLabel + ":\n";
+        sam += "STOREOFF " + method.returnAddress() + "\n";
+        sam += "ADDSP -" + method.numLocalVariables() + "\n";
+        sam += "RST\n";
+        method.popExitLabel();
 
         return sam;
     }
@@ -454,6 +464,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
         // Stmt -> return Expr;
         else if (f.test("return")) {
+            // TODO: ONLY 1 return STMT at the end, all other return STMT "jump" to that end
             sam += getReturnStmt(f, method);
             // Stmt -> if (Expr) Block else Block;
         } else if (f.test("if")) {
@@ -478,7 +489,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
         }
 
-        String exitLabel = method.peekLoopExitLabel();
+        String exitLabel = method.peekExitLabel();
         if (exitLabel == null) {
             throw new SyntaxErrorException(
                 "break statement outside of a loop",
@@ -514,10 +525,15 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
         sam += expr.samCode;
 
-        // Return whatever on top of the stack
-        sam += "STOREOFF " + method.returnAddress() + "\n";
-        sam += "ADDSP -" + method.numLocalVariables() + "\n";
-        sam += "RST\n";
+        // Jump to clean up
+        String cleanupLabel = method.peekExitLabel();
+        if (cleanupLabel == null) {
+            throw new CompilerException(
+                "getReturnStmt missing exit label",
+                f.lineNo()
+            );
+        }
+        sam += "JUMP " + cleanupLabel + "\n";
 
         return sam;
     }
@@ -597,7 +613,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         String stop_loop = CompilerUtils.generateLabel();
 
         // Push exit label to use for break statement
-        method.pushLoopExitLabel(stop_loop);
+        method.pushExitLabel(stop_loop);
 
         // while ( Expr ) ...
         if (!CompilerUtils.check(f, '(')) {
@@ -628,7 +644,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         sam += stop_loop + ":\n";
 
         // Pop label when done
-        method.popLoopExitLabel();
+        method.popExitLabel();
 
         return sam;
     }
@@ -864,7 +880,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         sam += "LINK\n";
         sam += "JSR " + callingMethod.name + "\n";
         sam += "UNLINK\n";
-        sam += "ADDSP -" + callingMethod.numLocalVariables() + "\n";
+        sam += "ADDSP -" + callingMethod.numParameters() + "\n";
 
         if (!CompilerUtils.check(f, ')')) {
             throw new SyntaxErrorException(

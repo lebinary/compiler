@@ -615,6 +615,7 @@ public class LiveOak0Compiler {
 
     public static String getUnop(char op) throws CompilerException {
         switch (op) {
+            // TODO: string bitwise
             case '~':
                 return "PUSHIMM -1\nTIMES\nPUSHIMM 1\nSUB\n";
             case '!':

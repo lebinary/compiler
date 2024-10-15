@@ -10,7 +10,7 @@ public class MethodNode extends Node {
 
     public List<VariableNode> parameters;
     public List<VariableNode> localVariables;
-    private Deque<String> loopExitLabels;
+    private Deque<String> exitLabels;
 
     public MethodNode(
         Node parent,
@@ -22,7 +22,7 @@ public class MethodNode extends Node {
         super(parent, children, name, returnType, address, null);
         this.parameters = new ArrayList<>();
         this.localVariables = new ArrayList<>();
-        this.loopExitLabels = new ArrayDeque<>();
+        this.exitLabels = new ArrayDeque<>();
 
         // Populate parameters and localVariables
         for (Node child : children) {
@@ -96,16 +96,16 @@ public class MethodNode extends Node {
     }
 
     // Exit loops stack operations
-    public void pushLoopExitLabel(String label) {
-        loopExitLabels.push(label);
+    public void pushExitLabel(String label) {
+        exitLabels.push(label);
     }
 
-    public String popLoopExitLabel() {
-        return loopExitLabels.pop();
+    public String popExitLabel() {
+        return exitLabels.pop();
     }
 
-    public String peekLoopExitLabel() {
-        return loopExitLabels.isEmpty() ? null : loopExitLabels.peek();
+    public String peekExitLabel() {
+        return exitLabels.isEmpty() ? null : exitLabels.peek();
     }
 
     @Override
