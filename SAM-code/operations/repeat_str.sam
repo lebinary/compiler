@@ -1,0 +1,123 @@
+PUSHIMM 2
+PUSHIMMSTR "abc"
+LINK
+JSR repeat
+UNLINK
+FREE
+JUMP r41deb42
+
+repeat:
+    PUSHIMM 0 // counter
+    PUSHIMM 0 // malloc
+    PUSHIMM 0 // return address
+
+    // get length
+    PUSHOFF -1
+    DUP
+    start_count:
+        // get 1 character from memory
+        DUP
+        PUSHIND
+
+        // end loop if nil
+        ISNIL
+        JUMPC stop_count
+
+        // increase address
+        PUSHIMM 1
+        ADD
+
+        JUMP start_count
+    stop_count:
+        SWAP
+        SUB
+
+    PUSHOFF -2
+    TIMES
+    PUSHIMM 1
+    ADD
+    MALLOC
+    STOREOFF 3
+
+    // retun this address
+    PUSHOFF 3
+    STOREOFF 4
+
+    start_loop:
+        PUSHOFF 2
+        PUSHOFF -2
+        EQUAL
+        JUMPC stop_loop
+
+        // append str to memory
+        PUSHIMM 0
+        PUSHOFF 3
+        PUSHOFF -1
+        LINK
+        JSR append
+        UNLINK
+        ADDSP -2
+        JUMP c8e80d31
+
+        append:
+        PUSHOFF -2
+        PUSHOFF -1
+
+        start_append:
+            // put char in TOS
+            // end loop if nil
+            PUSHOFF 3
+            PUSHIND
+            ISNIL
+            JUMPC stop_append
+
+            // Save to allocated memory
+            PUSHOFF 2
+            PUSHOFF 3
+            PUSHIND
+            STOREIND
+
+            // increase address current string
+            PUSHOFF 3
+            PUSHIMM 1
+            ADD
+            STOREOFF 3
+
+            // increase final address string
+            PUSHOFF 2
+            PUSHIMM 1
+            ADD
+            STOREOFF 2
+
+            JUMP start_append
+
+        stop_append:
+            PUSHOFF 2
+            PUSHIMMCH '\0'
+            STOREIND
+
+            PUSHOFF 2
+            STOREOFF -3
+
+            ADDSP -2
+            RST
+
+        c8e80d31:
+        STOREOFF 3
+
+        // increase counter
+        PUSHOFF 2
+        PUSHIMM 1
+        ADD
+        STOREOFF 2
+
+        JUMP start_loop
+    stop_loop:
+        PUSHOFF 4
+        STOREOFF -2
+
+        ADDSP -3
+        RST
+
+r41deb42:
+STOP

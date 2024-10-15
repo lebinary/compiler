@@ -680,4 +680,179 @@ public class LiveOak0Compiler {
                 );
         }
     }
+
+    public static String repeatString(
+        Type firstInputType,
+        Type secondInputType
+    ) throws CompilerException {
+        // expects parameters already on the stack
+        String enterFuncLabel = CompilerUtils.generateLabel();
+        String exitFuncLabel = CompilerUtils.generateLabel();
+        String startLoopLabel = CompilerUtils.generateLabel();
+        String stopLoopLabel = CompilerUtils.generateLabel();
+
+        String sam = "";
+
+        // prepare params, String always on top
+        if (firstInputType == Type.STRING) {
+            sam += "SWAP\n";
+        }
+
+        // call method
+        sam += "LINK\n";
+        sam += "JSR " + enterFuncLabel + "\n";
+        sam += "UNLINK\n";
+        sam += "FREE\n";
+        sam += "JUMP " + exitFuncLabel + "\n";
+
+        // method definition
+        sam += enterFuncLabel + ":\n";
+        sam += "PUSHIMM 0\n"; // local 1: loop counter
+        sam += "PUSHIMM 0\n"; // local 2: malloc
+        sam += "PUSHIMM 0\n"; // local 3: return address
+
+        sam += "PUSHOFF -1\n";
+        sam += getStringLength();
+
+        // allocate memory for new string -> Address
+        sam += "PUSHOFF -2\n";
+        sam += "TIMES\n";
+        sam += "PUSHIMM 1\n";
+        sam += "ADD\n";
+        sam += "MALLOC\n";
+        sam += "STOREOFF 3\n";
+
+        // return this address
+        sam += "PUSHOFF 3\n";
+        sam += "STOREOFF 4\n";
+
+        // loop...
+        sam += startLoopLabel + ":\n";
+        // check if done
+        sam += "PUSHOFF 2\n";
+        sam += "PUSHOFF -2\n";
+        sam += "EQUAL\n";
+        sam += "JUMPC " + stopLoopLabel + "\n";
+
+        // append str to memory
+        sam += "PUSHIMM 0\n";
+        sam += "PUSHOFF 3\n";
+        sam += "PUSHOFF -1\n";
+        sam += appendStringHeap();
+        sam += "STOREOFF 3\n";
+
+        // increase counter
+        sam += "PUSHOFF 2\n";
+        sam += "PUSHIMM 1\n";
+        sam += "ADD\n";
+        sam += "STOREOFF 2\n";
+
+        // Continue loop
+        sam += "JUMP " + startLoopLabel + "\n";
+
+        // Stop loop
+        sam += stopLoopLabel + ":\n";
+        sam += "PUSHOFF 4\n";
+        sam += "STOREOFF -2\n";
+        sam += "ADDSP -3\n";
+        sam += "RST\n";
+
+        // Exit method
+        sam += exitFuncLabel + ":\n";
+
+        return sam;
+    }
+
+    public static String getStringLength() {
+        // expects parameters already on the stack
+        String startCountLabel = CompilerUtils.generateLabel();
+        String stopCountLabel = CompilerUtils.generateLabel();
+        String sam = "";
+
+        sam += "DUP\n";
+
+        // START
+        sam += startCountLabel + ":\n";
+        sam += "DUP\n";
+        sam += "PUSHIND\n";
+
+        // check end of string
+        sam += "ISNIL\n";
+        sam += "JUMPC " + stopCountLabel + "\n";
+
+        // increament count and continue loop
+        sam += "PUSHIMM 1\n";
+        sam += "ADD\n";
+        sam += "JUMP " + startCountLabel + "\n";
+
+        // STOP
+        sam += stopCountLabel + ":\n";
+        sam += "SWAP\n";
+        sam += "SUB\n";
+
+        return sam;
+    }
+
+    public static String appendStringHeap() {
+        // expects parameters already on the stack, String on top, Mempry address
+        String enterFuncLabel = CompilerUtils.generateLabel();
+        String exitFuncLabel = CompilerUtils.generateLabel();
+        String startLoopLabel = CompilerUtils.generateLabel();
+        String stopLoopLabel = CompilerUtils.generateLabel();
+
+        String sam = "";
+
+        // call method
+        sam += "LINK\n";
+        sam += "JSR " + enterFuncLabel + "\n";
+        sam += "UNLINK\n";
+        sam += "ADDSP -2\n";
+        sam += "JUMP " + exitFuncLabel + "\n";
+
+        sam += enterFuncLabel + ":\n";
+        sam += "PUSHOFF -2\n";
+        sam += "PUSHOFF -1\n";
+
+        sam += startLoopLabel + ":\n";
+        // put char in TOS
+        // end loop if nil
+        sam += "PUSHOFF 3\n";
+        sam += "PUSHIND\n";
+        sam += "ISNIL\n";
+        sam += "JUMPC " + stopLoopLabel + "\n";
+
+        // Save to allocated memory
+        sam += "PUSHOFF 2\n";
+        sam += "PUSHOFF 3\n";
+        sam += "PUSHIND\n";
+        sam += "STOREIND\n";
+
+        // increase address current string
+        sam += "PUSHOFF 3\n";
+        sam += "PUSHIMM 1\n";
+        sam += "ADD\n";
+        sam += "STOREOFF 3\n";
+
+        // increase final address string
+        sam += "PUSHOFF 2\n";
+        sam += "PUSHIMM 1\n";
+        sam += "ADD\n";
+        sam += "STOREOFF 2\n";
+
+        sam += "JUMP " + startLoopLabel + "\n";
+
+        sam += stopLoopLabel + ":\n";
+        sam += "PUSHOFF 2\n";
+        sam += "PUSHIMMCH '\\0'" + "\n";
+        sam += "STOREIND\n";
+        sam += "PUSHOFF 2\n";
+        sam += "STOREOFF -3\n";
+        sam += "ADDSP -2\n";
+        sam += "RST\n";
+
+        // Exit method
+        sam += exitFuncLabel + ":\n";
+
+        return sam;
+    }
 }

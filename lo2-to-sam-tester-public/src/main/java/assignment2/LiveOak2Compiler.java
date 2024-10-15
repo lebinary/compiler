@@ -55,7 +55,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
+            CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Exception e) {
             String errorMessage = String.format(
@@ -674,6 +674,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         Expression expr = getExpr(f, method);
         // Type check
         if (!expr.type.isCompatibleWith(variable.type)) {
+            System.out.println(expr.samCode);
             throw new TypeErrorException(
                 "getVarStmt type mismatch: " +
                 variable.type +
@@ -803,42 +804,58 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
         char op = CompilerUtils.getOp(f);
 
-        // binop sam code
-        String binop_sam = getBinop(op);
         Expression expr = getExpr(f, method);
 
-        // Type check return
-        if (!expr.type.isCompatibleWith(prevExpr.type)) {
-            throw new TypeErrorException(
-                "Binop expr type mismatch: " +
-                prevExpr.type +
-                " and " +
-                expr.type,
-                f.lineNo()
-            );
-        }
-
-        // Type check for Logical operations
+        /*** Special cases
+         ***/
+        // String concatenation
         if (
-            getBinopType(op) == BinopType.BITWISE &&
-            (prevExpr.type != Type.BOOL || expr.type != Type.BOOL)
+            op == '*' &&
+            ((prevExpr.type == Type.STRING && expr.type == Type.INT) ||
+                (prevExpr.type == Type.INT && expr.type == Type.STRING))
         ) {
-            throw new TypeErrorException(
-                "Logical operation '" +
-                op +
-                "' requires BOOL operands, but got " +
-                prevExpr.type +
-                " and " +
-                expr.type,
-                f.lineNo()
-            );
+            System.out.println("\n");
+            expr.samCode += repeatString(prevExpr.type, expr.type);
+            expr.type = Type.STRING;
+        } else {
+            /*** Basic cases
+             ***/
+            // Type check return
+            if (!expr.type.isCompatibleWith(prevExpr.type)) {
+                throw new TypeErrorException(
+                    "Binop expr type mismatch: " +
+                    prevExpr.type +
+                    " and " +
+                    expr.type,
+                    f.lineNo()
+                );
+            }
+
+            // Type check for Logical operations
+            if (
+                getBinopType(op) == BinopType.BITWISE &&
+                (prevExpr.type != Type.BOOL || expr.type != Type.BOOL)
+            ) {
+                throw new TypeErrorException(
+                    "Logical operation '" +
+                    op +
+                    "' requires BOOL operands, but got " +
+                    prevExpr.type +
+                    " and " +
+                    expr.type,
+                    f.lineNo()
+                );
+            }
+
+            // basic binop sam code
+            expr.samCode += getBinop(op);
         }
 
-        expr.samCode += binop_sam;
         // Change return type to boolean if binop is Comparison
         if (getBinopType(op) == BinopType.COMPARISON) {
             expr.type = Type.BOOL;
         }
+
         return expr;
     }
 
