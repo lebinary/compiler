@@ -684,7 +684,7 @@ public class LiveOak0Compiler {
     public static String repeatString(
         Type firstInputType,
         Type secondInputType
-    ) throws CompilerException {
+    ) {
         // expects parameters already on the stack
         String enterFuncLabel = CompilerUtils.generateLabel();
         String exitFuncLabel = CompilerUtils.generateLabel();
@@ -702,13 +702,13 @@ public class LiveOak0Compiler {
         sam += "LINK\n";
         sam += "JSR " + enterFuncLabel + "\n";
         sam += "UNLINK\n";
-        sam += "FREE\n";
+        sam += "FREE\n"; // free second param, only first param remain with new value
         sam += "JUMP " + exitFuncLabel + "\n";
 
         // method definition
         sam += enterFuncLabel + ":\n";
         sam += "PUSHIMM 0\n"; // local 1: loop counter
-        sam += "PUSHIMM 0\n"; // local 2: malloc
+        sam += "PUSHIMM 0\n"; // local 2: increment address
         sam += "PUSHIMM 0\n"; // local 3: return address
 
         sam += "PUSHOFF -1\n";
@@ -735,9 +735,9 @@ public class LiveOak0Compiler {
         sam += "JUMPC " + stopLoopLabel + "\n";
 
         // append str to memory
-        sam += "PUSHIMM 0\n";
-        sam += "PUSHOFF 3\n";
-        sam += "PUSHOFF -1\n";
+        sam += "PUSHIMM 0\n";  // will return next address
+        sam += "PUSHOFF 3\n";  // param1: starting memory address
+        sam += "PUSHOFF -1\n"; // param2: string
         sam += appendStringHeap();
         sam += "STOREOFF 3\n";
 
@@ -848,6 +848,69 @@ public class LiveOak0Compiler {
         sam += "PUSHOFF 2\n";
         sam += "STOREOFF -3\n";
         sam += "ADDSP -2\n";
+        sam += "RST\n";
+
+        // Exit method
+        sam += exitFuncLabel + ":\n";
+
+        return sam;
+    }
+
+    public static String concatString() {
+        // expects parameters (2 strings) already on the stack
+        String enterFuncLabel = CompilerUtils.generateLabel();
+        String exitFuncLabel = CompilerUtils.generateLabel();
+
+        String sam = "";
+
+        // call method
+        sam += "LINK\n";
+        sam += "JSR " + enterFuncLabel + "\n";
+        sam += "UNLINK\n";
+        sam += "FREE\n"; // free second param, only first param remain with new value
+        sam += "JUMP " + exitFuncLabel + "\n";
+
+        // method definition
+        sam += enterFuncLabel + ":\n";
+        sam += "PUSHIMM 0\n"; // local 2: increment address
+        sam += "PUSHIMM 0\n"; // local 3: return address
+
+        // allocate space for resulting string
+        sam += "PUSHOFF -1\n";
+        sam += getStringLength();
+        sam += "PUSHOFF -2\n";
+        sam += getStringLength();
+        sam += "ADD\n";
+        sam += "PUSHIMM 1\n";
+        sam += "ADD\n";
+        sam += "MALLOC\n";
+        sam += "STOREOFF 2\n";
+
+        // return this address
+        sam += "PUSHOFF 2\n";
+        sam += "STOREOFF 3\n";
+
+        // append first string to memory
+        sam += "PUSHIMM 0\n";  // will return next address
+        sam += "PUSHOFF 2\n";  // param1: starting memory address
+        sam += "PUSHOFF -2\n"; // param2: string
+        sam += appendStringHeap();
+        sam += "STOREOFF 2\n";
+
+        // append second string to memory
+        sam += "PUSHIMM 0\n";
+        sam += "PUSHOFF 2\n";
+        sam += "PUSHOFF -1\n";
+        sam += appendStringHeap();
+        sam += "STOREOFF 2\n";
+
+        // store in the first string pos
+        sam += "PUSHOFF 3\n";
+        sam += "STOREOFF -2\n";
+
+        // clean local vars
+        sam += "ADDSP -2\n";
+        // return
         sam += "RST\n";
 
         // Exit method

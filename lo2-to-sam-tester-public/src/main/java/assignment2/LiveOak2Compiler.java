@@ -806,16 +806,22 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
 
         Expression expr = getExpr(f, method);
 
-        /*** Special cases
+        /*** Special cases:
          ***/
-        // String concatenation
+        // String repeat
         if (
             op == '*' &&
             ((prevExpr.type == Type.STRING && expr.type == Type.INT) ||
                 (prevExpr.type == Type.INT && expr.type == Type.STRING))
         ) {
-            System.out.println("\n");
             expr.samCode += repeatString(prevExpr.type, expr.type);
+            expr.type = Type.STRING;
+        }
+        // String concatenation
+        else if (
+            op == '+' && prevExpr.type == Type.STRING && expr.type == Type.STRING
+        ) {
+            expr.samCode += concatString();
             expr.type = Type.STRING;
         } else {
             /*** Basic cases
