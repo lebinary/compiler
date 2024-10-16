@@ -1016,4 +1016,98 @@ public class LiveOak0Compiler {
 
         return sam;
     }
+
+    public static String reverseString() {
+        // expects parameter (1 string) already on the stack
+        String enterFuncLabel = CompilerUtils.generateLabel();
+        String exitFuncLabel = CompilerUtils.generateLabel();
+        String startLoopLabel = CompilerUtils.generateLabel();
+        String stopLoopLabel = CompilerUtils.generateLabel();
+
+        String sam = "";
+
+        // call method
+        sam += "LINK\n";
+        sam += "JSR " + enterFuncLabel + "\n";
+        sam += "UNLINK\n";
+        sam += "JUMP " + exitFuncLabel + "\n";
+
+        // method definition
+        sam += enterFuncLabel + ":\n";
+        sam += "PUSHIMM 0\n"; // local 2: counter
+        sam += "PUSHIMM 0\n"; // local 3: increment address
+        sam += "PUSHIMM 0\n"; // local 4: result
+
+        // get string length and store in local 2
+        sam += "PUSHOFF -1\n";
+        sam += getStringLength();
+        sam += "STOREOFF 2\n";
+
+        // allocate space for resulting string
+        sam += "PUSHOFF 2\n";
+        sam += "PUSHIMM 1\n";
+        sam += "ADD\n";
+        sam += "MALLOC\n";
+        sam += "STOREOFF 3\n";
+
+        // return this address
+        sam += "PUSHOFF 3\n";
+        sam += "STOREOFF 4\n";
+
+        // set EOS char first
+        sam += "PUSHOFF 3\n";
+        sam += "PUSHOFF 2\n";
+        sam += "ADD\n";
+        sam += "PUSHIMMCH '\\0'" + "\n";
+        sam += "STOREIND\n";
+
+        // loop (backward)...
+        sam += startLoopLabel + ":\n";
+
+        // end loop if counter == 0
+        sam += "PUSHOFF 2\n";
+        sam += "ISNIL\n";
+        sam += "JUMPC " + stopLoopLabel + "\n";
+
+        // get current address
+        sam += "PUSHOFF 3\n";
+
+        // get current char
+        sam += "PUSHOFF -1\n";
+        sam += "PUSHOFF 2\n";
+        sam += "ADD\n";
+        sam += "PUSHIMM 1\n"; // subtract 1 because indexing
+        sam += "SUB\n";
+        sam += "PUSHIND\n";
+
+        // store char in address
+        sam += "STOREIND\n";
+
+        // increment address
+        sam += "PUSHOFF 3\n";
+        sam += "PUSHIMM 1\n";
+        sam += "ADD\n";
+        sam += "STOREOFF 3\n";
+
+        // decrement counter
+        sam += "PUSHOFF 2\n";
+        sam += "PUSHIMM 1\n";
+        sam += "SUB\n";
+        sam += "STOREOFF 2\n";
+
+        // Continue loop
+        sam += "JUMP " + startLoopLabel + "\n";
+
+        // Stop loop
+        sam += stopLoopLabel + ":\n";
+        sam += "PUSHOFF 4\n";
+        sam += "STOREOFF -1\n";
+        sam += "ADDSP -3\n";
+        sam += "RST\n";
+
+        // Exit method
+        sam += exitFuncLabel + ":\n";
+
+        return sam;
+    }
 }

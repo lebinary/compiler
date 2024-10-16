@@ -55,7 +55,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Exception e) {
             String errorMessage = String.format(
@@ -769,23 +769,31 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
         char op = CompilerUtils.getOp(f);
 
-        // unop sam code
-        String unop_sam = getUnop(op);
-
         // getExpr() would return "exactly" one value on the stack
         Expression expr = getExpr(f, method);
 
-        // Type check
-        if (op == '~' && expr.type != Type.INT && expr.type != Type.STRING) {
-            throw new TypeErrorException(
-                "Bitwise NOT operation requires INT | STRING operand, but got " +
-                expr.type,
-                f.lineNo()
-            );
+        /*** Special case
+         ***/
+        if (op == '~' && expr.type == Type.STRING) {
+            expr.samCode += reverseString();
         }
+        /*** Basic cases
+        ***/
+        else {
+            // Type check
+            if (
+                op == '~' && expr.type != Type.INT && expr.type != Type.STRING
+            ) {
+                throw new TypeErrorException(
+                    "Bitwise NOT operation requires INT | STRING operand, but got " +
+                    expr.type,
+                    f.lineNo()
+                );
+            }
 
-        // apply unop on expression
-        expr.samCode += unop_sam;
+            // apply unop on expression
+            expr.samCode += getUnop(op);
+        }
 
         return expr;
     }
