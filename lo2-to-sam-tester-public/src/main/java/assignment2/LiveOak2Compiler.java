@@ -819,9 +819,20 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
         // String concatenation
         else if (
-            op == '+' && prevExpr.type == Type.STRING && expr.type == Type.STRING
+            op == '+' &&
+            prevExpr.type == Type.STRING &&
+            expr.type == Type.STRING
         ) {
             expr.samCode += concatString();
+            expr.type = Type.STRING;
+        }
+        // String comparison
+        else if (
+            getBinopType(op) == BinopType.COMPARISON &&
+            prevExpr.type == Type.STRING &&
+            expr.type == Type.STRING
+        ) {
+            expr.samCode += compareString(op);
             expr.type = Type.STRING;
         } else {
             /*** Basic cases

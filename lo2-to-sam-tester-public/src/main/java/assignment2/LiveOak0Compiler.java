@@ -702,7 +702,7 @@ public class LiveOak0Compiler {
         sam += "LINK\n";
         sam += "JSR " + enterFuncLabel + "\n";
         sam += "UNLINK\n";
-        sam += "FREE\n"; // free second param, only first param remain with new value
+        sam += "ADDSP -1\n"; // free second param, only first param remain with new value
         sam += "JUMP " + exitFuncLabel + "\n";
 
         // method definition
@@ -735,8 +735,8 @@ public class LiveOak0Compiler {
         sam += "JUMPC " + stopLoopLabel + "\n";
 
         // append str to memory
-        sam += "PUSHIMM 0\n";  // will return next address
-        sam += "PUSHOFF 3\n";  // param1: starting memory address
+        sam += "PUSHIMM 0\n"; // will return next address
+        sam += "PUSHOFF 3\n"; // param1: starting memory address
         sam += "PUSHOFF -1\n"; // param2: string
         sam += appendStringHeap();
         sam += "STOREOFF 3\n";
@@ -867,7 +867,7 @@ public class LiveOak0Compiler {
         sam += "LINK\n";
         sam += "JSR " + enterFuncLabel + "\n";
         sam += "UNLINK\n";
-        sam += "FREE\n"; // free second param, only first param remain with new value
+        sam += "ADDSP -1\n"; // free second param, only first param remain with new value
         sam += "JUMP " + exitFuncLabel + "\n";
 
         // method definition
@@ -891,8 +891,8 @@ public class LiveOak0Compiler {
         sam += "STOREOFF 3\n";
 
         // append first string to memory
-        sam += "PUSHIMM 0\n";  // will return next address
-        sam += "PUSHOFF 2\n";  // param1: starting memory address
+        sam += "PUSHIMM 0\n"; // will return next address
+        sam += "PUSHOFF 2\n"; // param1: starting memory address
         sam += "PUSHOFF -2\n"; // param2: string
         sam += appendStringHeap();
         sam += "STOREOFF 2\n";
@@ -915,6 +915,104 @@ public class LiveOak0Compiler {
 
         // Exit method
         sam += exitFuncLabel + ":\n";
+
+        return sam;
+    }
+
+    public static String compareString(char op) throws CompilerException {
+        if (getBinopType(op) != BinopType.COMPARISON) {
+            throw new SyntaxErrorException(
+                "compareString receive invalid operation: " + op,
+                -1
+            );
+        }
+
+        // expects parameters (2 strings) already on the stack
+        String enterFuncLabel = CompilerUtils.generateLabel();
+        String exitFuncLabel = CompilerUtils.generateLabel();
+        String startLoopLabel = CompilerUtils.generateLabel();
+        String stopLoopLabel = CompilerUtils.generateLabel();
+
+        String sam = "";
+
+        // call method
+        sam += "LINK\n";
+        sam += "JSR " + enterFuncLabel + "\n";
+        sam += "UNLINK\n";
+        sam += "ADDSP -1\n"; // free second param, only first param remain with new value
+        sam += "JUMP " + exitFuncLabel + "\n";
+
+        // method definition
+        sam += enterFuncLabel + ":\n";
+        sam += "PUSHIMM 0\n"; // local 2: counter
+        sam += "PUSHIMM 0\n"; // local 3: result
+
+        // loop...
+        sam += startLoopLabel + ":\n";
+        // reach end of string 1?
+        sam += "PUSHOFF -2\n";
+        sam += "PUSHOFF 2\n";
+        sam += "ADD\n";
+        sam += "PUSHIND\n";
+        sam += "ISNIL\n";
+
+        // reach end of string 2?
+        sam += "PUSHOFF -1\n";
+        sam += "PUSHOFF 2\n";
+        sam += "ADD\n";
+        sam += "PUSHIND\n";
+        sam += "ISNIL\n";
+
+        // reach end of both string, is equal
+        sam += "AND\n";
+        sam += "JUMPC " + stopLoopLabel + "\n";
+
+        // not end, comparing char by char
+        // get char of string 1
+        sam += "PUSHOFF -2\n";
+        sam += "PUSHOFF 2\n";
+        sam += "ADD\n";
+        sam += "PUSHIND\n";
+
+        // get char of string 2
+        sam += "PUSHOFF -1\n";
+        sam += "PUSHOFF 2\n";
+        sam += "ADD\n";
+        sam += "PUSHIND\n";
+
+        // compare and store result
+        sam += "CMP\n";
+        sam += "STOREOFF 3\n";
+
+        // check if done
+        sam += "PUSHOFF 3\n";
+        sam += "JUMPC " + stopLoopLabel + "\n";
+
+        // not done, continue to next char
+        sam += "PUSHOFF 2\n";
+        sam += "PUSHIMM 1\n";
+        sam += "ADD\n";
+        sam += "STOREOFF 2\n";
+        sam += "JUMP " + startLoopLabel + "\n";
+
+        // Stop loop
+        sam += stopLoopLabel + ":\n";
+        sam += "PUSHOFF 3\n";
+        sam += "STOREOFF -2\n";
+        sam += "ADDSP -2\n";
+        sam += "RST\n";
+
+        // Exit method
+        sam += exitFuncLabel + ":\n";
+
+        if (op == '<') {
+            sam += "PUSHIMM 1\n";
+        } else if (op == '>') {
+            sam += "PUSHIMM -1\n";
+        } else {
+            sam += "PUSHIMM 0\n";
+        }
+        sam += "EQUAL\n";
 
         return sam;
     }
