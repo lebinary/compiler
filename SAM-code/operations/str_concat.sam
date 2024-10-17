@@ -4,6 +4,8 @@
 // Description: Allocates a new string and concatenates the input strings into the new string.  Places the
 //              memory address of the new string on the stack.
 
+PUSHIMM "aaa"
+PUSHIMM "bbb"
 
 // get length of first string
 PUSHIMM 0 // return value

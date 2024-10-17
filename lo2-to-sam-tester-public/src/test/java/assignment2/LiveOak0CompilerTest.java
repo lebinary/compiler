@@ -92,7 +92,6 @@ class LiveOak0CompilerTest {
     void testLO0_4() throws Throwable {
         String fileName = Path.of(lo0ValidProgramDir, "test_4.lo").toString();
         String program = LiveOak0Compiler.compiler(fileName);
-
         SamTestRunner.checkReturnValue(program, 90);
     }
 

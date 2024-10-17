@@ -4,6 +4,7 @@
 // Description: Computes the length of the null-terminated character array at the input memory address.
 //              Places the return value on the stack.
 
+PUSHIMMSTR "aaa"
 DUP // duplicate address
 
 start_loop:
@@ -24,3 +25,4 @@ start_loop:
 stop_loop:
     SWAP
     SUB
+    STOP

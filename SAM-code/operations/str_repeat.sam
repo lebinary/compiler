@@ -5,6 +5,9 @@
 //              string a number of times equal to the integer input.  Places the memory address of the
 //              new string on the stack.
 
+PUSHIMMSTR "abc"
+PUSHIMM 1
+
 // Validate param
 validate_param_n:
     PUSHOFF 1
@@ -142,3 +145,4 @@ clean_up:
     ADDSP -1 // rm param 2
     SWAP
     FREE // free param 1
+    CMP
