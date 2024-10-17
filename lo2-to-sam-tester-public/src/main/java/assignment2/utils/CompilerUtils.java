@@ -11,14 +11,6 @@ public class CompilerUtils {
 
     /** General utils
      **/
-    public static String generateLabel() {
-        String uuid = UUID.randomUUID().toString().substring(0, 8);
-        if (!Character.isLetter(uuid.charAt(0))) {
-            char randomLetter = (char) ('a' + Math.random() * ('z' - 'a' + 1));
-            uuid = randomLetter + uuid.substring(1);
-        }
-        return uuid;
-    }
 
     /** Processed Tokens Utils
      **/

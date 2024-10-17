@@ -242,8 +242,8 @@ public class LiveOak0Compiler {
         String sam = "";
 
         // labels used
-        String stop_stmt = CompilerUtils.generateLabel();
-        String false_block = CompilerUtils.generateLabel();
+        Label stop_stmt = new Label();
+        Label false_block = new Label();
 
         // if ( Expr ) ...
         if (!CompilerUtils.check(f, '(')) {
@@ -263,11 +263,11 @@ public class LiveOak0Compiler {
         }
 
         sam += "ISNIL\n";
-        sam += "JUMPC " + false_block + "\n";
+        sam += "JUMPC " + false_block.name + "\n";
 
         // Truth block:  // if ( Expr ) Block ...
         sam += getBlock(f);
-        sam += "JUMP " + stop_stmt + "\n";
+        sam += "JUMP " + stop_stmt.name + "\n";
 
         // Checks 'else'
         if (!CompilerUtils.getWord(f).equals("else")) {
@@ -299,8 +299,8 @@ public class LiveOak0Compiler {
         String sam = "";
 
         // labels used
-        String start_loop = CompilerUtils.generateLabel();
-        String stop_loop = CompilerUtils.generateLabel();
+        Label start_loop = new Label();
+        Label stop_loop = new Label();
 
         // while ( Expr ) ...
         if (!CompilerUtils.check(f, '(')) {
@@ -310,7 +310,7 @@ public class LiveOak0Compiler {
             );
         }
 
-        sam += start_loop + ":\n";
+        sam += start_loop.name + ":\n";
         sam += getExpr(f).samCode;
 
         if (!CompilerUtils.check(f, ')')) {
@@ -321,14 +321,14 @@ public class LiveOak0Compiler {
         }
 
         sam += "ISNIL\n";
-        sam += "JUMPC " + stop_loop + "\n";
+        sam += "JUMPC " + stop_loop.name + "\n";
 
         // Continue loop
         sam += getBlock(f);
-        sam += "JUMP " + start_loop + "\n";
+        sam += "JUMP " + start_loop.name + "\n";
 
         // Stop loop
-        sam += stop_loop + ":\n";
+        sam += stop_loop.name + ":\n";
 
         return sam;
     }
@@ -428,7 +428,7 @@ public class LiveOak0Compiler {
         String binop_sam = getBinop(CompilerUtils.getOp(f));
 
         // // labels used
-        // String binop_label = CompilerUtils.generateLabel();
+        // String binop_label = new Label();
 
         // // Start Frame
         // sam += binop_label + ":\n";
@@ -468,9 +468,9 @@ public class LiveOak0Compiler {
         Expression expr = new Expression();
 
         // // labels used
-        // String start_ternary = CompilerUtils.generateLabel();
-        String stop_ternary = CompilerUtils.generateLabel();
-        String false_expr = CompilerUtils.generateLabel();
+        // String start_ternary = new Label();
+        Label stop_ternary = new Label();
+        Label false_expr = new Label();
 
         // // Start Frame
         // sam += start_ternary + ":\n";
@@ -478,11 +478,11 @@ public class LiveOak0Compiler {
 
         // // Expr ? (...) : (...)
         expr.samCode += "ISNIL\n";
-        expr.samCode += "JUMPC " + false_expr + "\n";
+        expr.samCode += "JUMPC " + false_expr.name + "\n";
 
         // Truth expression:  (...) ? Expr : (..)
         expr.samCode += getExpr(f).samCode;
-        expr.samCode += "JUMP " + stop_ternary + "\n";
+        expr.samCode += "JUMP " + stop_ternary.name + "\n";
 
         // Checks ':'
         if (!CompilerUtils.check(f, ':')) {
@@ -493,11 +493,11 @@ public class LiveOak0Compiler {
         }
 
         // False expression: (...) ? (...) : Expr
-        expr.samCode += false_expr + ":\n";
+        expr.samCode += false_expr.name + ":\n";
         expr.samCode += getExpr(f).samCode;
 
         // Stop Frame
-        expr.samCode += stop_ternary + ":\n";
+        expr.samCode += stop_ternary.name + ":\n";
 
         // // Save the method in symbol table
         // int address = CompilerUtils.getNextAddress(symbolTable);
@@ -686,12 +686,12 @@ public class LiveOak0Compiler {
         Type secondInputType
     ) {
         // expects parameters already on the stack
-        String enterFuncLabel = CompilerUtils.generateLabel();
-        String exitFuncLabel = CompilerUtils.generateLabel();
-        String startLoopLabel = CompilerUtils.generateLabel();
-        String stopLoopLabel = CompilerUtils.generateLabel();
-        String returnLabel = CompilerUtils.generateLabel();
-        String invalidParamLabel = CompilerUtils.generateLabel();
+        Label enterFuncLabel = new Label();
+        Label exitFuncLabel = new Label();
+        Label startLoopLabel = new Label();
+        Label stopLoopLabel = new Label();
+        Label returnLabel = new Label();
+        Label invalidParamLabel = new Label();
 
         String sam = "";
 
@@ -702,13 +702,13 @@ public class LiveOak0Compiler {
 
         // call method
         sam += "LINK\n";
-        sam += "JSR " + enterFuncLabel + "\n";
+        sam += "JSR " + enterFuncLabel.name + "\n";
         sam += "UNLINK\n";
         sam += "ADDSP -1\n"; // free second param, only first param remain with new value
-        sam += "JUMP " + exitFuncLabel + "\n";
+        sam += "JUMP " + exitFuncLabel.name + "\n";
 
         // method definition
-        sam += enterFuncLabel + ":\n";
+        sam += enterFuncLabel.name + ":\n";
         sam += "PUSHIMM 0\n"; // local 1: loop counter
         sam += "PUSHIMM 0\n"; // local 2: increment address
         sam += "PUSHIMM 0\n"; // local 3: return address
@@ -716,7 +716,7 @@ public class LiveOak0Compiler {
         // validate param, if n < 0 -> return
         sam += "PUSHOFF -2\n";
         sam += "ISNEG\n";
-        sam += "JUMPC " + invalidParamLabel + "\n";
+        sam += "JUMPC " + invalidParamLabel.name + "\n";
 
         // allocate memory for new string -> Address
         sam += "PUSHOFF -1\n";
@@ -733,12 +733,12 @@ public class LiveOak0Compiler {
         sam += "STOREOFF 4\n";
 
         // loop...
-        sam += startLoopLabel + ":\n";
+        sam += startLoopLabel.name + ":\n";
         // check if done
         sam += "PUSHOFF 2\n";
         sam += "PUSHOFF -2\n";
         sam += "EQUAL\n";
-        sam += "JUMPC " + stopLoopLabel + "\n";
+        sam += "JUMPC " + stopLoopLabel.name + "\n";
 
         // append str to memory
         sam += "PUSHIMM 0\n"; // will return next address
@@ -754,55 +754,55 @@ public class LiveOak0Compiler {
         sam += "STOREOFF 2\n";
 
         // Continue loop
-        sam += "JUMP " + startLoopLabel + "\n";
+        sam += "JUMP " + startLoopLabel.name + "\n";
 
         // Stop loop
-        sam += stopLoopLabel + ":\n";
+        sam += stopLoopLabel.name + ":\n";
         sam += "PUSHOFF 4\n";
         sam += "STOREOFF -2\n";
-        sam += "JUMP " + returnLabel + "\n";
+        sam += "JUMP " + returnLabel.name + "\n";
 
         // Invalid param, return empty string
-        sam += invalidParamLabel + ":\n";
+        sam += invalidParamLabel.name + ":\n";
         sam += "PUSHIMMSTR \"\"";
         sam += "STOREOFF -2\n";
-        sam += "JUMP " + returnLabel + "\n";
+        sam += "JUMP " + returnLabel.name + "\n";
 
         // Return func
-        sam += returnLabel + ":\n";
+        sam += returnLabel.name + ":\n";
         sam += "ADDSP -3\n";
         sam += "RST\n";
 
         // Exit method
-        sam += exitFuncLabel + ":\n";
+        sam += exitFuncLabel.name + ":\n";
 
         return sam;
     }
 
     public static String getStringLength() {
         // expects parameters already on the stack
-        String startCountLabel = CompilerUtils.generateLabel();
-        String stopCountLabel = CompilerUtils.generateLabel();
+        Label startCountLabel = new Label();
+        Label stopCountLabel = new Label();
         String sam = "";
 
         sam += "DUP\n";
 
         // START
-        sam += startCountLabel + ":\n";
+        sam += startCountLabel.name + ":\n";
         sam += "DUP\n";
         sam += "PUSHIND\n";
 
         // check end of string
         sam += "ISNIL\n";
-        sam += "JUMPC " + stopCountLabel + "\n";
+        sam += "JUMPC " + stopCountLabel.name + "\n";
 
         // increament count and continue loop
         sam += "PUSHIMM 1\n";
         sam += "ADD\n";
-        sam += "JUMP " + startCountLabel + "\n";
+        sam += "JUMP " + startCountLabel.name + "\n";
 
         // STOP
-        sam += stopCountLabel + ":\n";
+        sam += stopCountLabel.name + ":\n";
         sam += "SWAP\n";
         sam += "SUB\n";
 
@@ -811,31 +811,31 @@ public class LiveOak0Compiler {
 
     public static String appendStringHeap() {
         // expects parameters already on the stack, String on top, Mempry address
-        String enterFuncLabel = CompilerUtils.generateLabel();
-        String exitFuncLabel = CompilerUtils.generateLabel();
-        String startLoopLabel = CompilerUtils.generateLabel();
-        String stopLoopLabel = CompilerUtils.generateLabel();
+        Label enterFuncLabel = new Label();
+        Label exitFuncLabel = new Label();
+        Label startLoopLabel = new Label();
+        Label stopLoopLabel = new Label();
 
         String sam = "";
 
         // call method
         sam += "LINK\n";
-        sam += "JSR " + enterFuncLabel + "\n";
+        sam += "JSR " + enterFuncLabel.name + "\n";
         sam += "UNLINK\n";
         sam += "ADDSP -2\n";
-        sam += "JUMP " + exitFuncLabel + "\n";
+        sam += "JUMP " + exitFuncLabel.name + "\n";
 
-        sam += enterFuncLabel + ":\n";
+        sam += enterFuncLabel.name + ":\n";
         sam += "PUSHOFF -2\n";
         sam += "PUSHOFF -1\n";
 
-        sam += startLoopLabel + ":\n";
+        sam += startLoopLabel.name + ":\n";
         // put char in TOS
         // end loop if nil
         sam += "PUSHOFF 3\n";
         sam += "PUSHIND\n";
         sam += "ISNIL\n";
-        sam += "JUMPC " + stopLoopLabel + "\n";
+        sam += "JUMPC " + stopLoopLabel.name + "\n";
 
         // Save to allocated memory
         sam += "PUSHOFF 2\n";
@@ -855,9 +855,9 @@ public class LiveOak0Compiler {
         sam += "ADD\n";
         sam += "STOREOFF 2\n";
 
-        sam += "JUMP " + startLoopLabel + "\n";
+        sam += "JUMP " + startLoopLabel.name + "\n";
 
-        sam += stopLoopLabel + ":\n";
+        sam += stopLoopLabel.name + ":\n";
         sam += "PUSHOFF 2\n";
         sam += "PUSHIMMCH '\\0'" + "\n";
         sam += "STOREIND\n";
@@ -867,27 +867,27 @@ public class LiveOak0Compiler {
         sam += "RST\n";
 
         // Exit method
-        sam += exitFuncLabel + ":\n";
+        sam += exitFuncLabel.name + ":\n";
 
         return sam;
     }
 
     public static String concatString() {
         // expects parameters (2 strings) already on the stack
-        String enterFuncLabel = CompilerUtils.generateLabel();
-        String exitFuncLabel = CompilerUtils.generateLabel();
+        Label enterFuncLabel = new Label();
+        Label exitFuncLabel = new Label();
 
         String sam = "";
 
         // call method
         sam += "LINK\n";
-        sam += "JSR " + enterFuncLabel + "\n";
+        sam += "JSR " + enterFuncLabel.name + "\n";
         sam += "UNLINK\n";
         sam += "ADDSP -1\n"; // free second param, only first param remain with new value
-        sam += "JUMP " + exitFuncLabel + "\n";
+        sam += "JUMP " + exitFuncLabel.name + "\n";
 
         // method definition
-        sam += enterFuncLabel + ":\n";
+        sam += enterFuncLabel.name + ":\n";
         sam += "PUSHIMM 0\n"; // local 2: increment address
         sam += "PUSHIMM 0\n"; // local 3: return address
 
@@ -930,7 +930,7 @@ public class LiveOak0Compiler {
         sam += "RST\n";
 
         // Exit method
-        sam += exitFuncLabel + ":\n";
+        sam += exitFuncLabel.name + ":\n";
 
         return sam;
     }
@@ -944,27 +944,27 @@ public class LiveOak0Compiler {
         }
 
         // expects parameters (2 strings) already on the stack
-        String enterFuncLabel = CompilerUtils.generateLabel();
-        String exitFuncLabel = CompilerUtils.generateLabel();
-        String startLoopLabel = CompilerUtils.generateLabel();
-        String stopLoopLabel = CompilerUtils.generateLabel();
+        Label enterFuncLabel = new Label();
+        Label exitFuncLabel = new Label();
+        Label startLoopLabel = new Label();
+        Label stopLoopLabel = new Label();
 
         String sam = "";
 
         // call method
         sam += "LINK\n";
-        sam += "JSR " + enterFuncLabel + "\n";
+        sam += "JSR " + enterFuncLabel.name + "\n";
         sam += "UNLINK\n";
         sam += "ADDSP -1\n"; // free second param, only first param remain with new value
-        sam += "JUMP " + exitFuncLabel + "\n";
+        sam += "JUMP " + exitFuncLabel.name + "\n";
 
         // method definition
-        sam += enterFuncLabel + ":\n";
+        sam += enterFuncLabel.name + ":\n";
         sam += "PUSHIMM 0\n"; // local 2: counter
         sam += "PUSHIMM 0\n"; // local 3: result
 
         // loop...
-        sam += startLoopLabel + ":\n";
+        sam += startLoopLabel.name + ":\n";
         // reach end of string 1?
         sam += "PUSHOFF -2\n";
         sam += "PUSHOFF 2\n";
@@ -981,7 +981,7 @@ public class LiveOak0Compiler {
 
         // reach end of both string, is equal
         sam += "AND\n";
-        sam += "JUMPC " + stopLoopLabel + "\n";
+        sam += "JUMPC " + stopLoopLabel.name + "\n";
 
         // not end, comparing char by char
         // get char of string 1
@@ -1002,24 +1002,24 @@ public class LiveOak0Compiler {
 
         // check if done
         sam += "PUSHOFF 3\n";
-        sam += "JUMPC " + stopLoopLabel + "\n";
+        sam += "JUMPC " + stopLoopLabel.name + "\n";
 
         // not done, continue to next char
         sam += "PUSHOFF 2\n";
         sam += "PUSHIMM 1\n";
         sam += "ADD\n";
         sam += "STOREOFF 2\n";
-        sam += "JUMP " + startLoopLabel + "\n";
+        sam += "JUMP " + startLoopLabel.name + "\n";
 
         // Stop loop
-        sam += stopLoopLabel + ":\n";
+        sam += stopLoopLabel.name + ":\n";
         sam += "PUSHOFF 3\n";
         sam += "STOREOFF -2\n";
         sam += "ADDSP -2\n";
         sam += "RST\n";
 
         // Exit method
-        sam += exitFuncLabel + ":\n";
+        sam += exitFuncLabel.name + ":\n";
 
         if (op == '<') {
             sam += "PUSHIMM 1\n";
@@ -1035,21 +1035,21 @@ public class LiveOak0Compiler {
 
     public static String reverseString() {
         // expects parameter (1 string) already on the stack
-        String enterFuncLabel = CompilerUtils.generateLabel();
-        String exitFuncLabel = CompilerUtils.generateLabel();
-        String startLoopLabel = CompilerUtils.generateLabel();
-        String stopLoopLabel = CompilerUtils.generateLabel();
+        Label enterFuncLabel = new Label();
+        Label exitFuncLabel = new Label();
+        Label startLoopLabel = new Label();
+        Label stopLoopLabel = new Label();
 
         String sam = "";
 
         // call method
         sam += "LINK\n";
-        sam += "JSR " + enterFuncLabel + "\n";
+        sam += "JSR " + enterFuncLabel.name + "\n";
         sam += "UNLINK\n";
-        sam += "JUMP " + exitFuncLabel + "\n";
+        sam += "JUMP " + exitFuncLabel.name + "\n";
 
         // method definition
-        sam += enterFuncLabel + ":\n";
+        sam += enterFuncLabel.name + ":\n";
         sam += "PUSHIMM 0\n"; // local 2: counter
         sam += "PUSHIMM 0\n"; // local 3: increment address
         sam += "PUSHIMM 0\n"; // local 4: result
@@ -1078,12 +1078,12 @@ public class LiveOak0Compiler {
         sam += "STOREIND\n";
 
         // loop (backward)...
-        sam += startLoopLabel + ":\n";
+        sam += startLoopLabel.name + ":\n";
 
         // end loop if counter == 0
         sam += "PUSHOFF 2\n";
         sam += "ISNIL\n";
-        sam += "JUMPC " + stopLoopLabel + "\n";
+        sam += "JUMPC " + stopLoopLabel.name + "\n";
 
         // get current address
         sam += "PUSHOFF 3\n";
@@ -1112,17 +1112,17 @@ public class LiveOak0Compiler {
         sam += "STOREOFF 2\n";
 
         // Continue loop
-        sam += "JUMP " + startLoopLabel + "\n";
+        sam += "JUMP " + startLoopLabel.name + "\n";
 
         // Stop loop
-        sam += stopLoopLabel + ":\n";
+        sam += stopLoopLabel.name + ":\n";
         sam += "PUSHOFF 4\n";
         sam += "STOREOFF -1\n";
         sam += "ADDSP -3\n";
         sam += "RST\n";
 
         // Exit method
-        sam += exitFuncLabel + ":\n";
+        sam += exitFuncLabel.name + ":\n";
 
         return sam;
     }

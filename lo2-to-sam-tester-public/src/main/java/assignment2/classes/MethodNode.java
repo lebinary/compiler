@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
+import java.util.Iterator;
 
 public class MethodNode extends Node {
 
     public List<VariableNode> parameters;
     public List<VariableNode> localVariables;
-    private Deque<String> exitLabels;
+    private Deque<Label> labels;
     private Deque<Statement> statements;
 
     public MethodNode(
@@ -23,7 +24,7 @@ public class MethodNode extends Node {
         super(parent, children, name, returnType, address, null);
         this.parameters = new ArrayList<>();
         this.localVariables = new ArrayList<>();
-        this.exitLabels = new ArrayDeque<>();
+        this.labels = new ArrayDeque<>();
         this.statements = new ArrayDeque<>();
 
         // Populate parameters and localVariables
@@ -74,6 +75,8 @@ public class MethodNode extends Node {
 
         this.parameters.clear();
         this.localVariables.clear();
+        this.labels.clear();
+        this.statements.clear();
     }
 
     // Params and Locals operations
@@ -97,17 +100,28 @@ public class MethodNode extends Node {
         return parameters.size();
     }
 
-    // Exit loops stack operations
-    public void pushExitLabel(String label) {
-        exitLabels.push(label);
+    // labels stack operations
+    public void pushLabel(Label label) {
+        labels.push(label);
     }
 
-    public String popExitLabel() {
-        return exitLabels.pop();
+    public Label popLabel() {
+        return labels.pop();
     }
 
-    public String peekExitLabel() {
-        return exitLabels.isEmpty() ? null : exitLabels.peek();
+    public Label peekLabel() {
+        return labels.isEmpty() ? null : labels.peek();
+    }
+
+    public Label mostRecent(LabelType labelType) {
+        Iterator<Label> descendingIterator = labels.descendingIterator();
+        while (descendingIterator.hasNext()) {
+            Label label = descendingIterator.next();
+            if (label.type == labelType) {
+                return label;
+            }
+        }
+        return null; // Return null if no matching label is found
     }
 
     // Statements stack operations

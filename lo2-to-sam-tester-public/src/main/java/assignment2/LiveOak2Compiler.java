@@ -383,18 +383,18 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             return sam;
         }
 
-        String cleanupLabel = CompilerUtils.generateLabel();
-        method.pushExitLabel(cleanupLabel);
+        Label cleanupLabel = new Label(LabelType.RETURN);
+        method.pushLabel(cleanupLabel);
 
         // Then, get Block
         sam += getBlock(f, method);
 
         // Cleanup procedure
-        sam += cleanupLabel + ":\n";
+        sam += cleanupLabel.name + ":\n";
         sam += "STOREOFF " + method.returnAddress() + "\n";
         sam += "ADDSP -" + method.numLocalVariables() + "\n";
         sam += "RST\n";
-        method.popExitLabel();
+        method.popLabel();
 
         return sam;
     }
@@ -499,15 +499,15 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
         }
 
-        String exitLabel = method.peekExitLabel();
-        if (exitLabel == null) {
+        Label breakLabel = method.mostRecent(LabelType.BREAK);
+        if (breakLabel == null) {
             throw new SyntaxErrorException(
                 "break statement outside of a loop",
                 f.lineNo()
             );
         }
 
-        return "JUMP " + exitLabel + "\n";
+        return "JUMP " + breakLabel.name + "\n";
     }
 
     static String getReturnStmt(SamTokenizer f, MethodNode method)
@@ -536,14 +536,14 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         sam += expr.samCode;
 
         // Jump to clean up
-        String cleanupLabel = method.peekExitLabel();
-        if (cleanupLabel == null) {
+        Label returnLabel = method.mostRecent(LabelType.RETURN);
+        if (returnLabel == null) {
             throw new CompilerException(
                 "getReturnStmt missing exit label",
                 f.lineNo()
             );
         }
-        sam += "JUMP " + cleanupLabel + "\n";
+        sam += "JUMP " + returnLabel.name + "\n";
 
         return sam;
     }
@@ -561,8 +561,8 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         String sam = "";
 
         // labels used
-        String stop_stmt = CompilerUtils.generateLabel();
-        String false_block = CompilerUtils.generateLabel();
+        Label stop_stmt = new Label();
+        Label false_block = new Label();
 
         // if ( Expr ) ...
         if (!CompilerUtils.check(f, '(')) {
@@ -582,11 +582,11 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
 
         sam += "ISNIL\n";
-        sam += "JUMPC " + false_block + "\n";
+        sam += "JUMPC " + false_block.name + "\n";
 
         // Truth block:  // if ( Expr ) Block ...
         sam += getBlock(f, method);
-        sam += "JUMP " + stop_stmt + "\n";
+        sam += "JUMP " + stop_stmt.name + "\n";
 
         // Checks 'else'
         if (!CompilerUtils.getWord(f).equals("else")) {
@@ -597,11 +597,11 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
 
         // False block: (...) ? (...) : Expr
-        sam += false_block + ":\n";
+        sam += false_block.name + ":\n";
         sam += getBlock(f, method);
 
         // Done if statement
-        sam += stop_stmt + ":\n";
+        sam += stop_stmt.name + ":\n";
 
         return sam;
     }
@@ -619,11 +619,11 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         String sam = "";
 
         // labels used
-        String start_loop = CompilerUtils.generateLabel();
-        String stop_loop = CompilerUtils.generateLabel();
+        Label start_loop = new Label();
+        Label stop_loop = new Label(LabelType.BREAK);
 
         // Push exit label to use for break statement
-        method.pushExitLabel(stop_loop);
+        method.pushLabel(stop_loop);
 
         // while ( Expr ) ...
         if (!CompilerUtils.check(f, '(')) {
@@ -633,7 +633,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             );
         }
 
-        sam += start_loop + ":\n";
+        sam += start_loop.name + ":\n";
         sam += getExpr(f, method).samCode;
 
         if (!CompilerUtils.check(f, ')')) {
@@ -644,17 +644,17 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
 
         sam += "ISNIL\n";
-        sam += "JUMPC " + stop_loop + "\n";
+        sam += "JUMPC " + stop_loop.name + "\n";
 
         // Continue loop
         sam += getBlock(f, method);
-        sam += "JUMP " + start_loop + "\n";
+        sam += "JUMP " + start_loop.name + "\n";
 
         // Stop loop
-        sam += stop_loop + ":\n";
+        sam += stop_loop.name + ":\n";
 
         // Pop label when done
-        method.popExitLabel();
+        method.popLabel();
 
         return sam;
     }
@@ -888,18 +888,18 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         Expression expr = new Expression();
 
         // // labels used
-        // String start_ternary = CompilerUtils.generateLabel();
-        String stop_ternary = CompilerUtils.generateLabel();
-        String false_expr = CompilerUtils.generateLabel();
+        // String start_ternary = new Label();
+        Label stop_ternary = new Label();
+        Label false_expr = new Label();
 
         // // Expr ? (...) : (...)
         expr.samCode += "ISNIL\n";
-        expr.samCode += "JUMPC " + false_expr + "\n";
+        expr.samCode += "JUMPC " + false_expr.name + "\n";
 
         // Truth expression:  (...) ? Expr : (..)
         Expression truthExpr = getExpr(f, method);
         expr.samCode += truthExpr.samCode;
-        expr.samCode += "JUMP " + stop_ternary + "\n";
+        expr.samCode += "JUMP " + stop_ternary.name + "\n";
 
         // Checks ':'
         if (!CompilerUtils.check(f, ':')) {
@@ -910,7 +910,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         }
 
         // False expression: (...) ? (...) : Expr
-        expr.samCode += false_expr + ":\n";
+        expr.samCode += false_expr.name + ":\n";
         Expression falseExpr = getExpr(f, method);
         expr.samCode += falseExpr.samCode;
 
@@ -927,7 +927,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         expr.type = truthExpr.type;
 
         // Stop Frame
-        expr.samCode += stop_ternary + ":\n";
+        expr.samCode += stop_ternary.name + ":\n";
 
         return expr;
     }
