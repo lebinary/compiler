@@ -674,7 +674,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         Expression expr = getExpr(f, method);
         // Type check
         if (!expr.type.isCompatibleWith(variable.type)) {
-            System.out.println(expr.samCode);
+            // System.out.println(expr.samCode);
             throw new TypeErrorException(
                 "getVarStmt type mismatch: " +
                 variable.type +

@@ -690,6 +690,8 @@ public class LiveOak0Compiler {
         String exitFuncLabel = CompilerUtils.generateLabel();
         String startLoopLabel = CompilerUtils.generateLabel();
         String stopLoopLabel = CompilerUtils.generateLabel();
+        String returnLabel = CompilerUtils.generateLabel();
+        String invalidParamLabel = CompilerUtils.generateLabel();
 
         String sam = "";
 
@@ -711,10 +713,14 @@ public class LiveOak0Compiler {
         sam += "PUSHIMM 0\n"; // local 2: increment address
         sam += "PUSHIMM 0\n"; // local 3: return address
 
-        sam += "PUSHOFF -1\n";
-        sam += getStringLength();
+        // validate param, if n < 0 -> return
+        sam += "PUSHOFF -2\n";
+        sam += "ISNEG\n";
+        sam += "JUMPC " + invalidParamLabel + "\n";
 
         // allocate memory for new string -> Address
+        sam += "PUSHOFF -1\n";
+        sam += getStringLength();
         sam += "PUSHOFF -2\n";
         sam += "TIMES\n";
         sam += "PUSHIMM 1\n";
@@ -754,6 +760,16 @@ public class LiveOak0Compiler {
         sam += stopLoopLabel + ":\n";
         sam += "PUSHOFF 4\n";
         sam += "STOREOFF -2\n";
+        sam += "JUMP " + returnLabel + "\n";
+
+        // Invalid param, return empty string
+        sam += invalidParamLabel + ":\n";
+        sam += "PUSHIMMSTR \"\"";
+        sam += "STOREOFF -2\n";
+        sam += "JUMP " + returnLabel + "\n";
+
+        // Return func
+        sam += returnLabel + ":\n";
         sam += "ADDSP -3\n";
         sam += "RST\n";
 
