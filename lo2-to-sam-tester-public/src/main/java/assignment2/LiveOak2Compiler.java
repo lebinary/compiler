@@ -776,10 +776,8 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
          ***/
         if (op == '~' && expr.type == Type.STRING) {
             expr.samCode += reverseString();
-        }
-        /*** Basic cases
-        ***/
-        else {
+        } /*** Basic cases
+         ***/else {
             // Type check
             if (
                 op == '~' && expr.type != Type.INT && expr.type != Type.STRING
@@ -975,7 +973,12 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
         int argCount = 0;
 
         do {
-            if (argCount >= paramCount) {
+            // check done processing all the actuals
+            if (f.test(')')) {
+                break;
+            }
+            // too many actuals provided
+            if (argCount > paramCount) {
                 throw new SyntaxErrorException(
                     "Too many arguments provided for method '" +
                     callingMethod.name +
@@ -986,8 +989,8 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
                 );
             }
 
-            VariableNode currParam = callingMethod.parameters.get(argCount);
             Expression expr = getExpr(f, scopeMethod);
+            VariableNode currParam = callingMethod.parameters.get(argCount);
 
             // Type check
             if (!expr.type.isCompatibleWith(currParam.type)) {
@@ -1011,6 +1014,7 @@ public class LiveOak2Compiler extends LiveOak0Compiler {
             argCount++;
         } while (CompilerUtils.check(f, ','));
 
+        // too few actuals provided
         if (argCount < paramCount) {
             throw new SyntaxErrorException(
                 "Not enough arguments provided for method '" +
