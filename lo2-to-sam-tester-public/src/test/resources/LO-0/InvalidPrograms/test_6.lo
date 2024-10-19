@@ -1,6 +1,0 @@
-String a;
-int b, c;
-{
-    b = 3;
-    a = ("HI" * b);
-}
