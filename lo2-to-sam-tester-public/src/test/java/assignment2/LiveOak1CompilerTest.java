@@ -74,10 +74,11 @@ class LiveOak1CompilerTest {
     @Test
     @DisplayName("Test_0")
     void testL01_0() throws Throwable {
-        String fileName = Path.of(lo1ValidProgramDir, "test_0.lo").toString();
+        String fileName = Path.of(lo2ValidProgramDir, "test_100.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
-        System.out.println(program);
-        SamTestRunner.checkReturnValue(program, 120);
-        // SamTestRunner.checkReturnValue(program, 20);
+        SamTestRunner.checkReturnedStringValue(
+            program,
+            "    *\n   ***\n  *****\n *******\n*********"
+        );
     }
 }

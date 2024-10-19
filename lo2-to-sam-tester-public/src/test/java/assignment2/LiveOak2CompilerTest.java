@@ -1,17 +1,16 @@
 package assignment2;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 /*******************
  * Example test cases for main.LiveOak2Compiler
@@ -19,8 +18,21 @@ import static org.junit.jupiter.api.Assertions.*;
  * You will want to add more test cases
  * *******************/
 class LiveOak2CompilerTest {
-    private static final String lo2ValidProgramDir = Path.of("src", "test", "resources", "LO-2", "ValidPrograms").toString();
-    private static final String lo2InvalidProgramDir = Path.of("src", "test", "resources", "LO-2", "InvalidPrograms").toString();
+
+    private static final String lo2ValidProgramDir = Path.of(
+        "src",
+        "test",
+        "resources",
+        "LO-2",
+        "ValidPrograms"
+    ).toString();
+    private static final String lo2InvalidProgramDir = Path.of(
+        "src",
+        "test",
+        "resources",
+        "LO-2",
+        "InvalidPrograms"
+    ).toString();
     private static ByteArrayOutputStream errContent;
 
     @BeforeEach
@@ -31,7 +43,9 @@ class LiveOak2CompilerTest {
 
     @AfterEach
     void tearDown() {
-        System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
+        System.setOut(
+            new PrintStream(new FileOutputStream(FileDescriptor.out))
+        );
     }
 
     private static String getStdErr() {
@@ -43,11 +57,16 @@ class LiveOak2CompilerTest {
     void testLO2_0() {
         String fileName = Path.of(lo2InvalidProgramDir, "test_0.lo").toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_0.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_0.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_0.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_0.lo"
+                )
+        );
     }
 
     @Test
@@ -55,131 +74,216 @@ class LiveOak2CompilerTest {
     void testLO2_1() {
         String fileName = Path.of(lo2InvalidProgramDir, "test_1.lo").toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_1.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_1.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_1.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_1.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_10.lo")
     void testLO2_2() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_10.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_10.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_10.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_10.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_10.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_10.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_11.lo")
     void testLO2_3() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_11.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_11.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_11.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_11.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_11.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_11.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_12.lo")
     void testLO2_4() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_12.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_12.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_12.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_12.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_12.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_12.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_13.lo")
     void testLO2_5() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_13.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_13.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_13.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_13.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_13.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_13.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_14.lo")
     void testLO2_6() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_14.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_14.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_14.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_14.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_14.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_14.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_15.lo")
     void testLO2_7() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_15.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_15.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_15.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_15.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_15.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_15.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_16.lo")
     void testLO2_8() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_16.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_16.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_16.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_16.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_16.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_16.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_17.lo")
     void testLO2_9() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_17.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_17.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_17.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_17.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_17.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_17.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_18.lo")
     void testLO2_10() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_18.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_18.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_18.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_18.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_18.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_18.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_19.lo")
     void testLO2_11() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_19.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_19.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_19.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_19.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_19.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_19.lo"
+                )
+        );
     }
 
     @Test
@@ -187,131 +291,216 @@ class LiveOak2CompilerTest {
     void testLO2_12() {
         String fileName = Path.of(lo2InvalidProgramDir, "test_2.lo").toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_2.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_2.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_2.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_2.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_20.lo")
     void testLO2_13() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_20.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_20.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_20.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_20.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_20.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_20.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_21.lo")
     void testLO2_14() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_21.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_21.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_21.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_21.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_21.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_21.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_22.lo")
     void testLO2_15() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_22.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_22.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_22.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_22.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_22.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_22.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_23.lo")
     void testLO2_16() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_23.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_23.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_23.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_23.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_23.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_23.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_24.lo")
     void testLO2_17() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_24.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_24.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_24.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_24.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_24.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_24.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_25.lo")
     void testLO2_18() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_25.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_25.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_25.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_25.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_25.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_25.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_26.lo")
     void testLO2_19() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_26.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_26.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_26.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_26.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_26.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_26.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_27.lo")
     void testLO2_20() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_27.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_27.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_27.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_27.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_27.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_27.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_28.lo")
     void testLO2_21() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_28.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_28.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_28.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_28.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_28.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_28.lo"
+                )
+        );
     }
 
     @Test
     @DisplayName("should fail to compile test_29.lo")
     void testLO2_22() {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_29.lo").toString();
+        String fileName = Path.of(
+            lo2InvalidProgramDir,
+            "test_29.lo"
+        ).toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_29.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_29.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_29.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_29.lo"
+                )
+        );
     }
 
     @Test
@@ -319,11 +508,16 @@ class LiveOak2CompilerTest {
     void testLO2_23() {
         String fileName = Path.of(lo2InvalidProgramDir, "test_3.lo").toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_3.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_3.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_3.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_3.lo"
+                )
+        );
     }
 
     @Test
@@ -331,11 +525,16 @@ class LiveOak2CompilerTest {
     void testLO2_24() {
         String fileName = Path.of(lo2InvalidProgramDir, "test_4.lo").toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_4.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_4.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_4.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_4.lo"
+                )
+        );
     }
 
     @Test
@@ -343,11 +542,16 @@ class LiveOak2CompilerTest {
     void testLO2_25() {
         String fileName = Path.of(lo2InvalidProgramDir, "test_5.lo").toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_5.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_5.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_5.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_5.lo"
+                )
+        );
     }
 
     @Test
@@ -355,11 +559,16 @@ class LiveOak2CompilerTest {
     void testLO2_26() {
         String fileName = Path.of(lo2InvalidProgramDir, "test_6.lo").toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_6.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_6.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_6.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_6.lo"
+                )
+        );
     }
 
     @Test
@@ -367,11 +576,16 @@ class LiveOak2CompilerTest {
     void testLO2_27() {
         String fileName = Path.of(lo2InvalidProgramDir, "test_7.lo").toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_7.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_7.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_7.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_7.lo"
+                )
+        );
     }
 
     @Test
@@ -379,11 +593,16 @@ class LiveOak2CompilerTest {
     void testLO2_28() {
         String fileName = Path.of(lo2InvalidProgramDir, "test_8.lo").toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_8.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_8.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_8.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_8.lo"
+                )
+        );
     }
 
     @Test
@@ -391,11 +610,16 @@ class LiveOak2CompilerTest {
     void testLO2_29() {
         String fileName = Path.of(lo2InvalidProgramDir, "test_9.lo").toString();
         assertThrows(
-                Error.class,
-                () -> LiveOak2Compiler.compiler(fileName),
-                "Expected parse error to be thrown for file test_9.lo"
+            Error.class,
+            () -> LiveOak2Compiler.compiler(fileName),
+            "Expected parse error to be thrown for file test_9.lo"
         );
-        assertTrue(getStdErr().contains("Failed to compile src/test/resources/LO-2/InvalidPrograms/test_9.lo"));
+        assertTrue(
+            getStdErr()
+                .contains(
+                    "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_9.lo"
+                )
+        );
     }
 
     @Test
@@ -411,7 +635,10 @@ class LiveOak2CompilerTest {
     void testLO2_31() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_31.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
-        SamTestRunner.checkReturnedStringValue(program, "The rain in Spain falls");
+        SamTestRunner.checkReturnedStringValue(
+            program,
+            "The rain in Spain falls"
+        );
     }
 
     @Test
@@ -435,7 +662,10 @@ class LiveOak2CompilerTest {
     void testLO2_34() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_34.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
-        SamTestRunner.checkReturnedStringValue(program, "abcabcabcabcabcabcabcabcabc");
+        SamTestRunner.checkReturnedStringValue(
+            program,
+            "abcabcabcabcabcabcabcabcabc"
+        );
     }
 
     @Test
@@ -467,7 +697,10 @@ class LiveOak2CompilerTest {
     void testLO2_38() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_38.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
-        SamTestRunner.checkReturnedStringValue(program, "tset a tsuj si sihTtset a tsuj si sihTright?");
+        SamTestRunner.checkReturnedStringValue(
+            program,
+            "tset a tsuj si sihTtset a tsuj si sihTright?"
+        );
     }
 
     @Test
@@ -503,11 +736,16 @@ class LiveOak2CompilerTest {
     }
 
     @Test
-    @DisplayName("should return 'The rain in Spain fallsThe rain in Spain falls'")
+    @DisplayName(
+        "should return 'The rain in Spain fallsThe rain in Spain falls'"
+    )
     void testLO2_43() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_43.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
-        SamTestRunner.checkReturnedStringValue(program, "The rain in Spain fallsThe rain in Spain falls");
+        SamTestRunner.checkReturnedStringValue(
+            program,
+            "The rain in Spain fallsThe rain in Spain falls"
+        );
     }
 
     @Test
@@ -619,7 +857,10 @@ class LiveOak2CompilerTest {
     void testLO2_57() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_57.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
-        SamTestRunner.checkReturnedStringValue(program, "halb!emosewa era sgnirts");
+        SamTestRunner.checkReturnedStringValue(
+            program,
+            "halb!emosewa era sgnirts"
+        );
     }
 
     @Test
@@ -635,7 +876,10 @@ class LiveOak2CompilerTest {
     void testLO2_59() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_59.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
-        SamTestRunner.checkReturnedStringValue(program, "zZZZsllaf niapS ni niar ehTZZZz");
+        SamTestRunner.checkReturnedStringValue(
+            program,
+            "zZZZsllaf niapS ni niar ehTZZZz"
+        );
     }
 
     @Test
@@ -939,7 +1183,10 @@ class LiveOak2CompilerTest {
     void testLO2_97() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_97.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
-        SamTestRunner.checkReturnedStringValue(program, "abcabcabcabcabcabcabcabcabcabcabc");
+        SamTestRunner.checkReturnedStringValue(
+            program,
+            "abcabcabcabcabcabcabcabcabcabcabc"
+        );
     }
 
     @Test
@@ -956,5 +1203,16 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2ValidProgramDir, "test_99.lo").toString();
         String program = LiveOak2Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 905);
+    }
+
+    @Test
+    @DisplayName("should return \n    *\n   ***\n  *****\n *******\n********* ")
+    void testLO2_100() throws Throwable {
+        String fileName = Path.of(lo2ValidProgramDir, "test_100.lo").toString();
+        String program = LiveOak2Compiler.compiler(fileName);
+        SamTestRunner.checkReturnedStringValue(
+            program,
+            "    *\n   ***\n  *****\n *******\n*********"
+        );
     }
 }
