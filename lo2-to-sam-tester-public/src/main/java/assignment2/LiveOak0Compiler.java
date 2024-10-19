@@ -86,7 +86,7 @@ public class LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Exception e) {
             String errorMessage = String.format(
@@ -95,7 +95,7 @@ public class LiveOak0Compiler {
                 e.getMessage()
             );
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         }
     }
@@ -278,11 +278,11 @@ public class LiveOak0Compiler {
         }
 
         // False block: (...) ? (...) : Expr
-        sam += false_block + ":\n";
+        sam += false_block.name + ":\n";
         sam += getBlock(f);
 
         // Done if statement
-        sam += stop_stmt + ":\n";
+        sam += stop_stmt.name + ":\n";
 
         return sam;
     }
@@ -366,9 +366,9 @@ public class LiveOak0Compiler {
 
         if (CompilerUtils.check(f, '(')) {
             // Expr -> ( Unop Expr )
-            try {
+            if (f.test('~') || f.test('!')) {
                 return getUnopExpr(f);
-            } catch (TypeErrorException e) {
+            } else {
                 // Expr -> ( Expr (...) )
                 Expression expr = getExpr(f);
 
@@ -411,6 +411,7 @@ public class LiveOak0Compiler {
 
     static Expression getUnopExpr(SamTokenizer f) throws CompilerException {
         // unop sam code
+        System.out.println("HERE");
         String unop_sam = getUnop(CompilerUtils.getOp(f));
 
         // getExpr() would return "exactly" one value on the stack

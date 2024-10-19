@@ -1,0 +1,111 @@
+    PUSHIMM 2
+    PUSHIMMSTR "abc"
+
+    LINK
+    JSR vf815dc2
+    UNLINK
+    FREE
+    JUMP r41deb42
+
+    vf815dc2:
+    PUSHIMM 0
+    PUSHIMM 0
+    PUSHIMM 0
+    PUSHOFF -1
+    DUP
+
+    bc4b6b38:
+    DUP
+    PUSHIND
+
+    ISNIL
+    JUMPC a3f1ea65
+
+    PUSHIMM 1
+    ADD
+
+    JUMP bc4b6b38
+
+    a3f1ea65:
+    SWAP
+    SUB
+
+    PUSHOFF -2
+    TIMES
+    PUSHIMM 1
+    ADD
+    MALLOC
+    STOREOFF 3
+
+    PUSHOFF 3
+    STOREOFF 4
+
+    jc53180f:
+    PUSHOFF 2
+    PUSHOFF -2
+    EQUAL
+    JUMPC n5c84720
+
+    PUSHIMM 0
+    PUSHOFF 3
+    PUSHOFF -1
+    LINK
+    JSR sd0232db
+    UNLINK
+    ADDSP -2
+    JUMP c8e80d31
+
+    sd0232db:
+    PUSHOFF -2
+    PUSHOFF -1
+
+    cdbe250d:
+    PUSHOFF 3
+    PUSHIND
+    ISNIL
+    JUMPC d2dd3554
+
+    PUSHOFF 2
+    PUSHOFF 3
+    PUSHIND
+    STOREIND
+
+    PUSHOFF 3
+    PUSHIMM 1
+    ADD
+    STOREOFF 3
+
+    PUSHOFF 2
+    PUSHIMM 1
+    ADD
+    STOREOFF 2
+
+    JUMP cdbe250d
+
+    d2dd3554:
+    PUSHOFF 2
+    PUSHIMMCH '\0'
+    STOREIND
+
+    PUSHOFF 2
+    STOREOFF -3
+
+    ADDSP -2
+    RST
+
+    c8e80d31:
+    STOREOFF 3
+    PUSHOFF 2
+    PUSHIMM 1
+    ADD
+    STOREOFF 2
+    JUMP jc53180f
+
+    n5c84720:
+    PUSHOFF 4
+    STOREOFF -2
+    ADDSP -3
+    RST
+
+    r41deb42:
+    STOP
