@@ -24,6 +24,17 @@ test {
     useJUnitPlatform()
 }
 
+
+task testLO1(type: Test) {
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching "assignment2.LiveOak1CompilerTest"
+    }
+    testLogging {
+        showStandardStreams = true
+    }
+}
+
 task testLO2(type: Test) {
     useJUnitPlatform()
     filter {

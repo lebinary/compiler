@@ -7,12 +7,15 @@ import edu.utexas.cs.sam.io.SamTokenizer;
 import edu.utexas.cs.sam.io.Tokenizer;
 import edu.utexas.cs.sam.io.Tokenizer.TokenType;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LiveOak2Compiler {
@@ -80,24 +83,22 @@ public class LiveOak2Compiler {
 
             return program;
         } catch (CompilerException e) {
-            String errorMessage = String.format(
-                "Failed to compile %s.\nError Message: %s\n",
-                fileName,
-                e.getMessage()
-            );
+            String errorMessage = createErrorMessage(fileName);
             System.err.println(errorMessage);
             // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Exception e) {
-            String errorMessage = String.format(
-                "Failed to compile %s.\nError Message: %s\n",
-                fileName,
-                e.getMessage()
-            );
+            String errorMessage = createErrorMessage(fileName);
             System.err.println(errorMessage);
             // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         }
+    }
+
+    private static String createErrorMessage(String fileName) {
+        String normalizedPath = Paths.get(fileName).normalize().toString();
+        String errorMessage = "Failed to compile " + normalizedPath;
+        return errorMessage;
     }
 
     /*** FIRST PASS: POPULATE SYMBOL TABLE
