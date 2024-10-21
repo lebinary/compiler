@@ -74,19 +74,17 @@ class LiveOak1CompilerTest {
     @Test
     @DisplayName("Test_0")
     void testL01_0() throws Throwable {
-        String fileName = Path.of(
-            lo2InvalidProgramDir,
-            "test_10.lo"
-        ).toString();
+        String fileName = Path.of(lo2InvalidProgramDir, "test_9.lo").toString();
+        String prog = LiveOak2Compiler.compiler(fileName);
         // assertThrows(
         //     Error.class,
         //     () -> LiveOak2Compiler.compiler(fileName),
-        //     "Expected parse error to be thrown for file test_10.lo"
+        //     "Expected parse error to be thrown for file test_9.lo"
         // );
         // assertTrue(
         //     getStdErr()
         //         .contains(
-        //             "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_10.lo"
+        //             "Failed to compile src/test/resources/LO-2/InvalidPrograms/test_9.lo"
         //         )
         // );
     }
