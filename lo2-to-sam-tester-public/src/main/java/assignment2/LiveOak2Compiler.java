@@ -128,11 +128,17 @@ public class LiveOak2Compiler {
             populateMethod(f);
         }
 
-        // Make sure main method has no arguments
+        // Make sure there is a main method and it has no arguments
         MethodNode mainMethod = globalNode.lookupSymbol(
             "main",
             MethodNode.class
         );
+        if (mainMethod == null) {
+            throw new CompilerException(
+                "Main method missing",
+                f.lineNo()
+            );
+        }
         if (mainMethod.numParameters() != 0) {
             throw new CompilerException(
                 "Main method should not have any parameters",
