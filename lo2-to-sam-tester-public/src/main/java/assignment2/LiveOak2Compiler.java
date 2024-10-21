@@ -134,10 +134,7 @@ public class LiveOak2Compiler {
             MethodSymbol.class
         );
         if (mainMethod == null) {
-            throw new CompilerException(
-                "Main method missing",
-                f.lineNo()
-            );
+            throw new CompilerException("Main method missing", f.lineNo());
         }
         if (mainMethod.numParameters() != 0) {
             throw new CompilerException(
@@ -597,6 +594,13 @@ public class LiveOak2Compiler {
                 f.lineNo()
             );
         }
+
+        if (!CompilerUtils.check(f, ';')) {
+            throw new SyntaxErrorException(
+                "getBreakStmt expects ';' at end of statement",
+                f.lineNo()
+            );
+        }
         return "JUMP " + breakLabel.name + "\n";
     }
 
@@ -636,6 +640,12 @@ public class LiveOak2Compiler {
         }
         sam += "JUMP " + returnLabel.name + "\n";
 
+        if (!CompilerUtils.check(f, ';')) {
+            throw new SyntaxErrorException(
+                "getReturnStmt expects ';' at end of statement",
+                f.lineNo()
+            );
+        }
         return sam;
     }
 
