@@ -1159,7 +1159,7 @@ public class LiveOak2Compiler {
                 if (symbol == null) {
                     throw new CompilerException(
                         "getTerminal trying to access symbol that has not been declared: Symbol " +
-                        symbol,
+                        name,
                         f.lineNo()
                     );
                 }
