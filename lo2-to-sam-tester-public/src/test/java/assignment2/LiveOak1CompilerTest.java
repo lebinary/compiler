@@ -74,7 +74,7 @@ class LiveOak1CompilerTest {
     @Test
     @DisplayName("Test_0")
     void testL01_0() throws Throwable {
-        String fileName = Path.of(lo2InvalidProgramDir, "test_9.lo").toString();
+        String fileName = Path.of(lo2ValidProgramDir, "test_75.lo").toString();
         String prog = LiveOak2Compiler.compiler(fileName);
         // assertThrows(
         //     Error.class,

@@ -12,8 +12,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -443,14 +445,6 @@ public class LiveOak2Compiler {
             );
         }
 
-        // Check return method at the end
-        if (method.peekStatement() != Statement.RETURN) {
-            throw new SyntaxErrorException(
-                "get method missing return statement at the end",
-                f.lineNo()
-            );
-        }
-
         return sam;
     }
 
@@ -475,7 +469,28 @@ public class LiveOak2Compiler {
         method.pushLabel(returnLabel);
 
         // Then, get Block
-        sam += getBlock(f, method);
+        if (!CompilerUtils.check(f, '{')) {
+            throw new SyntaxErrorException(
+                "getBlock expects '{' at start of block",
+                f.lineNo()
+            );
+        }
+        List<Integer> endWithReturnStmt = new ArrayList<>();
+        while (!CompilerUtils.check(f, '}')) {
+            if (f.test("return")) {
+                endWithReturnStmt.add(1);
+            } else {
+                endWithReturnStmt.add(0);
+            }
+
+            sam += getStmt(f, method);
+        }
+        if (endWithReturnStmt.get(endWithReturnStmt.size() - 1) != 1) {
+            throw new SyntaxErrorException(
+                "get method missing return statement at the end",
+                f.lineNo()
+            );
+        }
 
         // Cleanup procedure
         sam += returnLabel.name + ":\n";
@@ -630,7 +645,6 @@ public class LiveOak2Compiler {
         sam += expr.samCode;
 
         // Jump to clean up
-        // CompilerUtils.printTokens();
         Label returnLabel = method.mostRecent(LabelType.RETURN);
         if (returnLabel == null) {
             throw new CompilerException(
