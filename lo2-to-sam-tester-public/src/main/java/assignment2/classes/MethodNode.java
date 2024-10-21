@@ -3,9 +3,9 @@ package assignment2;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Iterator;
 
 public class MethodNode extends Node {
 
@@ -114,14 +114,17 @@ public class MethodNode extends Node {
     }
 
     public Label mostRecent(LabelType labelType) {
-        Iterator<Label> descendingIterator = labels.descendingIterator();
-        while (descendingIterator.hasNext()) {
-            Label label = descendingIterator.next();
+        Iterator<Label> iterator = labels.iterator();
+
+        while (iterator.hasNext()) {
+            Label label = iterator.next();
+
             if (label.type == labelType) {
                 return label;
             }
         }
-        return null; // Return null if no matching label is found
+
+        return null; // Will be null if no matching label was found
     }
 
     // Statements stack operations
