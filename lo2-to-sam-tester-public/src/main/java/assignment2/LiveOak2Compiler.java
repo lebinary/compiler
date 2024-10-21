@@ -22,10 +22,11 @@ public class LiveOak2Compiler {
 
     public static void main(String[] args) throws IOException {
         if (args.length < 2) {
-            System.err.println("Usage: java ProgramName inputFile outputFile");
-            System.exit(1);
+            System.err.println(
+                "Error: Two arguments are required - input file name and output file name."
+            );
+            throw new Error();
         }
-
         String inFileName = args[0];
         String outFileName = args[1];
 
@@ -38,15 +39,33 @@ public class LiveOak2Compiler {
             ) {
                 writer.write(samCode);
             }
-        } catch (CompilerException e) {
-            System.err.println("Compiler error: " + e.getMessage());
-            e.printStackTrace();
         } catch (IOException e) {
-            System.err.println("Error processing files: " + e.getMessage());
-            e.printStackTrace();
+            String errorMessage =
+                "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
+                inFileName;
+            System.err.println(errorMessage);
+            throw new Error(errorMessage, e);
+        } catch (CompilerException e) {
+            String errorMessage =
+                "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
+                inFileName;
+            System.err.println(errorMessage);
+            // CompilerUtils.printTokens();
+            throw new Error(errorMessage, e);
+        } catch (Error e) {
+            String errorMessage =
+                "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
+                inFileName;
+            System.err.println(errorMessage);
+            // CompilerUtils.printTokens();
+            throw new Error(errorMessage, e);
         } catch (Exception e) {
-            System.err.println("Unexpected error: " + e.getMessage());
-            e.printStackTrace();
+            String errorMessage =
+                "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
+                inFileName;
+            System.err.println(errorMessage);
+            // CompilerUtils.printTokens();
+            throw new Error(errorMessage, e);
         }
     }
 
@@ -65,10 +84,10 @@ public class LiveOak2Compiler {
     }
 
     static String compiler(String fileName) throws Exception {
-        reset(); // Clear the list before starting
-
-        //returns SaM code for program in file
         try {
+            reset(); // Clear the list before starting
+
+            //returns SaM code for program in file
             SamTokenizer firstPass = new SamTokenizer(
                 fileName,
                 SamTokenizer.TokenizerOptions.PROCESS_STRINGS
@@ -107,6 +126,18 @@ public class LiveOak2Compiler {
         // First pass: populate symbolTable
         while (f.peekAtKind() != TokenType.EOF) {
             populateMethod(f);
+        }
+
+        // Make sure main method has no arguments
+        MethodNode mainMethod = globalNode.lookupSymbol(
+            "main",
+            MethodNode.class
+        );
+        if (mainMethod.numParameters() != 0) {
+            throw new CompilerException(
+                "Main method should not have any parameters",
+                f.lineNo()
+            );
         }
         CompilerUtils.clearTokens();
     }
@@ -297,6 +328,23 @@ public class LiveOak2Compiler {
      ***/
 
     static String getProgram(SamTokenizer f) throws CompilerException {
+        // Check if main method exists
+        MethodNode mainMethod = globalNode.lookupSymbol(
+            "main",
+            MethodNode.class
+        );
+        if (mainMethod == null) {
+            throw new CompilerException("Main method not found", f.lineNo());
+        }
+
+        // Check if main method has the correct signature (no parameters)
+        if (mainMethod.numParameters() != 0) {
+            throw new CompilerException(
+                "Main method should not have parameters",
+                f.lineNo()
+            );
+        }
+
         String pgm = "";
         pgm += "PUSHIMM 0\n";
         pgm += "LINK\n";
@@ -384,13 +432,18 @@ public class LiveOak2Compiler {
             );
         }
 
-        // Check return method at the end
-        if (
-            method.peekStatement() != Statement.RETURN ||
-            !method.hasStatement(Statement.RETURN)
-        ) {
+        // Check if any return method
+        if (!method.hasStatement(Statement.RETURN)) {
             throw new SyntaxErrorException(
                 "get method missing return statement",
+                f.lineNo()
+            );
+        }
+
+        // Check return method at the end
+        if (method.peekStatement() != Statement.RETURN) {
+            throw new SyntaxErrorException(
+                "get method missing return statement at the end",
                 f.lineNo()
             );
         }
@@ -415,14 +468,14 @@ public class LiveOak2Compiler {
             return sam;
         }
 
-        Label cleanupLabel = new Label(LabelType.RETURN);
-        method.pushLabel(cleanupLabel);
+        Label returnLabel = new Label(LabelType.RETURN);
+        method.pushLabel(returnLabel);
 
         // Then, get Block
         sam += getBlock(f, method);
 
         // Cleanup procedure
-        sam += cleanupLabel.name + ":\n";
+        sam += returnLabel.name + ":\n";
         sam += "STOREOFF " + method.returnAddress() + "\n";
         sam += "ADDSP -" + method.numLocalVariables() + "\n";
         sam += "RST\n";
@@ -538,7 +591,6 @@ public class LiveOak2Compiler {
                 f.lineNo()
             );
         }
-
         return "JUMP " + breakLabel.name + "\n";
     }
 
@@ -558,9 +610,9 @@ public class LiveOak2Compiler {
         // Type check
         if (!expr.type.isCompatibleWith(method.type)) {
             throw new TypeErrorException(
-                "Return statement type mismatch: " +
+                "Return type mismatch: expected " +
                 method.type +
-                " and " +
+                ", but got " +
                 expr.type,
                 f.lineNo()
             );
@@ -568,6 +620,7 @@ public class LiveOak2Compiler {
         sam += expr.samCode;
 
         // Jump to clean up
+        // CompilerUtils.printTokens();
         Label returnLabel = method.mostRecent(LabelType.RETURN);
         if (returnLabel == null) {
             throw new CompilerException(
@@ -706,7 +759,6 @@ public class LiveOak2Compiler {
         Expression expr = getExpr(f, method);
         // Type check
         if (!expr.type.isCompatibleWith(variable.type)) {
-            // System.out.println(expr.samCode);
             throw new TypeErrorException(
                 "getVarStmt type mismatch: " +
                 variable.type +
