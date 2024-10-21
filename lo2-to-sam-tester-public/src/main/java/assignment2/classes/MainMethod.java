@@ -2,7 +2,7 @@ package assignment2;
 
 import java.util.ArrayList;
 
-public class MainMethod extends MethodNode {
+public class MainMethod extends MethodSymbol {
 
     private static MainMethod instance = null;
 

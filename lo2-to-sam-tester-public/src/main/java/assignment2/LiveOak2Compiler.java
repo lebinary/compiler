@@ -69,17 +69,17 @@ public class LiveOak2Compiler {
         }
     }
 
-    //             globalNode
+    //             globalSymbol
     //             /         \
     //       mainMethod      anotherMethod
     //      /         \
     //   local1       local2
 
-    public static Node globalNode = new Node();
+    public static Symbol globalSymbol = new Symbol();
 
     public static void reset() {
         CompilerUtils.clearTokens();
-        globalNode = new Node();
+        globalSymbol = new Symbol();
         MainMethod.resetInstance();
     }
 
@@ -129,9 +129,9 @@ public class LiveOak2Compiler {
         }
 
         // Make sure there is a main method and it has no arguments
-        MethodNode mainMethod = globalNode.lookupSymbol(
+        MethodSymbol mainMethod = globalSymbol.lookupSymbol(
             "main",
-            MethodNode.class
+            MethodSymbol.class
         );
         if (mainMethod == null) {
             throw new CompilerException(
@@ -156,7 +156,7 @@ public class LiveOak2Compiler {
         String methodName = getIdentifier(f);
 
         // Check if the method is already defined
-        if (globalNode.existSymbol(methodName)) {
+        if (globalSymbol.existSymbol(methodName)) {
             throw new CompilerException(
                 "Method '" + methodName + "' is already defined",
                 f.lineNo()
@@ -172,7 +172,7 @@ public class LiveOak2Compiler {
         }
 
         // Init method
-        MethodNode method = null;
+        MethodSymbol method = null;
         if (methodName.equals("main")) {
             // MethodDecl -> Type main() ...
             if (!CompilerUtils.check(f, ')')) {
@@ -185,7 +185,7 @@ public class LiveOak2Compiler {
             method.type = returnType; // update return type for main method
         } else {
             // create Method object
-            method = new MethodNode(methodName, returnType);
+            method = new MethodSymbol(methodName, returnType);
 
             // Save params in symbol table and method object
             populateParams(f, method);
@@ -199,7 +199,7 @@ public class LiveOak2Compiler {
             }
         }
         // Save Method in global scope
-        globalNode.addChild(method);
+        globalSymbol.addChild(method);
 
         // MethodDecl -> Type MethodName ( Formals? ) { ...
         if (!CompilerUtils.check(f, '{')) {
@@ -221,7 +221,7 @@ public class LiveOak2Compiler {
         }
     }
 
-    static void populateParams(SamTokenizer f, MethodNode method)
+    static void populateParams(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         while (f.peekAtKind() == TokenType.WORD) {
             // Formals -> Type ...
@@ -240,13 +240,13 @@ public class LiveOak2Compiler {
                 );
             }
 
-            // set Formal as child of MethodNode
-            VariableNode paramNode = new VariableNode(
+            // set Formal as child of MethodSymbol
+            VariableSymbol paramSymbol = new VariableSymbol(
                 formalName,
                 formalType,
                 true
             );
-            method.addChild(paramNode);
+            method.addChild(paramSymbol);
 
             if (!CompilerUtils.check(f, ',')) {
                 break;
@@ -254,7 +254,7 @@ public class LiveOak2Compiler {
         }
     }
 
-    static void populateLocals(SamTokenizer f, MethodNode method)
+    static void populateLocals(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // while start with "int | bool | String"
         while (f.peekAtKind() == TokenType.WORD) {
@@ -276,8 +276,8 @@ public class LiveOak2Compiler {
                     );
                 }
 
-                // save local variable as child of methodNode
-                VariableNode variable = new VariableNode(
+                // save local variable as child of methodSymbol
+                VariableSymbol variable = new VariableSymbol(
                     varName,
                     varType,
                     false
@@ -335,9 +335,9 @@ public class LiveOak2Compiler {
 
     static String getProgram(SamTokenizer f) throws CompilerException {
         // Check if main method exists
-        MethodNode mainMethod = globalNode.lookupSymbol(
+        MethodSymbol mainMethod = globalSymbol.lookupSymbol(
             "main",
-            MethodNode.class
+            MethodSymbol.class
         );
         if (mainMethod == null) {
             throw new CompilerException("Main method not found", f.lineNo());
@@ -376,9 +376,9 @@ public class LiveOak2Compiler {
         String methodName = getIdentifier(f);
 
         // Pull method from global scope
-        MethodNode method = globalNode.lookupSymbol(
+        MethodSymbol method = globalSymbol.lookupSymbol(
             methodName,
-            MethodNode.class
+            MethodSymbol.class
         );
         if (method == null) {
             throw new CompilerException(
@@ -459,7 +459,7 @@ public class LiveOak2Compiler {
 
     /*** Recursive operations. Override all
      ***/
-    static String getBody(SamTokenizer f, MethodNode method)
+    static String getBody(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         String sam = "";
 
@@ -490,7 +490,7 @@ public class LiveOak2Compiler {
         return sam;
     }
 
-    static String getVarDecl(SamTokenizer f, MethodNode method)
+    static String getVarDecl(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         String sam = "";
 
@@ -520,7 +520,7 @@ public class LiveOak2Compiler {
         return sam;
     }
 
-    static String getBlock(SamTokenizer f, MethodNode method)
+    static String getBlock(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         String sam = "";
 
@@ -538,7 +538,7 @@ public class LiveOak2Compiler {
         return sam;
     }
 
-    static String getStmt(SamTokenizer f, MethodNode method)
+    static String getStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         String sam = "";
 
@@ -581,7 +581,7 @@ public class LiveOak2Compiler {
         return sam;
     }
 
-    static String getBreakStmt(SamTokenizer f, MethodNode method)
+    static String getBreakStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (!CompilerUtils.check(f, "break")) {
             throw new SyntaxErrorException(
@@ -600,7 +600,7 @@ public class LiveOak2Compiler {
         return "JUMP " + breakLabel.name + "\n";
     }
 
-    static String getReturnStmt(SamTokenizer f, MethodNode method)
+    static String getReturnStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (!CompilerUtils.check(f, "return")) {
             throw new SyntaxErrorException(
@@ -639,7 +639,7 @@ public class LiveOak2Compiler {
         return sam;
     }
 
-    static String getIfStmt(SamTokenizer f, MethodNode method)
+    static String getIfStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (!CompilerUtils.check(f, "if")) {
             throw new SyntaxErrorException(
@@ -697,7 +697,7 @@ public class LiveOak2Compiler {
         return sam;
     }
 
-    static String getWhileStmt(SamTokenizer f, MethodNode method)
+    static String getWhileStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (!CompilerUtils.check(f, "while")) {
             throw new SyntaxErrorException(
@@ -750,10 +750,10 @@ public class LiveOak2Compiler {
         return sam;
     }
 
-    static String getVarStmt(SamTokenizer f, MethodNode method)
+    static String getVarStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         String sam = "";
-        Node variable = getVar(f, method);
+        Symbol variable = getVar(f, method);
 
         if (!CompilerUtils.check(f, '=')) {
             throw new SyntaxErrorException(
@@ -780,7 +780,7 @@ public class LiveOak2Compiler {
         // update value in symbol
         variable.value = expr.value;
 
-        // Store item on the stack to Node
+        // Store item on the stack to Symbol
         sam += "STOREOFF " + variable.address + "\n";
 
         if (!CompilerUtils.check(f, ';')) {
@@ -793,7 +793,7 @@ public class LiveOak2Compiler {
         return sam;
     }
 
-    static Expression getExpr(SamTokenizer f, MethodNode method)
+    static Expression getExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (CompilerUtils.check(f, '(')) {
             Expression expr = null;
@@ -848,7 +848,7 @@ public class LiveOak2Compiler {
         }
     }
 
-    static Expression getUnopExpr(SamTokenizer f, MethodNode method)
+    static Expression getUnopExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // Not an operator, raise
         if (f.peekAtKind() != TokenType.OPERATOR) {
@@ -889,7 +889,7 @@ public class LiveOak2Compiler {
     static Expression getBinopExpr(
         SamTokenizer f,
         Expression prevExpr,
-        MethodNode method
+        MethodSymbol method
     ) throws CompilerException {
         // Not an operator, raise
         if (f.peekAtKind() != TokenType.OPERATOR) {
@@ -972,7 +972,7 @@ public class LiveOak2Compiler {
         return expr;
     }
 
-    static Expression getTernaryExpr(SamTokenizer f, MethodNode method)
+    static Expression getTernaryExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // Generate sam code
         Expression expr = new Expression();
@@ -1024,8 +1024,8 @@ public class LiveOak2Compiler {
 
     static Expression getMethodCallExpr(
         SamTokenizer f,
-        MethodNode scopeMethod,
-        MethodNode callingMethod
+        MethodSymbol scopeMethod,
+        MethodSymbol callingMethod
     ) throws CompilerException {
         String sam = "";
         sam += "PUSHIMM 0\n"; // return value
@@ -1055,8 +1055,8 @@ public class LiveOak2Compiler {
 
     static String getActuals(
         SamTokenizer f,
-        MethodNode scopeMethod,
-        MethodNode callingMethod
+        MethodSymbol scopeMethod,
+        MethodSymbol callingMethod
     ) throws CompilerException {
         String sam = "";
         int paramCount = callingMethod.numParameters();
@@ -1080,7 +1080,7 @@ public class LiveOak2Compiler {
             }
 
             Expression expr = getExpr(f, scopeMethod);
-            VariableNode currParam = callingMethod.parameters.get(argCount);
+            VariableSymbol currParam = callingMethod.parameters.get(argCount);
 
             // Type check
             if (!expr.type.isCompatibleWith(currParam.type)) {
@@ -1121,7 +1121,7 @@ public class LiveOak2Compiler {
     }
 
     // getTerminal is now a recursive operation
-    static Expression getTerminal(SamTokenizer f, MethodNode method)
+    static Expression getTerminal(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         TokenType type = f.peekAtKind();
         switch (type) {
@@ -1154,31 +1154,31 @@ public class LiveOak2Compiler {
                 }
 
                 // Expr -> MethodName | Var
-                Node node = method.lookupSymbol(name);
+                Symbol symbol = method.lookupSymbol(name);
 
-                if (node == null) {
+                if (symbol == null) {
                     throw new CompilerException(
-                        "getTerminal trying to access symbol that has not been declared: Node " +
-                        node,
+                        "getTerminal trying to access symbol that has not been declared: Symbol " +
+                        symbol,
                         f.lineNo()
                     );
                 }
 
                 // Expr -> MethodName ( Actuals )
-                if (node instanceof MethodNode) {
-                    return getMethodCallExpr(f, method, (MethodNode) node);
+                if (symbol instanceof MethodSymbol) {
+                    return getMethodCallExpr(f, method, (MethodSymbol) symbol);
                 }
                 // Expr -> Var
-                else if (node instanceof VariableNode) {
+                else if (symbol instanceof VariableSymbol) {
                     return new Expression(
-                        "PUSHOFF " + node.address + "\n",
-                        node.type,
-                        node.value
+                        "PUSHOFF " + symbol.address + "\n",
+                        symbol.type,
+                        symbol.value
                     );
                 } else {
                     throw new CompilerException(
-                        "getTerminal trying to access invalid symbol: Node " +
-                        node,
+                        "getTerminal trying to access invalid symbol: Symbol " +
+                        symbol,
                         f.lineNo()
                     );
                 }
@@ -1219,7 +1219,7 @@ public class LiveOak2Compiler {
 
     /*** Non-recursive operations. Override "getVar", inherit the rest from LiveOak0Compiler
      ***/
-    static Node getVar(SamTokenizer f, MethodNode method)
+    static Symbol getVar(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // Not a var, raise
         if (f.peekAtKind() != TokenType.WORD) {
@@ -1230,7 +1230,7 @@ public class LiveOak2Compiler {
         }
 
         String varName = CompilerUtils.getWord(f);
-        Node variable = method.lookupSymbol(varName);
+        Symbol variable = method.lookupSymbol(varName);
         if (variable == null) {
             throw new SyntaxErrorException(
                 "getVar trying to access variable that has not been declared: Variable" +

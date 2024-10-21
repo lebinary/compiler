@@ -7,16 +7,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-public class MethodNode extends Node {
+public class MethodSymbol extends Symbol {
 
-    public List<VariableNode> parameters;
-    public List<VariableNode> localVariables;
+    public List<VariableSymbol> parameters;
+    public List<VariableSymbol> localVariables;
     private Deque<Label> labels;
     private Deque<Statement> statements;
 
-    public MethodNode(
-        Node parent,
-        List<Node> children,
+    public MethodSymbol(
+        Symbol parent,
+        List<Symbol> children,
         String name,
         Type returnType,
         int address
@@ -28,25 +28,25 @@ public class MethodNode extends Node {
         this.statements = new ArrayDeque<>();
 
         // Populate parameters and localVariables
-        for (Node child : children) {
-            if (child instanceof VariableNode) {
+        for (Symbol child : children) {
+            if (child instanceof VariableSymbol) {
                 udpateParamsAndLocals(child);
             }
         }
     }
 
     // Constructor with default values
-    public MethodNode() {
+    public MethodSymbol() {
         this(null, new ArrayList<>(), "main", Type.INT, 0);
     }
 
-    public MethodNode(String name, Type returnType) {
+    public MethodSymbol(String name, Type returnType) {
         this(null, new ArrayList<>(), name, returnType, 0);
     }
 
     // update child's address and categorize them
-    public void udpateParamsAndLocals(Node child) {
-        VariableNode castChild = (VariableNode) child;
+    public void udpateParamsAndLocals(Symbol child) {
+        VariableSymbol castChild = (VariableSymbol) child;
         if (castChild.isParameter) {
             castChild.address = -1;
             parameters.add(castChild);
@@ -62,10 +62,10 @@ public class MethodNode extends Node {
     }
 
     // Tree operations
-    public void addChild(Node child) {
+    public void addChild(Symbol child) {
         super.addChild(child);
 
-        if (child instanceof VariableNode) {
+        if (child instanceof VariableSymbol) {
             udpateParamsAndLocals(child);
         }
     }
@@ -147,9 +147,9 @@ public class MethodNode extends Node {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MethodNode)) return false;
+        if (!(o instanceof MethodSymbol)) return false;
         if (!super.equals(o)) return false;
-        MethodNode that = (MethodNode) o;
+        MethodSymbol that = (MethodSymbol) o;
         return Objects.equals(parameters, that.parameters);
     }
 

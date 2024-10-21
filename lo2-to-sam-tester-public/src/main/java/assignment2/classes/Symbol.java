@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class Node {
+public class Symbol {
 
-    Node parent;
-    List<Node> children;
-    Map<String, Node> symbols = new HashMap<>();
+    Symbol parent;
+    List<Symbol> children;
+    Map<String, Symbol> symbolTable = new HashMap<>();
 
     String name;
     Type type;
@@ -19,9 +19,9 @@ public class Node {
 
     /** Constructors
      **/
-    public Node(
-        Node parent,
-        List<Node> children,
+    public Symbol(
+        Symbol parent,
+        List<Symbol> children,
         String name,
         Type type,
         int address,
@@ -34,36 +34,36 @@ public class Node {
         this.address = address;
         this.value = value;
 
-        // Populate symbols with children that have names
-        for (Node child : this.children) {
+        // Populate symbolTable with children that have names
+        for (Symbol child : this.children) {
             if (child.name != null && !child.name.isEmpty()) {
-                this.symbols.put(child.name, child);
+                this.symbolTable.put(child.name, child);
             }
         }
     }
 
-    public Node(String name, Type type, int address) {
+    public Symbol(String name, Type type, int address) {
         this(null, new ArrayList<>(), name, type, address, null);
     }
 
-    public Node() {
+    public Symbol() {
         this(null, new ArrayList<>(), "", Type.INT, 0, null);
     }
 
-    public void addChild(Node child) {
+    public void addChild(Symbol child) {
         child.parent = this;
         children.add(child);
         if (child.name != null) {
-            symbols.put(child.name, child);
+            symbolTable.put(child.name, child);
         }
     }
 
-    public Node lookupSymbol(String name) {
+    public Symbol lookupSymbol(String name) {
         return lookupSymbol(name, null);
     }
 
-    public <T extends Node> T lookupSymbol(String name, Class<T> type) {
-        Node symbol = symbols.get(name);
+    public <T extends Symbol> T lookupSymbol(String name, Class<T> type) {
+        Symbol symbol = symbolTable.get(name);
         if (symbol != null) {
             if (type == null || type.isInstance(symbol)) {
                 @SuppressWarnings("unchecked")
@@ -79,14 +79,14 @@ public class Node {
     }
 
     public boolean existSymbol(String name) {
-        Node exist = lookupSymbol(name);
+        Symbol exist = lookupSymbol(name);
 
         return exist == null ? false : true;
     }
 
     public void reset() {
         this.parent = null;
-        this.symbols.clear();
+        this.symbolTable.clear();
         this.children.clear();
         this.name = "";
         this.type = Type.INT; // Assuming INT is the default type
@@ -95,7 +95,7 @@ public class Node {
     }
 
     public void resetRecursive() {
-        for (Node child : this.children) {
+        for (Symbol child : this.children) {
             child.resetRecursive();
         }
         this.reset();
@@ -105,11 +105,11 @@ public class Node {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Node node = (Node) o;
+        Symbol symbol = (Symbol) o;
         return (
-            address == node.address &&
-            Objects.equals(name, node.name) &&
-            type == node.type
+            address == symbol.address &&
+            Objects.equals(name, symbol.name) &&
+            type == symbol.type
         );
     }
 
