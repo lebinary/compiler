@@ -1,41 +1,18 @@
-<!-- PROJECT HEADER -->
-<div align="center">
-  <h1>A Compiler</h1>
-  <p align="center">
-    A compiler that translates a Java-like language into SaM assembly code for educational purposes.
-  </p>
-</div>
+# A Compiler
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#built-with">Built With</a>
-    </li>
-    <li>
-      <a href="#features">Features</a>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#development">Development</a>
-      <ul>
-        <li><a href="#building-jar">Building Jar</a></li>
-        <li><a href="#running-tests">Running Tests</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#usage">Usage</a>
-    </li>
-    <li><a href="#implementation-details">Implementation Details</a></li>
-  </ol>
-</details>
+A compiler that translates a Java-like language into SaM assembly code for educational purposes.
+
+## Table of Contents
+- [Built With](#built-with)
+- [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Development](#development)
+  - [Building Jar](#building-jar)
+  - [Running Tests](#running-tests)
+- [Usage](#usage)
+- [Implementation Details](#implementation-details)
 
 ## Built With
 
@@ -88,7 +65,7 @@ gradle build
 which will leave the jar file at `build/libs/compiler.jar`
 
 If you have some tests failing and want to build a jar anyway, you can skip tests using
-```shell
+```sh
 gradle build -x test
 ```
 
@@ -102,23 +79,22 @@ Any IDE with gradle support can run the test cases, but they can also be run man
 gradle test
 ```
 
-
 ## Usage
 
 1. Prepare a source code file (e.g., `program.lo`)
-  Example source code:
-  ```java
-  int main() {
-      String message;
-      message = "Hello, World!";
-      return 0;
-  }
-  ```
+   Example source code:
+   ```java
+   int main() {
+       String message;
+       message = "Hello, World!";
+       return 0;
+   }
+   ```
 
 2. Build jar file of the compiler, a `compiler.jar` file should be created in `/build/libs`
-  ```sh
-  gradle build --rerun-tasks
-  ```
+   ```sh
+   gradle build --rerun-tasks
+   ```
 
 3. Run the jar file to generate a SAM file
    ```sh
