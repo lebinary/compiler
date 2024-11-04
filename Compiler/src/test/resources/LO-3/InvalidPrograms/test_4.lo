@@ -1,0 +1,25 @@
+// bad test case
+// Missing new in constructor
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        Tester a;
+        {
+            a = Tester(5);
+            return a.getA();   
+        }
+    }
+}
+
+class Tester(int A;){
+    void Tester(int a){
+        {A = a;}
+    }
+
+    int getA{
+        {
+            return A;
+        }
+    }
+}

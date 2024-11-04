@@ -1,0 +1,252 @@
+// good test case
+// Binary search on a sorted list
+// main method return value:  92
+// Author: Tyler Collins (Summer 2021)
+
+class Main() {
+    int main(){
+        List list;
+        bool indicator;
+        {
+            list = new List();
+            indicator = (((((list.headAdd(100) & list.tailAdd(43)) & list.headAdd(57)) & list.tailAdd(25)) & list.tailAdd(79)) & list.tailAdd(21));
+
+            if ((!indicator)) {
+                return 32;
+            } else { ; }
+
+            if (
+                ((((((list.getIndex(0) = 57)
+                & (list.getIndex(1) = 100))
+                & (list.getIndex(2) = 43))
+                & (list.getIndex(3) = 25))
+                & (list.getIndex(4) = 79))
+                & (list.getIndex(5) = 21))
+            ) { ; } else { return 12; }
+
+            indicator = list.sort();
+
+            if ((!indicator)) {
+                return 61;
+            } else { ; }
+
+            if (
+                ((((list.getIndex(0) = 21)
+                & (list.getIndex(1) = 25))
+                & ((list.getIndex(2) = 43)
+                & (list.getIndex(3) = 57)))
+                & ((list.getIndex(4) = 79)
+                & (list.getIndex(5) = 100)))
+            ) { ; } else { return 45; }
+
+            if (
+                (((((list.search(21) = 0)
+                & (list.search(25) = 1))
+                & ((list.search(43) = 2)
+                & (list.search(57) = 3)))
+                & ((list.search(79) = 4)
+                & (list.search(100) = 5)))
+                & (list.search(12) = (~1)))
+            ) { return 92; } else { ; }
+
+            return (~1);
+        }
+    }
+}
+
+class List(ListNode head, tail; int length; bool sorted;) {
+    void List() {
+        {
+            head = null;
+            tail = null;
+            length = 0;
+            sorted = false;
+        }
+    }
+
+    int getLength(){
+        {
+            return length;
+        }
+    }
+
+    int search(int target) {
+        int lowIdx, highIdx, midIdx;
+        List localThis;
+        {
+            localThis = this;
+            lowIdx = 0;
+            highIdx = length;
+            while ((lowIdx < highIdx)) {
+                midIdx = ((highIdx + lowIdx) / 2);
+                if ((target = localThis.getIndex(midIdx))) {
+                    return midIdx;
+                } else {
+                    if ((target < localThis.getIndex(midIdx))) {
+                        highIdx = midIdx;
+                    } else {
+                        lowIdx = midIdx;
+                    }
+                }
+            }
+
+            return (~1);
+        }
+    }
+
+    bool swap(int idxA, int idxB) {
+        int tmpVal;
+        bool ind;
+        List localThis;
+        {
+            localThis = this;
+            tmpVal = localThis.getIndex(idxA);
+            ind = localThis.setIndex(localThis.getIndex(idxB), idxA);
+            ind = localThis.setIndex(tmpVal, idxB);
+
+            return true;
+        }
+    }
+
+    bool sort() {
+        int currIdx, currMin, minIdx, tmpIdx, tmpVal;
+        List localThis;
+        bool ind;
+        {
+            currIdx = 0;
+            localThis = this;
+            while ((currIdx < length)) {
+                tmpIdx = (currIdx + 1);
+                minIdx = currIdx;
+                currMin = localThis.getIndex(minIdx);
+                while ((tmpIdx < length)) {
+                    tmpVal = localThis.getIndex(tmpIdx);
+                    if ((tmpVal < currMin)) {
+                        minIdx = tmpIdx;
+                        currMin = tmpVal;
+                    } else { ; }
+                    tmpIdx = (tmpIdx + 1);
+                }
+
+                tmpVal = localThis.getIndex(currIdx);
+                ind = localThis.setIndex(currMin, currIdx);
+                ind = localThis.setIndex(tmpVal, minIdx);
+                currIdx = (currIdx + 1);
+            }
+
+            sorted = true;
+            return true;
+        }
+    }
+
+    int getIndex(int idx) {
+        ListNode curr;
+        int currIdx;
+        {
+            if (((!(idx < length)) | (idx < 0))) {
+                return (~1);
+            } else { ; }
+
+            currIdx = 0;
+            curr = head;
+
+            while ((currIdx < idx)) {
+                currIdx = (currIdx + 1);
+                curr = curr.getNext();
+            }
+
+            return curr.getValue();
+        }
+    }
+
+    bool setIndex(int value, int idx) {
+        ListNode curr;
+        int currIdx;
+        int ind;
+        {
+            if (((!(idx < length)) | (idx < 0))) {
+                return (false & true);
+            } else { ; }
+
+            currIdx = 0;
+            curr = head;
+
+            while ((currIdx < idx)) {
+                currIdx = (currIdx + 1);
+                curr = curr.getNext();
+            }
+
+            ind = curr.setValue(value);
+
+            return (true | false);
+        }
+    }
+
+    bool tailAdd(int value) {
+        {
+            length = (length + 1);
+            if ((head = null)) {
+                head = new ListNode(value);
+                tail = head;
+                return true;
+            } else {
+                tail = tail.setNext(new ListNode(value));
+            }
+
+            return (true | ((1 / 0) > 0));
+        }
+    }
+
+    bool headAdd(int value) {
+        ListNode curr;
+        {
+            length = (length + 1);
+            if ((head = null)) {
+                head = new ListNode(value);
+                tail = head;
+                return true;
+            } else {
+                curr = new ListNode(value);
+                head = curr.setNext(head);
+                head = curr;
+            }
+
+            return (true | false);
+        }
+    }
+}
+
+class ListNode(int value; ListNode next;) {
+    void ListNode(int val) {
+        {
+            value = val;
+            next = null;
+        }
+    }
+
+    int setValue(int newVal) {
+        {
+            value = newVal;
+            return newVal;
+        }
+    }
+
+    int getValue() {
+        {
+            return value;
+        }
+    }
+
+    ListNode getNext() {
+        {
+            return next;
+        }
+    }
+
+    ListNode setNext(ListNode node) {
+        {
+            next = node;
+            return node;
+        }
+    }
+}

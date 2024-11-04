@@ -1,0 +1,66 @@
+// bad test case
+// Undeclared class variable
+// Author: Tyler Collins (Summer 2022)
+
+class Calculator() {
+    void Calculator(int initialResult) {
+        {
+            result = initialResult;
+        }
+    }
+
+    int add(int a) {
+        {
+            result = (result + a);
+
+            return 0;
+        }
+    }
+
+    int times(int a) {
+        {
+            result = (result * a);
+
+            return 0;
+        }
+    }
+
+    int div(int a) {
+        {
+            result = (result / a);
+
+            return 0;
+        }
+    }
+
+    int sub(int a) {
+        {
+            result = (result - a);
+
+            return 0;
+        }
+    }
+
+    int getResult() {
+        {
+            return result;
+        }
+    }
+}
+
+class Main() {
+    int main() {
+        int indicator;
+        Calculator calc;
+        {
+            calc = new Calculator(0);
+
+            indicator = calc.add(10);
+            indicator = calc.add(5);
+            indicator = calc.div(3);
+            indicator = calc.times(4);
+
+            return calc.getResult();
+        }
+    }
+}

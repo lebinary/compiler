@@ -1,0 +1,55 @@
+// bad test case
+// cannot use reserved words as method names
+// Author: Tyler Collins (Summer 2022)
+
+class Main() {
+    int main(){
+        Condition condition;
+        Waiter waiter;
+        bool wait;
+        {
+            condition = new Condition();
+            waiter = new Waiter(condition);
+            wait = waiter.while();
+
+            return condition.getState();
+        }
+    }
+}
+
+class Condition(int state;) {
+    void Condition() {
+        {
+            state = 0;
+        }
+    }
+
+    bool break() {
+        {
+            state = (state + 1);
+            return (state > 10);
+        }
+    }
+
+    int getState() {
+        {
+            return state;
+        }
+    }
+}
+
+class Waiter(Condition condition;) {
+    void Waiter(Condition cond) {
+        {
+            condition = cond;
+        }
+    }
+
+    bool while() {
+        {
+            while (!condition.break()) { ; }
+
+            return true;
+        }
+    }
+}

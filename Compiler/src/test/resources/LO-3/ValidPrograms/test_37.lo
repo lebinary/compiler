@@ -1,0 +1,31 @@
+// good test case
+// Additional Main methods; while loops
+// main method return value:  9
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        Main x;
+        int i;
+        {
+            i = 0;
+            x = this;
+            while(true){
+                if(x.isGreaterThanEight(i)) {
+                    break;
+                }
+                else {
+                    ;
+                }
+                i = (i + 1);
+            }
+            return i;
+        }
+    }
+
+    bool isGreaterThanEight(int i){
+        {
+            return (i > 8);
+        }
+    }
+}

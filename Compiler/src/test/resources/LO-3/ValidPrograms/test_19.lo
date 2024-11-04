@@ -1,0 +1,39 @@
+// good test case
+// main method return value:  10
+// Author: Isha Joshi (Fall 2021)
+
+class maxofthree(int a,b,c;){
+    void maxofthree(){
+        {
+            a = 8;
+            b = 10;
+            c = 4;
+        }
+    }
+
+    int result(){
+        {
+            if(((a>b) & (a>c))){
+                return a;
+            } else { ; }
+
+            if((b>c)){
+                return b;
+            } else {
+                return c;
+            }
+
+            return (~1);
+        }
+    }
+}
+
+class Main(){
+    int main(){
+        maxofthree c3;
+        {
+            c3 = new maxofthree();
+            return c3.result();
+        }
+    }
+}

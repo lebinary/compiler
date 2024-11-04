@@ -1,0 +1,13 @@
+// bad test case
+// Using this as a local variable
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        int this;
+        {
+            this = 5;
+            return this;
+        }
+    }
+}

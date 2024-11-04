@@ -1,0 +1,71 @@
+// good test case
+// Accumulate object state and access with a getter
+// main method return value:  4
+// Author: Tyler Collins (Summer 2022)
+
+class Calculator(int result;) {
+    void Calculator(int initialResult) {
+        {
+            result = initialResult;
+        }
+    }
+
+    int add(int a) {
+        {
+            result = (result + a);
+
+            return 0;
+        }
+    }
+
+    int times(int a) {
+        {
+            result = (result * a);
+
+            return 0;
+        }
+    }
+
+    int div(int a) {
+        {
+            result = (result / a);
+
+            return 0;
+        }
+    }
+
+    int sub(int a) {
+        {
+            result = (result - a);
+
+            return 0;
+        }
+    }
+
+    int getResult() {
+        {
+            return result;
+        }
+    }
+}
+
+class Main() {
+    int main() {
+        int indicator;
+        Calculator calc;
+        {
+            calc = new Calculator((~10));
+
+            indicator = calc.add(10);
+            if ((indicator = 0)) {
+                indicator = calc.add(5);
+            } else {
+                indicator = calc.add(6);
+            }
+            indicator = calc.div(3);
+            indicator = calc.times(4);
+
+            return calc.getResult();
+        }
+    }
+}

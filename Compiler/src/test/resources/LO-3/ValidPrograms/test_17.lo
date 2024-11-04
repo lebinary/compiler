@@ -1,0 +1,65 @@
+// good test case
+// Binary search tree.
+// main method return value:  2
+// Author: Sid Chatterjee (Fall 2021)
+
+class Main()
+{
+    int main() {
+        treeCell t;
+        TreeTraversalService ts;
+        {
+            ts = new TreeTraversalService();
+            t = new treeCell(5, new treeCell(3, new treeCell(2, null, null),
+                                                new treeCell(4, null, null)),
+                                new treeCell(9, null, null));
+            return ts.walk(t);
+        }
+    }
+}
+
+class TreeTraversalService() {
+    void TreeTraversalService() { { ; } }
+
+    int walk(treeCell t) {
+        TreeTraversalService x;
+        {
+            x = this;
+            if ((t.getLeft() = null)) {
+                return t.getObject();
+            } else {
+                return x.walk(t.getLeft());
+            }
+
+            return (~1);
+        }
+    }
+}
+
+class treeCell (
+    int v;
+    treeCell left, right;
+) {
+    void treeCell(int i, treeCell l, treeCell r) {
+        {
+            v = i;
+            left = l;
+            right = r;
+        }
+    }
+    treeCell getLeft() {
+        {
+            return left;
+        }
+    }
+    treeCell getRight() {
+        {
+            return right;
+        }
+    }
+    int getObject() {
+        {
+            return v;
+        }
+    }
+}

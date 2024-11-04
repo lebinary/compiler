@@ -1,0 +1,37 @@
+// good test case
+// class with multiple methods
+// main method return value:  20
+// Author: Isha Joshi (Fall 2021)
+
+class room(int length, breadth, height;) {
+	void room(){
+        {
+            length = 4;
+            breadth = 5;
+            height = 6;
+        }
+    }
+     int getVolume() {
+        {
+            return (length * (breadth * height));
+        }
+     }
+
+     int getArea() {
+         {
+            length = 4;
+            breadth = 5;
+            return (length * breadth);
+         }
+     }
+
+}
+
+class Main(room r;) {
+    int main(){
+        {
+            r = new room();
+            return r.getArea();
+        }
+    }
+}

@@ -1,0 +1,33 @@
+// good test case
+// basic class declaration: Case should return 7 value as the result of calling calc function
+// main method return value:  7
+// Author: Shivi Agarwal (Fall 2021)
+
+class Calculator(int option;) {
+    void Calculator(int op) {
+        {
+            option = op;
+        }
+    }
+
+    int calc(){
+        {
+            if ((option=1)) {
+                return (3+4);
+            } else {
+                return (4-3);
+            }
+            return (1000);
+        }
+    }
+}
+  
+class Main() {
+    int main() {
+        Calculator c;
+        {
+            c = new Calculator (1);
+            return c.calc();
+        }
+    }
+}

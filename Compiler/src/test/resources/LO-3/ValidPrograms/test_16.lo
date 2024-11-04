@@ -1,0 +1,39 @@
+// good test case
+// main method return value:  6
+// Author: Kaveri Mukundan (Fall 2021)
+
+class Example_2()
+{
+  void Example_2(){
+    {
+      ;
+    }
+  }
+  int addNumbers(int n) {
+    int sum;
+    { 
+        sum = 0;
+        while((n>0)){
+          sum = (sum + n);
+          n = (n-1);
+        }
+        return sum;
+    }
+  }
+
+  bool updateBool(bool s) {
+    {
+        return (s&true);
+    }
+  }
+}
+
+class Main() {
+  int main() {
+    Example_2 e2;
+       {
+        e2 = new Example_2();
+        return e2.addNumbers(3);
+       }
+  }
+}

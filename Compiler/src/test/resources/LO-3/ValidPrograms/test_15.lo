@@ -1,0 +1,20 @@
+// good test case
+// basic class declaration
+// main method return value:  10
+// Author: (Fall 2021)
+
+class car() {
+  int carPrice() {
+      {return 10;}
+  }
+}
+
+class Main() {
+  int main() {
+    car c;
+       {
+        c = new car();
+        return c.carPrice();
+       }
+  }
+}

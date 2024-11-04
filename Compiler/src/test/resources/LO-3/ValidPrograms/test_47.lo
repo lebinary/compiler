@@ -1,0 +1,53 @@
+// good test case
+// Point is in Rectangle
+// main method return value:  1
+// Author: Aaron Wollman (Summer 2021)
+
+class Point(int x, y;){
+    void Point(int xIn, int yIn){
+        {
+            x = xIn;
+            y = yIn;
+        }
+    }
+
+    int X(){
+        {
+            return x;
+        }
+    }
+
+    int Y(){
+        {
+            return y;
+        }
+    }
+}
+
+class Main() {
+    bool main(){
+        Rectangle rec;
+        {
+            rec = new Rectangle(new Point(10, 10), new Point(2, 2));
+            return rec.contains(new Point(5, 5));
+        }
+    }
+}
+
+class Rectangle(Point upperRight; Point lowerLeft;){
+    void Rectangle(Point ur, Point ll){
+        {
+            upperRight = ur;
+            lowerLeft = ll;
+        }
+    }
+
+    bool contains(Point p){
+        bool inUpper, inLower;
+        {
+            inUpper = ((p.X() < upperRight.X()) & (p.Y() < upperRight.Y()));
+            inLower = ((p.X() > lowerLeft.X()) & (p.Y() > lowerLeft.Y()));
+            return (inUpper & inLower);
+        }
+    }
+}

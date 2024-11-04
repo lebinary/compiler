@@ -1,0 +1,55 @@
+// bad test case
+// cannot use reserved words as identifiers
+// Author: Tyler Collins (Summer 2022)
+
+class Main() {
+    int main(){
+        Condition condition;
+        while waiter;
+        bool wait;
+        {
+            condition = new Condition();
+            waiter = new while(condition);
+            wait = waiter.wait();
+
+            return condition.getState();
+        }
+    }
+}
+
+class Condition(int state;) {
+    void Condition() {
+        {
+            state = 0;
+        }
+    }
+
+    bool check() {
+        {
+            state = (state + 1);
+            return (state < 10);
+        }
+    }
+
+    int getState() {
+        {
+            return state;
+        }
+    }
+}
+
+class while(Condition condition;) {
+    void while(Condition cond) {
+        {
+            condition = cond;
+        }
+    }
+
+    bool wait() {
+        {
+            while (condition.check()) { ; }
+
+            return true;
+        }
+    }
+}

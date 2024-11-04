@@ -1,0 +1,202 @@
+// good test case
+// Selection sort on a List
+// main method return value:  14
+// Author: Tyler Collins (Summer 2021)
+
+class Main() {
+    int main(){
+        List list;
+        bool indicator;
+        {
+            list = new List();
+            indicator = (((((list.headAdd(2) & list.tailAdd(10)) & list.headAdd(9)) & list.tailAdd(3)) & list.tailAdd(1)) & list.tailAdd(7));
+
+            if ((!indicator)) {
+                return 32;
+            } else { ; }
+
+            if (
+                ((((((list.getIndex(0) = 9)
+                & (list.getIndex(1) = 2))
+                & (list.getIndex(2) = 10))
+                & (list.getIndex(3) = 3))
+                & (list.getIndex(4) = 1))
+                & (list.getIndex(5) = 7))
+            ) { ; } else { return 73; }
+
+            indicator = list.sort();
+
+            if ((!indicator)) {
+                return 41;
+            } else { ; }
+
+            if (
+                ((((list.getIndex(0) = 1) &
+                (list.getIndex(1) = 2)) &
+                ((list.getIndex(2) = 3) &
+                (list.getIndex(3) = 7))) &
+                ((list.getIndex(4) = 9) &
+                (list.getIndex(5) = 10)))
+            ) { return 14; } else { ; }
+
+            return (~1);
+        }
+    }
+}
+
+class List(ListNode head, tail; int length;) {
+    void List() {
+        {
+            head = null;
+            tail = null;
+            length = 0;
+        }
+    }
+
+    int getLength(){
+        {
+            return length;
+        }
+    }
+
+    bool sort() {
+        int currIdx, currMin, minIdx, tmpIdx, tmpVal;
+        List localThis;
+        bool ind;
+        {
+            currIdx = 0;
+            localThis = this;
+            while ((currIdx < length)) {
+                tmpIdx = (currIdx + 1);
+                minIdx = currIdx;
+                currMin = localThis.getIndex(minIdx);
+                while ((tmpIdx < length)) {
+                    tmpVal = localThis.getIndex(tmpIdx);
+                    if ((tmpVal < currMin)) {
+                        minIdx = tmpIdx;
+                        currMin = tmpVal;
+                    } else { ; }
+                    tmpIdx = (tmpIdx + 1);
+                }
+
+                tmpVal = localThis.getIndex(currIdx);
+                ind = localThis.setIndex(currMin, currIdx);
+                ind = localThis.setIndex(tmpVal, minIdx);
+                currIdx = (currIdx + 1);
+            }
+
+            return true;
+        }
+    }
+
+    int getIndex(int idx) {
+        ListNode curr;
+        int currIdx;
+        {
+            if (((!(idx < length)) | (idx < 0))) {
+                return (~1);
+            } else { ; }
+
+            currIdx = 0;
+            curr = head;
+
+            while ((currIdx < idx)) {
+                currIdx = (currIdx + 1);
+                curr = curr.getNext();
+            }
+
+            return curr.getValue();
+        }
+    }
+
+    bool setIndex(int value, int idx) {
+        ListNode curr;
+        int currIdx;
+        int ind;
+        {
+            if (((!(idx < length)) | (idx < 0))) {
+                return (false & true);
+            } else { ; }
+
+            currIdx = 0;
+            curr = head;
+
+            while ((currIdx < idx)) {
+                currIdx = (currIdx + 1);
+                curr = curr.getNext();
+            }
+
+            ind = curr.setValue(value);
+
+            return (true | false);
+        }
+    }
+
+    bool tailAdd(int value) {
+        {
+            length = (length + 1);
+            if ((head = null)) {
+                head = new ListNode(value);
+                tail = head;
+                return true;
+            } else {
+                tail = tail.setNext(new ListNode(value));
+            }
+
+            return (true | ((1 / 0) > 0));
+        }
+    }
+
+    bool headAdd(int value) {
+        ListNode curr;
+        {
+            length = (length + 1);
+            if ((head = null)) {
+                head = new ListNode(value);
+                tail = head;
+                return true;
+            } else {
+                curr = new ListNode(value);
+                head = curr.setNext(head);
+                head = curr;
+            }
+
+            return (true | false);
+        }
+    }
+}
+
+class ListNode(int value; ListNode next;) {
+    void ListNode(int val) {
+        {
+            value = val;
+            next = null;
+        }
+    }
+
+    int setValue(int newVal) {
+        {
+            value = newVal;
+            return newVal;
+        }
+    }
+
+    int getValue() {
+        {
+            return value;
+        }
+    }
+
+    ListNode getNext() {
+        {
+            return next;
+        }
+    }
+
+    ListNode setNext(ListNode node) {
+        {
+            next = node;
+            return node;
+        }
+    }
+}

@@ -1,0 +1,17 @@
+// bad test case
+// Method defined outside of class
+// Author: Aaron Wollman (Summer 2021)
+
+int add(int a, int b){
+    {
+        return (a + b);
+    }
+}
+
+class Main() {
+    int main(){
+        {
+            return add(5, 6);
+        }
+    }
+}

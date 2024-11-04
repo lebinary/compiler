@@ -1,0 +1,33 @@
+// bad test case
+// void method
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+    Counter counter;
+        {
+            counter = new Counter(5);
+            counter.add(10)
+            return counter.getValue();
+        }
+    }
+
+}
+
+class Counter(int val;){
+    void Counter(int value){
+        {
+            val = value;
+        }
+    }
+
+    void add(int addVal){
+        {val = val + addVal;}
+    }
+
+    int getValue(){
+        {
+            return val;
+        }
+    }
+}

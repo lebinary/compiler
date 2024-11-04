@@ -1,0 +1,40 @@
+// good test case
+// Simple use of this
+// main method return value:  36
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        Integer i;
+        {
+            i = new Integer(6);
+            return i.Square();
+        }
+    }
+}
+
+class Integer(int val;){
+    void Integer(int v){
+        {
+            val = v;
+        }
+    }
+
+    int Square(){
+        Integer x;
+        int square;
+        {
+            x = this;
+            square = ((x.getValue()) * (x.getValue()));
+            return square;
+        }
+    }
+
+    int getValue(){
+        {
+            return val;
+        }
+    }
+
+
+} 

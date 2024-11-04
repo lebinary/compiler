@@ -1,0 +1,43 @@
+// good test case
+// Fibonacci series
+// main method return value:  55
+// Author: Aaron Wollman (Summer 2021)
+
+class FiboCalculator(int a;){
+    void FiboCalculator(int val){
+        {
+            a = val;
+        }
+    }
+
+    int calculate(){
+        int b;
+        FiboCalculator x, y;
+        {
+            if((a=1)){
+                b = 1;
+            }
+            else{
+                if((a=2)){
+                    b = 1;
+                }
+                else{
+                    x = new FiboCalculator((a-1));
+                    y = new FiboCalculator((a-2));
+                    b = (x.calculate() + y.calculate());
+                }
+            }
+            return b;
+        }
+    }
+}
+
+class Main() {
+    int main(){
+        FiboCalculator fibo;
+        {
+            fibo = new FiboCalculator(10);
+            return fibo.calculate();
+        }
+    }
+}

@@ -1,0 +1,95 @@
+// good test case
+// LinkedList Implementation
+// main method return value:  17
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        LinkedList list;
+        {
+            list = new LinkedList();
+            if( (((list.add(6) & list.add(4)) & list.add(2)) & list.add(1) )){
+                return ((((list.getValue(0) + list.getValue(2)) + list.getValue(1)) + list.getValue(3)) + list.getLength());
+            } else { ; }
+            return (~1);
+        }
+    }
+}
+
+class LinkedList(LinkedListNode head, tail; int length;) {
+    void LinkedList(){
+        {
+            head = null;
+            tail = null;
+            length = 0;
+        }
+    }
+
+    bool add(int value){
+        LinkedListNode newNode;
+        bool isAdded;
+        {
+            if((length = 0)){
+                head = new LinkedListNode(value);
+                tail = head;
+                isAdded = true;
+            }
+            else{
+                newNode = new LinkedListNode(value);
+                isAdded = tail.setNextNode(newNode);
+                tail = newNode;
+            }
+            length = (length + 1);
+            return isAdded;
+        }
+    }
+
+    int getLength(){
+        {
+            return length;
+        }
+    }
+
+    int getValue(int idx){
+        int i;
+        LinkedListNode current;
+        {
+            i = 0;
+            current = head;
+            while((!(i = idx))){
+                i = (i + 1);
+                current = current.getNextNode();
+            }
+            return current.getValue();
+        }
+    }
+
+}
+
+class LinkedListNode(int value; LinkedListNode nextNode;){
+    void LinkedListNode(int val){
+        {
+            value = val;
+            nextNode = null;
+        }
+    }
+
+    int getValue(){
+        {
+            return value;
+        }
+    }
+
+    LinkedListNode getNextNode(){
+        {
+            return nextNode;
+        }
+    }
+
+    bool setNextNode(LinkedListNode next){
+        {
+            nextNode = next;
+            return true;
+        }
+    }
+}

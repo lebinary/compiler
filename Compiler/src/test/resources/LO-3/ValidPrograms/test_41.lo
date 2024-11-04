@@ -1,0 +1,56 @@
+// good test case
+// While loop waits on object state
+// main method return value:  71
+// Author: Tyler Collins (Summer 2022)
+
+class Main() {
+    int main(){
+        Condition condition;
+        Waiter waiter;
+        bool wait;
+        {
+            condition = new Condition();
+            waiter = new Waiter(condition);
+            wait = waiter.wait();
+
+            return condition.getState();
+        }
+    }
+}
+
+class Condition(int state;) {
+    void Condition() {
+        {
+            state = 0;
+        }
+    }
+
+    bool check() {
+        {
+            state = (state + 1);
+            return (state < 71);
+        }
+    }
+
+    int getState() {
+        {
+            return state;
+        }
+    }
+}
+
+class Waiter(Condition condition;) {
+    void Waiter(Condition cond) {
+        {
+            condition = cond;
+        }
+    }
+
+    bool wait() {
+        {
+            while (condition.check()) { ; }
+
+            return true;
+        }
+    }
+}

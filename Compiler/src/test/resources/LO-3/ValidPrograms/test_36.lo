@@ -1,0 +1,35 @@
+// good test case
+// Test unused variables
+// main method return value:  10
+// Author: Aaron Wollman (Summer 2021)
+
+class Unused(){
+    
+}
+
+class Main() {
+    int main(){
+        Fiver fiver;
+        {
+            fiver = new Fiver(1);
+            return (fiver.five(10) + fiver.five(3));
+        }
+    }
+}
+
+class Fiver(int a, b; bool x, y; String str;){
+    void Fiver(int Q){
+        {
+            ;
+        }
+    }
+
+    int five(int Z){
+        int q;
+        bool r;
+        String s;
+        {
+            return 5;
+        }
+    }
+}
