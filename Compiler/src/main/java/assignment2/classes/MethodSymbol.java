@@ -11,6 +11,7 @@ public class MethodSymbol extends Symbol {
 
     public List<VariableSymbol> parameters;
     public List<VariableSymbol> localVariables;
+    public Deque<Label> scopes;
     private Deque<Label> labels;
     private Deque<Statement> statements;
 
