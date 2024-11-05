@@ -1,6 +1,8 @@
 # A Compiler
 
 A compiler that translates a Java-like language into SaM assembly code for educational purposes.
+<img width="695" alt="Screenshot 2024-11-05 at 02 30 45" src="https://github.com/user-attachments/assets/7a9eff02-1d5c-441a-83a6-a0f90407a40b">
+
 
 ## Table of Contents
 - [Built With](#built-with)
@@ -42,12 +44,12 @@ A compiler that translates a Java-like language into SaM assembly code for educa
 
 1. Clone the repository
    ```sh
-   git clone [repository-url]
+   git clone https://github.com/lebinary/compiler.git
    ```
 
-2. Compile the Java source files
+2. Enter Directory
    ```sh
-   javac *.java
+   cd compiler
    ```
 
 ## Development
