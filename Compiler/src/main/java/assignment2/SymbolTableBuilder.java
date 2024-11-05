@@ -20,7 +20,7 @@ public class SymbolTableBuilder {
 
         // First pass: populate symbolTable
         while (f.peekAtKind() != TokenType.EOF) {
-            populateMethod(f);
+            populateMethod(f, (MethodSymbol) globalSymbol);
         }
 
         // Make sure there is a main method and it has no arguments
@@ -71,19 +71,41 @@ public class SymbolTableBuilder {
         // create ClassSymbol object
         ClassSymbol classSym = new ClassSymbol(className);
 
-        // Save params in symbol table and method object
+        // ClassDecl -> class className ( Formals? ...
         populateParams(f, classSym);
 
-        // MethodDecl -> Type MethodName ( Formals? ) ...
+        // ClassDecl -> class className ( Formals? ) ...
         if (!CompilerUtils.check(f, ')')) {
             throw new SyntaxErrorException(
                 "get method expects ')' at end of get formals",
                 f.lineNo()
             );
         }
+
+        // ClassDecl -> class ClassName ( Formals? ) {...
+        if (!CompilerUtils.check(f, '{')) {
+            throw new SyntaxErrorException(
+                "populateClass expects '{' at start of get class body",
+                f.lineNo()
+            );
+        }
+
+        // ClassDecl -> class ClassName ( Formals? ) { MethodDecl...
+        while (f.peekAtKind() != TokenType.WORD) {
+            // populateMethod(f, classSym);
+        }
+
+        // ClassDecl -> class ClassName ( Formals? ) { MethodDecl...}
+        if (!CompilerUtils.check(f, '}')) {
+            throw new SyntaxErrorException(
+                "populateClass expects '}' at end of get class body",
+                f.lineNo()
+            );
+        }
     }
 
-    static void populateMethod(SamTokenizer f) throws CompilerException {
+    static void populateMethod(SamTokenizer f, MethodSymbol classSymbol)
+        throws CompilerException {
         // MethodDecl -> Type ...
         Type returnType = CodeGenerator.getType(f);
 
@@ -91,7 +113,7 @@ public class SymbolTableBuilder {
         String methodName = CodeGenerator.getIdentifier(f);
 
         // Check if the method is already defined
-        if (globalSymbol.lookupSymbol(methodName, MethodSymbol.class) != null) {
+        if (classSymbol.lookupSymbol(methodName, MethodSymbol.class) != null) {
             throw new CompilerException(
                 "Method '" + methodName + "' is already defined",
                 f.lineNo()
@@ -106,35 +128,22 @@ public class SymbolTableBuilder {
             );
         }
 
-        // Init method
-        MethodSymbol method = null;
-        if (methodName.equals("main")) {
-            // MethodDecl -> Type main() ...
-            if (!CompilerUtils.check(f, ')')) {
-                throw new SyntaxErrorException(
-                    "main method should not receive formals",
-                    f.lineNo()
-                );
-            }
-            method = MainMethod.getInstance();
-            method.returnType = returnType; // update return type for main method
-        } else {
-            // create Method object
-            method = new MethodSymbol(methodName, returnType);
+        // create Method object
+        MethodSymbol method = new MethodSymbol(methodName, returnType);
 
-            // Save params in symbol table and method object
-            populateParams(f, method);
+        // Save params in symbol table and method object
+        populateParams(f, method);
 
-            // MethodDecl -> Type MethodName ( Formals? ) ...
-            if (!CompilerUtils.check(f, ')')) {
-                throw new SyntaxErrorException(
-                    "get method expects ')' at end of get formals",
-                    f.lineNo()
-                );
-            }
+        // MethodDecl -> Type MethodName ( Formals? ) ...
+        if (!CompilerUtils.check(f, ')')) {
+            throw new SyntaxErrorException(
+                "get method expects ')' at end of get formals",
+                f.lineNo()
+            );
         }
+
         // Save Method in global scope
-        globalSymbol.addChild(method);
+        classSymbol.addChild(method);
 
         // MethodDecl -> Type MethodName ( Formals? ) { ...
         if (!CompilerUtils.check(f, '{')) {
