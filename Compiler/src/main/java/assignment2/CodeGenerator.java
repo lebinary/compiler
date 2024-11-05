@@ -888,7 +888,7 @@ public class CodeGenerator {
     static Type getType(SamTokenizer f) throws CompilerException {
         // typeString = "int" | "bool" | "String"
         String typeString = CompilerUtils.getWord(f);
-        Type type = Type.fromString(typeString);
+        Type type = Type.getType(typeString);
 
         // typeString != INT | BOOL | STRING
         if (type == null) {

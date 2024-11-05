@@ -43,21 +43,21 @@ public class LiveOak2Compiler {
                 "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
                 inFileName;
             System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
+            CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Error e) {
             String errorMessage =
                 "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
                 inFileName;
             System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
+            CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Exception e) {
             String errorMessage =
                 "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
                 inFileName;
             System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
+            CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         }
     }
@@ -68,12 +68,11 @@ public class LiveOak2Compiler {
     //      /         \
     //   local1       local2
 
-    public static Symbol globalSymbol = new MethodSymbol("global", Type.INT);
+    public static ClassSymbol globalSymbol = new ClassSymbol("Object");
 
     public static void reset() {
         CompilerUtils.clearTokens();
-        globalSymbol = new MethodSymbol("global", Type.INT);
-        MainMethod.resetInstance();
+        globalSymbol = new ClassSymbol("Object");
     }
 
     static String compiler(String fileName) throws Exception {
@@ -88,21 +87,22 @@ public class LiveOak2Compiler {
             SymbolTableBuilder.populate(firstPass, globalSymbol);
             TreeUtils.printTree(globalSymbol);
 
-            SamTokenizer secondPass = new SamTokenizer(
-                fileName,
-                SamTokenizer.TokenizerOptions.PROCESS_STRINGS
-            );
-            String program = CodeGenerator.getProgram(secondPass);
+            // SamTokenizer secondPass = new SamTokenizer(
+            //     fileName,
+            //     SamTokenizer.TokenizerOptions.PROCESS_STRINGS
+            // );
+            // String program = CodeGenerator.getProgram(secondPass);
+            String program = "";
             return program;
         } catch (CompilerException e) {
             String errorMessage = createErrorMessage(fileName);
             System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
+            CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Exception e) {
             String errorMessage = createErrorMessage(fileName);
             System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
+            CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         }
     }

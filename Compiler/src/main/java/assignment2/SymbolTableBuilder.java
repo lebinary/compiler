@@ -10,28 +10,37 @@ import java.util.Deque;
 
 public class SymbolTableBuilder {
 
-    static Symbol globalSymbol = null;
+    static ClassSymbol globalSymbol = null;
 
     /*** FIRST PASS: POPULATE SYMBOL TABLE
      ***/
-    static void populate(SamTokenizer f, Symbol globalSymbol)
+    static void populate(SamTokenizer f, ClassSymbol globalSymbol)
         throws CompilerException {
         SymbolTableBuilder.globalSymbol = globalSymbol;
 
         // First pass: populate symbolTable
         while (f.peekAtKind() != TokenType.EOF) {
-            populateMethod(f, (MethodSymbol) globalSymbol);
+            populateClass(f);
         }
 
-        // Make sure there is a main method and it has no arguments
-        MethodSymbol mainMethod = globalSymbol.lookupSymbol(
+        // Make sure there is a main class
+        ClassSymbol mainClass = globalSymbol.lookupSymbol(
+            "Main",
+            ClassSymbol.class
+        );
+        if (mainClass == null) {
+            throw new CompilerException("Main class missing", f.lineNo());
+        }
+
+        // Make sure the main method has no arguments
+        MethodSymbol mainMethod = mainClass.lookupSymbol(
             "main",
             MethodSymbol.class
         );
         if (mainMethod == null) {
             throw new CompilerException("Main method missing", f.lineNo());
         }
-        if (mainMethod.numParameters() != 0) {
+        if (!(mainMethod.numParameters() == 1 && mainMethod.parameters.get(0).name == "this")) {
             throw new CompilerException(
                 "Main method should not have any parameters",
                 f.lineNo()
@@ -91,8 +100,8 @@ public class SymbolTableBuilder {
         }
 
         // ClassDecl -> class ClassName ( Formals? ) { MethodDecl...
-        while (f.peekAtKind() != TokenType.WORD) {
-            // populateMethod(f, classSym);
+        while (f.peekAtKind() == TokenType.WORD) {
+            populateMethod(f, classSym);
         }
 
         // ClassDecl -> class ClassName ( Formals? ) { MethodDecl...}
@@ -102,12 +111,15 @@ public class SymbolTableBuilder {
                 f.lineNo()
             );
         }
+
+        // Save Class in global scope
+        globalSymbol.addChild(classSym);
     }
 
-    static void populateMethod(SamTokenizer f, MethodSymbol classSymbol)
+    static void populateMethod(SamTokenizer f, ClassSymbol classSymbol)
         throws CompilerException {
         // MethodDecl -> Type ...
-        Type returnType = CodeGenerator.getType(f);
+        Type returnType = populateType(f);
 
         // MethodDecl -> Type MethodName ...
         String methodName = CodeGenerator.getIdentifier(f);
@@ -131,6 +143,14 @@ public class SymbolTableBuilder {
         // create Method object
         MethodSymbol method = new MethodSymbol(methodName, returnType);
 
+        // first param in the method is reserved for "this" object
+        VariableSymbol thisVariable = new VariableSymbol(
+            "this",
+            Type.getType(classSymbol.name),
+            true
+        );
+        method.addChild(thisVariable);
+
         // Save params in symbol table and method object
         populateParams(f, method);
 
@@ -142,7 +162,7 @@ public class SymbolTableBuilder {
             );
         }
 
-        // Save Method in global scope
+        // Save Method in class scope
         classSymbol.addChild(method);
 
         // MethodDecl -> Type MethodName ( Formals? ) { ...
@@ -165,11 +185,19 @@ public class SymbolTableBuilder {
         }
     }
 
+    static Type populateType(SamTokenizer f) throws CompilerException {
+        // typeString = "int" | "bool" | "String"
+        String typeString = CompilerUtils.getWord(f);
+        Type type = Type.createClassType(typeString);
+
+        return type;
+    }
+
     static void populateParams(SamTokenizer f, Symbol symbol)
         throws CompilerException {
         while (f.peekAtKind() == TokenType.WORD) {
             // Formals -> Type ...
-            Type formalType = CodeGenerator.getType(f);
+            Type formalType = populateType(f);
 
             // Formals -> Type Identifier
             String formalName = CodeGenerator.getIdentifier(f);
@@ -203,7 +231,7 @@ public class SymbolTableBuilder {
         // while start with "int | bool | String"
         while (f.peekAtKind() == TokenType.WORD) {
             // VarDecl -> Type ...
-            Type varType = CodeGenerator.getType(f);
+            Type varType = populateType(f);
 
             // while varName = a | b | c | ...
             while (f.peekAtKind() == TokenType.WORD) {
