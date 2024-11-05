@@ -50,9 +50,7 @@ public class TreeUtils {
             .append(symbol.name)
             .append("'")
             .append(", address=")
-            .append(symbol.address)
-            .append(", value=")
-            .append(symbol.value);
+            .append(symbol.address);
 
         if (symbol instanceof VariableSymbol) {
             sb

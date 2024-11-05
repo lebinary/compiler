@@ -484,9 +484,6 @@ public class CodeGenerator {
         // write sam code
         sam += expr.samCode;
 
-        // update value in symbol
-        variable.value = expr.value;
-
         // Store item on the stack to Symbol
         sam += "STOREOFF " + variable.address + "\n";
 
@@ -805,9 +802,6 @@ public class CodeGenerator {
             // write sam code
             sam += expr.samCode;
 
-            // save value in symbol
-            currParam.value = expr.value;
-
             argCount++;
         } while (CompilerUtils.check(f, ','));
 
@@ -835,18 +829,13 @@ public class CodeGenerator {
             // Expr -> Literal -> Num
             case INTEGER:
                 int value = CompilerUtils.getInt(f);
-                return new Expression(
-                    "PUSHIMM " + value + "\n",
-                    Type.INT,
-                    value
-                );
+                return new Expression("PUSHIMM " + value + "\n", Type.INT);
             // Expr -> Literal -> String
             case STRING:
                 String strValue = CompilerUtils.getString(f);
                 return new Expression(
                     "PUSHIMMSTR \"" + strValue + "\"\n",
-                    Type.STRING,
-                    strValue
+                    Type.STRING
                 );
             // Expr -> MethodName | Var | Literal
             case WORD:
@@ -854,10 +843,10 @@ public class CodeGenerator {
 
                 // Expr -> Literal -> "true" | "false"
                 if (name.equals("true")) {
-                    return new Expression("PUSHIMM 1\n", Type.BOOL, true);
+                    return new Expression("PUSHIMM 1\n", Type.BOOL);
                 }
                 if (name.equals("false")) {
-                    return new Expression("PUSHIMM 0\n", Type.BOOL, false);
+                    return new Expression("PUSHIMM 0\n", Type.BOOL);
                 }
 
                 // Expr -> MethodName | Var
@@ -879,8 +868,7 @@ public class CodeGenerator {
                 else if (symbol instanceof VariableSymbol) {
                     return new Expression(
                         "PUSHOFF " + symbol.address + "\n",
-                        ((VariableSymbol) symbol).type,
-                        symbol.value
+                        ((VariableSymbol) symbol).type
                     );
                 } else {
                     throw new CompilerException(

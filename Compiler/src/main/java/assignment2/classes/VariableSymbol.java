@@ -13,16 +13,15 @@ public class VariableSymbol extends Symbol {
         String name,
         Type type,
         int address,
-        Object value,
         boolean isParameter
     ) {
-        super(parent, new ArrayList<>(), name, address, value);
+        super(parent, new ArrayList<>(), name, address);
         this.type = type;
         this.isParameter = isParameter;
     }
 
     public VariableSymbol(String name, Type type, boolean isParameter) {
-        this(null, name, type, 0, null, isParameter);
+        this(null, name, type, 0, isParameter);
     }
 
     @Override

@@ -7,7 +7,7 @@ public class MainMethod extends MethodSymbol {
     private static MainMethod instance = null;
 
     private MainMethod() {
-        super(null, new ArrayList<>(), "main", Type.INT, 0);
+        super(null, "main", Type.INT, 0);
     }
 
     public static synchronized MainMethod getInstance() {

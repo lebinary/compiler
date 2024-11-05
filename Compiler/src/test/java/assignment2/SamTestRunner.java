@@ -1,16 +1,15 @@
 package assignment2;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import edu.utexas.cs.sam.core.*;
 import edu.utexas.cs.sam.ui.SamText;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Utility class for testing SaM assembly code in Junit tests.
@@ -37,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Tyler Collins &lt;tjscollins@gmail.com&gt;
  */
 public class SamTestRunner {
+
     private final String programCode;
     private final Processor cpu;
     private final Memory mem;
@@ -69,14 +69,12 @@ public class SamTestRunner {
      * @throws AssemblerException
      * @throws SystemException
      */
-    public static void checkReturnValue(String program, int expectedValue) throws Throwable {
+    public static void checkReturnValue(String program, int expectedValue)
+        throws Throwable {
         var samMachine = new SamTestRunner(program);
         var returnValue = executeProgramWithTimeout(samMachine);
 
-        assertEquals(
-            expectedValue,
-            returnValue.getValue()
-        );
+        assertEquals(expectedValue, returnValue.getValue());
     }
 
     /**
@@ -90,19 +88,25 @@ public class SamTestRunner {
      * @throws AssemblerException
      * @throws SystemException
      */
-    public static void checkReturnedStringValue(String program, String expectedValue) throws Throwable {
+    public static void checkReturnedStringValue(
+        String program,
+        String expectedValue
+    ) throws Throwable {
         SamTestRunner str = new SamTestRunner(program);
         var returnValue = executeProgramWithTimeout(str);
-        var heapValue = str.getHeapContents(returnValue.getValue(), expectedValue.length());
-        assertEquals(
-            expectedValue,
-            heapValueToString(heapValue)
+        var heapValue = str.getHeapContents(
+            returnValue.getValue(),
+            expectedValue.length()
         );
+        assertEquals(expectedValue, heapValueToString(heapValue));
     }
 
-    private static Memory.Data executeProgramWithTimeout(SamTestRunner str) throws Throwable {
+    private static Memory.Data executeProgramWithTimeout(SamTestRunner str)
+        throws Throwable {
         ExecutorService executor = Executors.newCachedThreadPool();
-        Future<Memory.Data> processResult = executor.submit((Callable<Memory.Data>) str::run);
+        Future<Memory.Data> processResult = executor.submit(
+            (Callable<Memory.Data>) str::run
+        );
         Memory.Data returnValue = null;
         try {
             returnValue = processResult.get(5, TimeUnit.SECONDS);
@@ -121,7 +125,8 @@ public class SamTestRunner {
      * @throws SystemException    Thrown if supplied assembly program has a runtime error
      *                            (e.g. divide by zero)
      */
-    public Memory.Data run() throws IOException, AssemblerException, SystemException {
+    public Memory.Data run()
+        throws IOException, AssemblerException, SystemException {
         Program prg = SamAssembler.assemble(new StringReader(programCode));
         cpu.load(prg);
         cpu.run();
@@ -161,10 +166,11 @@ public class SamTestRunner {
      * @return the string
      */
     public static String heapValueToString(List<Memory.Data> heapValue) {
-        return heapValue.stream()
-                .map(Memory.Data::getValue)
-                .map((v) -> String.valueOf((char) (int) v))
-                .collect(Collectors.joining());
+        return heapValue
+            .stream()
+            .map(Memory.Data::getValue)
+            .map(v -> String.valueOf((char) (int) v))
+            .collect(Collectors.joining());
     }
 
     /**
@@ -190,23 +196,25 @@ public class SamTestRunner {
      * @throws AssemblerException
      * @throws SystemException
      */
-    public List<Memory.Data> run(Integer ... stackAddrs) throws IOException, AssemblerException, SystemException {
+    public List<Memory.Data> run(Integer... stackAddrs)
+        throws IOException, AssemblerException, SystemException {
         Program prg = SamAssembler.assemble(new StringReader(programCode));
         cpu.load(prg);
         cpu.run();
         return Stream.of(stackAddrs)
-                .map((v) -> {
-                    try {
-                        return mem.getMem(v);
-                    } catch (SystemException e) {
-                        throw new RuntimeException(e.getMessage());
-                    }
-                }).collect(Collectors.toList());
+            .map(v -> {
+                try {
+                    return mem.getMem(v);
+                } catch (SystemException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+            })
+            .collect(Collectors.toList());
     }
 
     public enum Registers {
         PC,
         SP,
-        FBR
+        FBR,
     }
 }

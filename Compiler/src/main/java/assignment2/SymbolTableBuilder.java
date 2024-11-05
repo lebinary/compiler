@@ -9,6 +9,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class SymbolTableBuilder {
+
     static Symbol globalSymbol = null;
 
     /*** FIRST PASS: POPULATE SYMBOL TABLE
@@ -39,30 +40,50 @@ public class SymbolTableBuilder {
         CompilerUtils.clearTokens();
     }
 
-    // static void populateClass(SamTokenizer f, Symbol globalSymbol)
-    //     throws CompilerException {
-    //     // ClassDecl -> class...
-    //     if (!CompilerUtils.check(f, 'class')) {
-    //         throw new SyntaxErrorException(
-    //             "populateClass expects 'class' at the start",
-    //             f.lineNo()
-    //         );
-    //     }
+    static void populateClass(SamTokenizer f) throws CompilerException {
+        // ClassDecl -> class...
+        if (!CompilerUtils.check(f, "class")) {
+            throw new SyntaxErrorException(
+                "populateClass expects 'class' at the start",
+                f.lineNo()
+            );
+        }
 
-    //     // ClassDecl -> class ClassName ...
-    //     String className = CodeGenerator.getIdentifier(f);
+        // ClassDecl -> class ClassName ...
+        String className = CodeGenerator.getIdentifier(f);
 
-    //     // Check if the method is already defined
-    //     if (globalSymbol.existSymbol(methodName)) {
-    //         throw new CompilerException(
-    //             "Method '" + methodName + "' is already defined",
-    //             f.lineNo()
-    //         );
-    //     }
-    // }
+        // Check if the class is already defined
+        if (globalSymbol.lookupSymbol(className, ClassSymbol.class) != null) {
+            throw new CompilerException(
+                "Class '" + className + "' is already defined",
+                f.lineNo()
+            );
+        }
 
-    static void populateMethod(SamTokenizer f)
-        throws CompilerException {
+        // ClassDecl -> class ClassName (...
+        if (!CompilerUtils.check(f, '(')) {
+            throw new SyntaxErrorException(
+                "populateClass expects '(' at start of get formals",
+                f.lineNo()
+            );
+        }
+
+        // create ClassSymbol object
+        ClassSymbol classSym = new ClassSymbol(className);
+
+        // Save params in symbol table and method object
+        populateParams(f, classSym);
+
+        // MethodDecl -> Type MethodName ( Formals? ) ...
+        if (!CompilerUtils.check(f, ')')) {
+            throw new SyntaxErrorException(
+                "get method expects ')' at end of get formals",
+                f.lineNo()
+            );
+        }
+    }
+
+    static void populateMethod(SamTokenizer f) throws CompilerException {
         // MethodDecl -> Type ...
         Type returnType = CodeGenerator.getType(f);
 
@@ -96,7 +117,7 @@ public class SymbolTableBuilder {
                 );
             }
             method = MainMethod.getInstance();
-            method.type = returnType; // update return type for main method
+            method.returnType = returnType; // update return type for main method
         } else {
             // create Method object
             method = new MethodSymbol(methodName, returnType);
@@ -135,7 +156,7 @@ public class SymbolTableBuilder {
         }
     }
 
-    static void populateParams(SamTokenizer f, MethodSymbol method)
+    static void populateParams(SamTokenizer f, Symbol symbol)
         throws CompilerException {
         while (f.peekAtKind() == TokenType.WORD) {
             // Formals -> Type ...
@@ -144,10 +165,8 @@ public class SymbolTableBuilder {
             // Formals -> Type Identifier
             String formalName = CodeGenerator.getIdentifier(f);
 
-            // Check if the formal has already defined
-            if (
-                globalSymbol.lookupSymbol(formalName, VariableSymbol.class) != null
-            ) {
+            // Check if the formal has already defined in this scope
+            if (symbol.lookupSymbol(formalName, VariableSymbol.class) != null) {
                 throw new CompilerException(
                     "populateParams: Param '" +
                     formalName +
@@ -162,7 +181,7 @@ public class SymbolTableBuilder {
                 formalType,
                 true
             );
-            method.addChild(paramSymbol);
+            symbol.addChild(paramSymbol);
 
             if (!CompilerUtils.check(f, ',')) {
                 break;
@@ -184,8 +203,7 @@ public class SymbolTableBuilder {
 
                 // Check if the variable is already defined in the current scope
                 if (
-                    globalSymbol.lookupSymbol(varName, VariableSymbol.class) !=
-                    null
+                    method.lookupSymbol(varName, VariableSymbol.class) != null
                 ) {
                     throw new CompilerException(
                         "populateLocals: Variable '" +

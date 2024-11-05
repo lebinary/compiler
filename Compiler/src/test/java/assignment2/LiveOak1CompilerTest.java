@@ -50,6 +50,20 @@ class LiveOak1CompilerTest {
         "InvalidPrograms"
     ).toString();
 
+    private static final String lo3ValidProgramDir = Path.of(
+        "src",
+        "test",
+        "resources",
+        "LO-3",
+        "ValidPrograms"
+    ).toString();
+    private static final String lo3InvalidProgramDir = Path.of(
+        "src",
+        "test",
+        "resources",
+        "LO-3",
+        "InvalidPrograms"
+    ).toString();
     private static ByteArrayOutputStream errContent;
 
     @BeforeEach

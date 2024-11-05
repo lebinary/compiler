@@ -8,17 +8,19 @@ import java.util.Objects;
 
 public abstract class Symbol {
 
+    /*** Instance properties
+     ***/
     Symbol parent;
     List<Symbol> children;
     Map<String, Symbol> symbolTable = new HashMap<>();
 
     String name;
     int address;
-    Object value;
 
     /*** Abstract
-    ***/
+     ***/
     public abstract Type getType();
+    public abstract void addChild(Symbol child);
 
     /** Constructors
      **/
@@ -26,14 +28,12 @@ public abstract class Symbol {
         Symbol parent,
         List<Symbol> children,
         String name,
-        int address,
-        Object value
+        int address
     ) {
         this.parent = parent;
         this.children = children;
         this.name = name;
         this.address = address;
-        this.value = value;
 
         // Populate symbolTable with children that have names
         for (Symbol child : this.children) {
@@ -44,14 +44,14 @@ public abstract class Symbol {
     }
 
     public Symbol(String name, int address) {
-        this(null, new ArrayList<>(), name, address, null);
+        this(null, new ArrayList<>(), name, address);
     }
 
     public Symbol() {
-        this(null, new ArrayList<>(), "", 0, null);
+        this(null, new ArrayList<>(), "", 0);
     }
 
-    public void addChild(Symbol child) {
+    protected void udpateSuper(Symbol child) {
         child.parent = this;
         children.add(child);
         if (child.name != null) {
@@ -91,7 +91,6 @@ public abstract class Symbol {
         this.children.clear();
         this.name = "";
         this.address = 0;
-        this.value = null;
     }
 
     public void resetRecursive() {
