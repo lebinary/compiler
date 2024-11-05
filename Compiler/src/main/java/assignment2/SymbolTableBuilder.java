@@ -9,14 +9,17 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class SymbolTableBuilder {
+    static Symbol globalSymbol = null;
 
     /*** FIRST PASS: POPULATE SYMBOL TABLE
      ***/
     static void populate(SamTokenizer f, Symbol globalSymbol)
         throws CompilerException {
+        SymbolTableBuilder.globalSymbol = globalSymbol;
+
         // First pass: populate symbolTable
         while (f.peekAtKind() != TokenType.EOF) {
-            populateMethod(f, globalSymbol);
+            populateMethod(f);
         }
 
         // Make sure there is a main method and it has no arguments
@@ -36,7 +39,29 @@ public class SymbolTableBuilder {
         CompilerUtils.clearTokens();
     }
 
-    static void populateMethod(SamTokenizer f, Symbol globalSymbol)
+    // static void populateClass(SamTokenizer f, Symbol globalSymbol)
+    //     throws CompilerException {
+    //     // ClassDecl -> class...
+    //     if (!CompilerUtils.check(f, 'class')) {
+    //         throw new SyntaxErrorException(
+    //             "populateClass expects 'class' at the start",
+    //             f.lineNo()
+    //         );
+    //     }
+
+    //     // ClassDecl -> class ClassName ...
+    //     String className = CodeGenerator.getIdentifier(f);
+
+    //     // Check if the method is already defined
+    //     if (globalSymbol.existSymbol(methodName)) {
+    //         throw new CompilerException(
+    //             "Method '" + methodName + "' is already defined",
+    //             f.lineNo()
+    //         );
+    //     }
+    // }
+
+    static void populateMethod(SamTokenizer f)
         throws CompilerException {
         // MethodDecl -> Type ...
         Type returnType = CodeGenerator.getType(f);
@@ -45,7 +70,7 @@ public class SymbolTableBuilder {
         String methodName = CodeGenerator.getIdentifier(f);
 
         // Check if the method is already defined
-        if (globalSymbol.existSymbol(methodName)) {
+        if (globalSymbol.lookupSymbol(methodName, MethodSymbol.class) != null) {
             throw new CompilerException(
                 "Method '" + methodName + "' is already defined",
                 f.lineNo()
@@ -120,7 +145,9 @@ public class SymbolTableBuilder {
             String formalName = CodeGenerator.getIdentifier(f);
 
             // Check if the formal has already defined
-            if (method.existSymbol(formalName)) {
+            if (
+                globalSymbol.lookupSymbol(formalName, VariableSymbol.class) != null
+            ) {
                 throw new CompilerException(
                     "populateParams: Param '" +
                     formalName +
@@ -156,7 +183,10 @@ public class SymbolTableBuilder {
                 String varName = CodeGenerator.getIdentifier(f);
 
                 // Check if the variable is already defined in the current scope
-                if (method.existSymbol(varName)) {
+                if (
+                    globalSymbol.lookupSymbol(varName, VariableSymbol.class) !=
+                    null
+                ) {
                     throw new CompilerException(
                         "populateLocals: Variable '" +
                         varName +
