@@ -1,0 +1,35 @@
+// good test case
+// Case should return 1 value as the result of calling EmployeeValidity function
+// main method return value:  1
+// Author: Shivi Agarwal (Fall 2021)
+
+class employee(int employeeID;) {
+    void employee(int eid){
+        {
+            employeeID = eid;
+        }
+    }
+
+    int EmployeeValidity(){
+        {
+            if ((employeeID > 9)){
+                return 1;
+            }
+            else{
+                return 0;
+            }
+
+            return (~1);
+        }
+    }
+}
+
+class Main() {
+    int main() {
+        employee e;
+        {
+            e = new employee(11);
+            return e.EmployeeValidity();
+        }
+    }
+}

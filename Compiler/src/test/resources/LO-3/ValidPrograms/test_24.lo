@@ -1,0 +1,68 @@
+// good test case
+// Binary tree.
+// main method return value:  7
+// Author: Sid Chatterjee (Fall 2021)
+
+class Main() {
+    int main() {
+        treeCell t;
+        TreeTraversalService ts;
+        {
+            ts = new TreeTraversalService();
+            t = new treeCell(13, new treeCell(7, null, null), new treeCell(9, null, null));
+            return ts.walk(t,4000);
+        }
+    }
+}
+
+class TreeTraversalService() {
+    void TreeTraversalService() { { ; } }
+
+    int walk(treeCell t, int minValue) {
+        int nodeValue;
+        TreeTraversalService x;
+        {
+            x = this;
+            if ((t=null)) {
+            return minValue;
+            } else {;}
+            nodeValue = t.getObject();
+            minValue = x.walk(t.getLeft(), minValue);
+            if ((nodeValue < minValue)) {
+                return x.walk(t.getRight(), nodeValue);
+            } else {
+                return x.walk(t.getRight(), minValue);
+            }
+
+            return (~1);
+        }
+    }
+}
+
+class treeCell (
+    int v;
+    treeCell left, right;
+) {
+    void treeCell(int i, treeCell l, treeCell r) {
+        {
+            v = i;
+            left = l;
+            right = r;
+        }
+    }
+    treeCell getLeft() {
+        {
+            return left;
+        }
+    }
+    treeCell getRight() {
+        {
+            return right;
+        }
+    }
+    int getObject() {
+        {
+            return v;
+        }
+    }
+}

@@ -1,0 +1,45 @@
+// good test case
+// Method Chaining
+// main method return value:  56
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        Adder adder;
+        Integer sum;
+        {
+            adder = new Adder(new Integer(15), new Integer(41));
+            sum = adder.add();
+            return sum.getVal();
+        }
+    }
+}
+
+class Adder(Integer a, b;){
+    void Adder(Integer A, Integer B){
+        {
+            a = A;
+            b = B;
+        }
+    }
+
+    Integer add(){
+        {
+            return new Integer((a.getVal() + b.getVal()));
+        }
+    }
+}
+
+class Integer(int val;){
+    void Integer(int v){
+        {
+            val = v;
+        }
+    }
+
+    int getVal(){
+        {
+            return val;
+        }
+    }
+} 

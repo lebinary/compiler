@@ -1,0 +1,19 @@
+// bad test case
+// Duplicate Main
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        {
+            return 1;
+        }
+    }
+}
+
+class Main() {
+    int main(){
+        {
+            return 5;
+        }
+    }
+}

@@ -1,0 +1,38 @@
+// good test case
+// Pseudo-random number generator class
+// main method return value:  53441
+// Author: Tyler Collins (Summer 2021)
+
+class Main() {
+    int main() {
+        int a, b;
+        RandomNumberGenerator rand;
+        {
+            a = 0;
+            rand = new RandomNumberGenerator(753);
+            while ((a < 100)) {
+                b = rand.random();
+                a = (a + 1);
+            }
+
+            return b;
+        }
+    }
+}
+
+class RandomNumberGenerator(int seed;) {
+    void RandomNumberGenerator(int initSeed) {
+        {
+            seed = initSeed;
+        }
+    }
+
+    int random() {
+        int returnVal;
+        {
+            returnVal = ((189 * seed) % (65536));
+            seed = returnVal;
+            return returnVal;
+        }
+    }
+}

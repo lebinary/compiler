@@ -1,0 +1,25 @@
+// bad test case
+// missing Main class
+// Author: Tyler Collins (Summer 2022)
+
+class room(int length, breadth, height;) {
+	void room(){
+        {
+            length = 4;
+            breadth = 5;
+            height = 6;
+        }
+    }
+
+    int getLength() {
+        {
+            return length;
+        }
+    }
+
+    int getBreadth() {
+        {
+            return breadth;
+        }
+    }
+}

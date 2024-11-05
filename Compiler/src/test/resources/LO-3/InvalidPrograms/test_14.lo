@@ -1,0 +1,40 @@
+// bad test case
+// static methods are not allowed
+// Author: Tyler Collins (Summer 2022)
+
+class room(int length, breadth, height;) {
+	void room(){
+        {
+            length = 4;
+            breadth = 5;
+            height = 6;
+        }
+    }
+
+    int getLength() {
+        {
+            return length;
+        }
+    }
+
+    int getBreadth() {
+        {
+            return breadth;
+        }
+    }
+}
+
+class Main(room r;) {
+    int main(){
+        {
+            r = new room();
+            return Main.getArea(r);
+        }
+    }
+
+    int getArea(room r) {
+        {
+            return (r.getLength() * r.getBreadth());
+        }
+    }
+}

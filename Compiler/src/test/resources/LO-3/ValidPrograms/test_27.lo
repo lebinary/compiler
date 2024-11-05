@@ -1,0 +1,40 @@
+// good test case
+// main method return value:  3
+// Author: Kaveri Mukundan (Fall 2021)
+
+class Example
+(int a,b; bool t;)
+{
+    void Example(){
+        {
+            a = 1;
+            b = 2;
+            t = true;
+        }
+    }
+
+    int addNumbers() {
+        int sum;
+        {
+            sum = (a + b);
+            return sum;
+        }
+    }
+
+    bool updateBool(bool s) {
+        {
+            t = s;
+            return t;
+        }
+    }
+}
+
+class Main() {
+    int main() {
+        Example e;
+        {
+            e = new Example();
+            return e.addNumbers();
+        }
+    }
+}

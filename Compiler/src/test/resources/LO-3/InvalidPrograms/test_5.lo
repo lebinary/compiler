@@ -1,0 +1,25 @@
+// bad test case
+// Call a method from null
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        MyClass a;
+        {
+            a = new MyClass();
+            return null.getValue();
+        }
+    }
+}
+
+class MyClass(){
+    void MyClass(){
+        {
+            ;
+        }
+    }
+
+    int getValue(){
+        {return 5;}
+    }
+}

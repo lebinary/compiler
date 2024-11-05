@@ -1,0 +1,35 @@
+// good test case
+// class with multiple methods and use class type as class var declaration
+// main method return value:  16
+// Author: (Fall 2021)
+
+class square(int length; String name;) {
+
+  void square(int data){
+    {
+      length = data;
+	  name= "xyz";
+    }
+  }
+     int getArea() {
+         {
+          return (length * length);
+        }
+     }
+
+     String getName() {
+         {return name;}
+     }
+}
+
+class Main(square s;) {
+      square get() {
+        {return s;}
+      }
+      int main(){
+        {
+          s = new square(4);
+          return s.getArea();
+        }
+      }
+}

@@ -1,0 +1,17 @@
+// bad test case
+// Call method directly from this
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        {
+            return this.value();
+        }
+    }
+
+    int value(){
+        {
+            return 5;
+        }
+    }
+}

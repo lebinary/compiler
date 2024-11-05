@@ -1,0 +1,29 @@
+// bad test case
+// Using formal syntax for class variables
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        Adder adder;
+        {
+            adder = new Adder(1,2,3);
+            return adder.add();
+        }
+    }
+}
+
+class Adder(int a, int b, int c){
+    void Adder(int A, int B, int C){
+        {
+            a = A;
+            b = B;
+            c = C;
+        }
+    }
+
+    int add(){
+        {
+            return ((a + b)+c);
+        }
+    }
+}

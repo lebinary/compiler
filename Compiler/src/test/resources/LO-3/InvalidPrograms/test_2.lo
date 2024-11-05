@@ -1,0 +1,29 @@
+// bad test case
+// Inappropriate method chains
+// Author: Aaron Wollman (Summer 2021)
+
+class Main() {
+    int main(){
+        {
+            return new Adder(5).add(6).add(7).getValue();
+        }
+    }
+}
+
+class Adder(int val;){
+    void Adder(int value){
+        {
+            val = value;
+        }
+    }
+
+    Adder add(int addVal){
+        {return new Adder((val+addVal));}
+    }
+
+    int getValue(){
+        {
+            return val;
+        }
+    }
+}

@@ -1,0 +1,26 @@
+// good test case
+// test class object creation, class method invokation
+// main method return value:  1
+// Author: Shivi Agarwal (Fall 2021)
+
+class student(String firstname; String lastname;) {
+	void student(String fn, String ln){
+	{
+	firstname=fn;
+	lastname=ln;
+	}
+ }
+   String studentDetails() {
+		{return (firstname + lastname) ;}
+   }
+}
+
+class Main() {
+  int main() {
+       student s;
+       {
+        s = new student ("xyz","abc");
+        return ((s.studentDetails()="xyzabc") ? 1 : 0);
+       }
+  }
+}

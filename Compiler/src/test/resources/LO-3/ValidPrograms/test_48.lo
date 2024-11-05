@@ -1,0 +1,31 @@
+// good test case
+// String comparisons
+// main method return value:  -1
+// Author: Aaron Wollman (Summer 2021)
+
+class Main(StringCmp strCmp;) {
+    int main(){
+        {
+            strCmp = new StringCmp("abc", "xyz");
+            return strCmp.cmp();
+        }
+    }
+}
+
+class StringCmp(String a, b;){
+    void StringCmp(String A, String B){
+        {
+            a = A;
+            b = B;
+        }
+    }
+
+    int cmp(){
+        bool isGt, isLt;
+        {
+            isGt = (a > b);
+            isLt = (a < b);
+            return (isGt ? 1 : (isLt ? (~1) : 0));
+        }
+    }
+}

@@ -1,0 +1,29 @@
+// good test case
+// test class object creation, class method invokation
+// main method return value:  48
+// Author: (Fall 2021)
+
+class circle(int radius;) {
+
+  void circle(int data){
+    {
+      radius = data;
+    }
+  }
+
+   int area() {
+       {
+        return (3 * (radius * radius));
+      }
+   }
+}
+
+class Main() {
+  int main() {
+    circle c;
+       {
+        c = new circle (4);
+        return c.area();
+       }
+  }
+}
