@@ -11,6 +11,7 @@ public class MethodSymbol extends Symbol {
 
     public List<VariableSymbol> parameters;
     public List<VariableSymbol> localVariables;
+    public Type returnType;
     private Deque<Label> labels;
     private Deque<Statement> statements;
 
@@ -21,9 +22,10 @@ public class MethodSymbol extends Symbol {
         Type returnType,
         int address
     ) {
-        super(parent, children, name, returnType, address, null);
+        super(parent, children, name, address, null);
         this.parameters = new ArrayList<>();
         this.localVariables = new ArrayList<>();
+        this.returnType = returnType;
         this.labels = new ArrayDeque<>();
         this.statements = new ArrayDeque<>();
 
@@ -142,6 +144,11 @@ public class MethodSymbol extends Symbol {
 
     public boolean hasStatement(Statement statement) {
         return statements.contains(statement);
+    }
+
+    @Override
+    public Type getType() {
+        return returnType;
     }
 
     @Override

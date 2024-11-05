@@ -68,11 +68,11 @@ public class LiveOak2Compiler {
     //      /         \
     //   local1       local2
 
-    public static Symbol globalSymbol = new Symbol();
+    public static Symbol globalSymbol = new MethodSymbol("global", Type.INT);
 
     public static void reset() {
         CompilerUtils.clearTokens();
-        globalSymbol = new Symbol();
+        globalSymbol = new MethodSymbol("global", Type.INT);
         MainMethod.resetInstance();
     }
 
@@ -86,13 +86,13 @@ public class LiveOak2Compiler {
                 SamTokenizer.TokenizerOptions.PROCESS_STRINGS
             );
             SymbolTableBuilder.populate(firstPass, globalSymbol);
+            TreeUtils.printTree(globalSymbol);
 
             SamTokenizer secondPass = new SamTokenizer(
                 fileName,
                 SamTokenizer.TokenizerOptions.PROCESS_STRINGS
             );
             String program = CodeGenerator.getProgram(secondPass);
-
             return program;
         } catch (CompilerException e) {
             String errorMessage = createErrorMessage(fileName);

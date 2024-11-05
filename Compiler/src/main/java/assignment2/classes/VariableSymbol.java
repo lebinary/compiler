@@ -6,6 +6,7 @@ import java.util.Objects;
 public class VariableSymbol extends Symbol {
 
     boolean isParameter;
+    Type type;
 
     public VariableSymbol(
         Symbol parent,
@@ -15,7 +16,8 @@ public class VariableSymbol extends Symbol {
         Object value,
         boolean isParameter
     ) {
-        super(parent, new ArrayList<>(), name, type, address, value);
+        super(parent, new ArrayList<>(), name, address, value);
+        this.type = type;
         this.isParameter = isParameter;
     }
 
@@ -28,6 +30,11 @@ public class VariableSymbol extends Symbol {
         throw new UnsupportedOperationException(
             "VariableSymbol cannot have children"
         );
+    }
+
+    @Override
+    public Type getType() {
+        return type;
     }
 
     @Override

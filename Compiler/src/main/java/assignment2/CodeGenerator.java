@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CodeGenerator {
+
     static String getProgram(SamTokenizer f) throws CompilerException {
         // Check if main method exists
         MethodSymbol mainMethod = LiveOak2Compiler.globalSymbol.lookupSymbol(
@@ -315,10 +316,10 @@ public class CodeGenerator {
         Expression expr = getExpr(f, method);
 
         // Type check
-        if (!expr.type.isCompatibleWith(method.type)) {
+        if (!expr.type.isCompatibleWith(method.returnType)) {
             throw new TypeErrorException(
                 "Return type mismatch: expected " +
-                method.type +
+                method.returnType +
                 ", but got " +
                 expr.type,
                 f.lineNo()
@@ -459,7 +460,7 @@ public class CodeGenerator {
     static String getVarStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         String sam = "";
-        Symbol variable = getVar(f, method);
+        VariableSymbol variable = getVar(f, method);
 
         if (!CompilerUtils.check(f, '=')) {
             throw new SyntaxErrorException(
@@ -756,7 +757,7 @@ public class CodeGenerator {
             );
         }
 
-        return new Expression(sam, callingMethod.type);
+        return new Expression(sam, callingMethod.returnType);
     }
 
     static String getActuals(
@@ -878,7 +879,7 @@ public class CodeGenerator {
                 else if (symbol instanceof VariableSymbol) {
                     return new Expression(
                         "PUSHOFF " + symbol.address + "\n",
-                        symbol.type,
+                        ((VariableSymbol) symbol).type,
                         symbol.value
                     );
                 } else {
@@ -925,7 +926,7 @@ public class CodeGenerator {
 
     /*** Non-recursive operations. Override "getVar", inherit the rest from LiveOak0Compiler
      ***/
-    static Symbol getVar(SamTokenizer f, MethodSymbol method)
+    static VariableSymbol getVar(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // Not a var, raise
         if (f.peekAtKind() != TokenType.WORD) {
@@ -936,7 +937,10 @@ public class CodeGenerator {
         }
 
         String varName = CompilerUtils.getWord(f);
-        Symbol variable = method.lookupSymbol(varName);
+        VariableSymbol variable = method.lookupSymbol(
+            varName,
+            VariableSymbol.class
+        );
         if (variable == null) {
             throw new SyntaxErrorException(
                 "getVar trying to access variable that has not been declared: Variable" +

@@ -43,13 +43,12 @@ public class TreeUtils {
 
     private static String symbolToString(Symbol symbol) {
         StringBuilder sb = new StringBuilder();
+
         sb
             .append(symbol.getClass().getSimpleName())
             .append("(name='")
             .append(symbol.name)
             .append("'")
-            .append(", type=")
-            .append(symbol.type)
             .append(", address=")
             .append(symbol.address)
             .append(", value=")
@@ -57,11 +56,15 @@ public class TreeUtils {
 
         if (symbol instanceof VariableSymbol) {
             sb
+                .append(", type=")
+                .append(symbol.getType())
                 .append(", isParameter=")
                 .append(((VariableSymbol) symbol).isParameter);
         } else if (symbol instanceof MethodSymbol) {
             MethodSymbol methodSymbol = (MethodSymbol) symbol;
             sb
+                .append(", returnType=")
+                .append(symbol.getType())
                 .append(", parameters=")
                 .append(methodSymbol.parameters.size())
                 .append(", localVariables=")
@@ -77,7 +80,10 @@ public class TreeUtils {
         System.out.println("Symbol Table for " + symbolToString(symbol) + ":");
         for (Map.Entry<String, Symbol> entry : symbol.symbolTable.entrySet()) {
             System.out.println(
-                "  " + entry.getKey() + " -> " + symbolToString(entry.getValue())
+                "  " +
+                entry.getKey() +
+                " -> " +
+                symbolToString(entry.getValue())
             );
         }
     }
