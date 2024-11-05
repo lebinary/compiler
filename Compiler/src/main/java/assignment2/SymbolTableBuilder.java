@@ -146,7 +146,7 @@ public class SymbolTableBuilder {
         // first param in the method is reserved for "this" object
         VariableSymbol thisVariable = new VariableSymbol(
             "this",
-            Type.getType(classSymbol.name),
+            Type.createClassType(classSymbol.name),
             true
         );
         method.addChild(thisVariable);
