@@ -10,21 +10,16 @@ import java.util.Deque;
 
 public class SymbolTableBuilder {
 
-    static ClassSymbol globalSymbol = null;
-
     /*** FIRST PASS: POPULATE SYMBOL TABLE
      ***/
-    static void populate(SamTokenizer f, ClassSymbol globalSymbol)
-        throws CompilerException {
-        SymbolTableBuilder.globalSymbol = globalSymbol;
-
+    static void populate(SamTokenizer f) throws CompilerException {
         // First pass: populate symbolTable
         while (f.peekAtKind() != TokenType.EOF) {
             populateClass(f);
         }
 
         // Make sure there is a main class
-        ClassSymbol mainClass = globalSymbol.lookupSymbol(
+        ClassSymbol mainClass = LiveOak3Compiler.globalSymbol.lookupSymbol(
             "Main",
             ClassSymbol.class
         );
@@ -40,7 +35,10 @@ public class SymbolTableBuilder {
         if (mainMethod == null) {
             throw new CompilerException("Main method missing", f.lineNo());
         }
-        if (!(mainMethod.numParameters() == 1 && mainMethod.parameters.get(0).name == "this")) {
+        if (
+            !(mainMethod.numParameters() == 1 &&
+                mainMethod.parameters.get(0).name == "this")
+        ) {
             throw new CompilerException(
                 "Main method should not have any parameters",
                 f.lineNo()
@@ -62,7 +60,13 @@ public class SymbolTableBuilder {
         String className = CodeGenerator.getIdentifier(f);
 
         // Check if the class is already defined
-        if (globalSymbol.lookupSymbol(className, ClassSymbol.class) != null) {
+        if (
+            LiveOak3Compiler.globalSymbol.lookupSymbol(
+                className,
+                ClassSymbol.class
+            ) !=
+            null
+        ) {
             throw new CompilerException(
                 "Class '" + className + "' is already defined",
                 f.lineNo()
@@ -113,7 +117,7 @@ public class SymbolTableBuilder {
         }
 
         // Save Class in global scope
-        globalSymbol.addChild(classSym);
+        LiveOak3Compiler.globalSymbol.addChild(classSym);
     }
 
     static void populateMethod(SamTokenizer f, ClassSymbol classSymbol)

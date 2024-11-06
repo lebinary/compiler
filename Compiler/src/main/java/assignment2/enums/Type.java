@@ -6,6 +6,7 @@ import java.util.Set;
 public class Type {
 
     // Built-in types
+    public static final Type VOID = new Type("void");
     public static final Type INT = new Type("int");
     public static final Type BOOL = new Type("bool");
     public static final Type STRING = new Type("String");

@@ -12,13 +12,12 @@ public class ClassSymbol extends Symbol {
 
     /*** Instance properties
      ***/
-    public int vtableAdress;
+    public int vtableAddress;
     public List<VariableSymbol> instanceVariables;
     public List<MethodSymbol> virtualMethods;
 
     public ClassSymbol(Symbol parent, String name, int address) {
         super(parent, new ArrayList<>(), name, address);
-        this.vtableAdress = ClassSymbol.nextVTableAddress;
         this.instanceVariables = new ArrayList<>();
         this.virtualMethods = new ArrayList<>();
     }
@@ -35,12 +34,22 @@ public class ClassSymbol extends Symbol {
         } else if (child instanceof MethodSymbol) {
             child.address = virtualMethods.size(); // method's address relative to vtable
             virtualMethods.add((MethodSymbol) child);
+        } else if (child instanceof ClassSymbol) {
+            ((ClassSymbol) child).vtableAddress = ClassSymbol.nextVTableAddress;
+            ClassSymbol.nextVTableAddress++;
         }
     }
 
     public void addChild(Symbol child) {
         udpateSuper(child);
         updateProperties(child);
+    }
+
+    public void reset() {
+        super.reset();
+
+        this.instanceVariables.clear();
+        this.virtualMethods.clear();
     }
 
     @Override
@@ -56,11 +65,11 @@ public class ClassSymbol extends Symbol {
         if (!(o instanceof ClassSymbol)) return false;
         if (!super.equals(o)) return false;
         ClassSymbol that = (ClassSymbol) o;
-        return vtableAdress == that.vtableAdress;
+        return vtableAddress == that.vtableAddress;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), vtableAdress);
+        return Objects.hash(super.hashCode(), vtableAddress);
     }
 }

@@ -57,6 +57,11 @@ public class MethodSymbol extends Symbol {
 
     // Tree operations
     public void addChild(Symbol child) {
+        if (child instanceof ClassSymbol) {
+            throw new UnsupportedOperationException(
+                "Cannot declare Class inside a method"
+            );
+        }
         udpateSuper(child);
 
         if (child instanceof VariableSymbol) {
@@ -91,7 +96,7 @@ public class MethodSymbol extends Symbol {
     }
 
     public int numParameters() {
-        return parameters.size();
+        return parameters.size(); // dont count "this" as parameters
     }
 
     // labels stack operations

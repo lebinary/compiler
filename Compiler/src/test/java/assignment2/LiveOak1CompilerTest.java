@@ -14,7 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /*******************
- * Example test cases for main.LiveOak2Compiler, on LiveOak-1
+ * Example test cases for main.LiveOak3Compiler, on LiveOak-1
  *
  *
  * *******************/
@@ -88,11 +88,14 @@ class LiveOak1CompilerTest {
     @Test
     @DisplayName("Test_0")
     void testL01_0() throws Throwable {
-        String fileName = Path.of(lo3ValidProgramDir, "test_16.lo").toString();
-        String prog = LiveOak2Compiler.compiler(fileName);
+        String fileName = Path.of(lo3ValidProgramDir, "test_15.lo").toString();
+        String program = LiveOak3Compiler.compiler(fileName);
+        System.out.println(program);
+        SamTestRunner.checkReturnValue(program, 10);
+
         // assertThrows(
         //     Error.class,
-        //     () -> LiveOak2Compiler.compiler(fileName),
+        //     () -> LiveOak3Compiler.compiler(fileName),
         //     "Expected parse error to be thrown for file test_9.lo"
         // );
         // assertTrue(

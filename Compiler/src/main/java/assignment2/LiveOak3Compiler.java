@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class LiveOak2Compiler {
+public class LiveOak3Compiler {
 
     public static void main(String[] args) throws IOException {
         if (args.length < 2) {
@@ -72,27 +72,30 @@ public class LiveOak2Compiler {
 
     public static void reset() {
         CompilerUtils.clearTokens();
-        globalSymbol = new ClassSymbol("Object");
+        LiveOak3Compiler.globalSymbol.reset();
     }
 
     static String compiler(String fileName) throws Exception {
         try {
             reset(); // Clear the list before starting
 
-            //returns SaM code for program in file
+            /*** First pass: Symbol table
+             ***/
             SamTokenizer firstPass = new SamTokenizer(
                 fileName,
                 SamTokenizer.TokenizerOptions.PROCESS_STRINGS
             );
-            SymbolTableBuilder.populate(firstPass, globalSymbol);
+            SymbolTableBuilder.populate(firstPass);
             TreeUtils.printTree(globalSymbol);
 
-            // SamTokenizer secondPass = new SamTokenizer(
-            //     fileName,
-            //     SamTokenizer.TokenizerOptions.PROCESS_STRINGS
-            // );
-            // String program = CodeGenerator.getProgram(secondPass);
-            String program = "";
+            /*** Second pass: codegen
+             ***/
+            SamTokenizer secondPass = new SamTokenizer(
+                fileName,
+                SamTokenizer.TokenizerOptions.PROCESS_STRINGS
+            );
+            String program = CodeGenerator.getProgram(secondPass);
+
             return program;
         } catch (CompilerException e) {
             String errorMessage = createErrorMessage(fileName);

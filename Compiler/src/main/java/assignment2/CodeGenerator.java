@@ -16,38 +16,114 @@ import java.util.regex.Pattern;
 public class CodeGenerator {
 
     static String getProgram(SamTokenizer f) throws CompilerException {
-        // Check if main method exists
-        MethodSymbol mainMethod = LiveOak2Compiler.globalSymbol.lookupSymbol(
+        /*** Data segment
+         **/
+        String sam = DataGenerator.generateStaticData();
+
+        /*** Code segment
+         ***/
+
+        // Get main class and main method from symbol table
+        ClassSymbol mainClass = LiveOak3Compiler.globalSymbol.lookupSymbol(
+            "Main",
+            ClassSymbol.class
+        );
+        MethodSymbol mainMethod = mainClass.lookupSymbol(
             "main",
             MethodSymbol.class
         );
-        if (mainMethod == null) {
-            throw new CompilerException("Main method not found", f.lineNo());
-        }
 
-        // Check if main method has the correct signature (no parameters)
-        if (mainMethod.numParameters() != 0) {
-            throw new CompilerException(
-                "Main method should not have parameters",
+        // program return value
+        sam += "PUSHIMM 0\n";
+
+        // instanciate main class to pass in as "this" parameter
+        sam += "PUSHIMM 1\n";
+        sam += "MALLOC\n";
+        // assign main class's vtable
+        sam += "DUP\n";
+        sam += "PUSHABS " + mainClass.vtableAddress + "\n";
+        sam += "STOREIND\n";
+
+        // run main method
+        sam += "LINK\n";
+        sam += "JSR main\n";
+        sam += "UNLINK\n";
+        sam += "ADDSP -" + mainMethod.numParameters() + "\n";
+        sam += DataGenerator.freeStaticData();
+        sam += "STOP\n";
+
+        // LiveOak-3
+        while (f.peekAtKind() != TokenType.EOF) {
+            sam += getClassDecl(f);
+        }
+        return sam;
+    }
+
+    static String getClassDecl(SamTokenizer f) throws CompilerException {
+        // Generate sam code
+        String sam = "";
+
+        // ClassDecl -> class...
+        if (!CompilerUtils.check(f, "class")) {
+            throw new SyntaxErrorException(
+                "populateClass expects 'class' at the start",
                 f.lineNo()
             );
         }
 
-        String pgm = "";
-        pgm += "PUSHIMM 0\n";
-        pgm += "LINK\n";
-        pgm += "JSR main\n";
-        pgm += "UNLINK\n";
-        pgm += "STOP\n";
+        // ClassDecl -> class ClassName ...
+        String className = CodeGenerator.getIdentifier(f);
 
-        // LiveOak-2
-        while (f.peekAtKind() != TokenType.EOF) {
-            pgm += getMethodDecl(f);
+        // Pull class from global scope
+        ClassSymbol classSymbol = LiveOak3Compiler.globalSymbol.lookupSymbol(
+            className,
+            ClassSymbol.class
+        );
+        if (classSymbol == null) {
+            throw new CompilerException(
+                "get class cannot find class " + className + " in symbol table",
+                f.lineNo()
+            );
         }
-        return pgm;
+
+        // ClassDecl -> class ClassName (...
+        if (!CompilerUtils.check(f, '(')) {
+            throw new SyntaxErrorException(
+                "populateClass expects '(' at start of get formals",
+                f.lineNo()
+            );
+        }
+        // ClassDecl -> class className ( Formals? ) ...
+        while (!CompilerUtils.check(f, ')')) {
+            CompilerUtils.skipToken(f);
+        }
+
+        // ClassDecl -> class ClassName ( Formals? ) {...
+        if (!CompilerUtils.check(f, '{')) {
+            throw new SyntaxErrorException(
+                "populateClass expects '{' at start of get class body",
+                f.lineNo()
+            );
+        }
+
+        // ClassDecl -> class ClassName ( Formals? ) { MethodDecl...
+        while (f.peekAtKind() == TokenType.WORD) {
+            sam += getMethodDecl(f, classSymbol);
+        }
+
+        // ClassDecl -> class ClassName ( Formals? ) { MethodDecl...}
+        if (!CompilerUtils.check(f, '}')) {
+            throw new SyntaxErrorException(
+                "populateClass expects '}' at end of get class body",
+                f.lineNo()
+            );
+        }
+
+        return sam;
     }
 
-    static String getMethodDecl(SamTokenizer f) throws CompilerException {
+    static String getMethodDecl(SamTokenizer f, ClassSymbol classSymbol)
+        throws CompilerException {
         // Generate sam code
         String sam = "\n";
 
@@ -58,7 +134,7 @@ public class CodeGenerator {
         String methodName = getIdentifier(f);
 
         // Pull method from global scope
-        MethodSymbol method = LiveOak2Compiler.globalSymbol.lookupSymbol(
+        MethodSymbol method = classSymbol.lookupSymbol(
             methodName,
             MethodSymbol.class
         );
@@ -500,8 +576,21 @@ public class CodeGenerator {
     static Expression getExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (CompilerUtils.check(f, '(')) {
-            Expression expr = null;
+            // Expr -> this
+            if (CompilerUtils.check(f, "this")) {
+                VariableSymbol thisSymbol = method.parameters.get(0);
+                return new Expression(
+                    "PUSHOFF " + thisSymbol.address + "\n",
+                    thisSymbol.type
+                );
+            }
 
+            // Expr -> null
+            if (CompilerUtils.check(f, "null")) {
+                return new Expression("PUSHIMM 0\n", Type.VOID);
+            }
+
+            Expression expr = null;
             // Expr -> ( Unop Expr )
             if (f.test('~') || f.test('!')) {
                 expr = getUnopExpr(f, method);
@@ -764,8 +853,11 @@ public class CodeGenerator {
     ) throws CompilerException {
         String sam = "";
         int paramCount = callingMethod.numParameters();
-        int argCount = 0;
 
+        // Always start with "this" param, which is always the first parameter
+        sam += "PUSHOFF " + callingMethod.parameters.get(0) + "\n";
+
+        int argCount = 1;
         do {
             // check done processing all the actuals
             if (f.test(')')) {
