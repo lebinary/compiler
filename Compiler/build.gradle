@@ -38,7 +38,7 @@ task testLO1(type: Test) {
 task testLO2(type: Test) {
     useJUnitPlatform()
     filter {
-        includeTestsMatching "assignment2.LiveOak2CompilerTest"
+        includeTestsMatching "assignment2.LiveOak3CompilerTest"
     }
     testLogging {
         showStandardStreams = true
@@ -52,7 +52,7 @@ java {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'assignment2.LiveOak2Compiler'
+        attributes 'Main-Class': 'assignment2.LiveOak3Compiler'
     }
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11

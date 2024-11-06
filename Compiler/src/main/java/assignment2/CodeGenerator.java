@@ -6,365 +6,124 @@ import assignment2.errors.TypeErrorException;
 import edu.utexas.cs.sam.io.SamTokenizer;
 import edu.utexas.cs.sam.io.Tokenizer;
 import edu.utexas.cs.sam.io.Tokenizer.TokenType;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LiveOak2Compiler {
-
-    public static void main(String[] args) throws IOException {
-        if (args.length < 2) {
-            System.err.println(
-                "Error: Two arguments are required - input file name and output file name."
-            );
-            throw new Error();
-        }
-        String inFileName = args[0];
-        String outFileName = args[1];
-
-        try {
-            String samCode = compiler(inFileName);
-            try (
-                BufferedWriter writer = new BufferedWriter(
-                    new FileWriter(outFileName)
-                )
-            ) {
-                writer.write(samCode);
-            }
-        } catch (IOException e) {
-            String errorMessage =
-                "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
-                inFileName;
-            System.err.println(errorMessage);
-            throw new Error(errorMessage, e);
-        } catch (CompilerException e) {
-            String errorMessage =
-                "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
-                inFileName;
-            System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
-            throw new Error(errorMessage, e);
-        } catch (Error e) {
-            String errorMessage =
-                "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
-                inFileName;
-            System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
-            throw new Error(errorMessage, e);
-        } catch (Exception e) {
-            String errorMessage =
-                "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
-                inFileName;
-            System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
-            throw new Error(errorMessage, e);
-        }
-    }
-
-    //             globalSymbol
-    //             /         \
-    //       mainMethod      anotherMethod
-    //      /         \
-    //   local1       local2
-
-    public static Symbol globalSymbol = new Symbol();
-
-    public static void reset() {
-        CompilerUtils.clearTokens();
-        globalSymbol = new Symbol();
-        MainMethod.resetInstance();
-    }
-
-    static String compiler(String fileName) throws Exception {
-        try {
-            reset(); // Clear the list before starting
-
-            //returns SaM code for program in file
-            SamTokenizer firstPass = new SamTokenizer(
-                fileName,
-                SamTokenizer.TokenizerOptions.PROCESS_STRINGS
-            );
-            populateSymbolTable(firstPass);
-
-            SamTokenizer secondPass = new SamTokenizer(
-                fileName,
-                SamTokenizer.TokenizerOptions.PROCESS_STRINGS
-            );
-            String program = getProgram(secondPass);
-
-            return program;
-        } catch (CompilerException e) {
-            String errorMessage = createErrorMessage(fileName);
-            System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
-            throw new Error(errorMessage, e);
-        } catch (Exception e) {
-            String errorMessage = createErrorMessage(fileName);
-            System.err.println(errorMessage);
-            // CompilerUtils.printTokens();
-            throw new Error(errorMessage, e);
-        }
-    }
-
-    private static String createErrorMessage(String fileName) {
-        String normalizedPath = Paths.get(fileName).normalize().toString();
-        String errorMessage = "Failed to compile " + normalizedPath;
-        return errorMessage;
-    }
-
-    /*** FIRST PASS: POPULATE SYMBOL TABLE
-     ***/
-    static void populateSymbolTable(SamTokenizer f) throws CompilerException {
-        // First pass: populate symbolTable
-        while (f.peekAtKind() != TokenType.EOF) {
-            populateMethod(f);
-        }
-
-        // Make sure there is a main method and it has no arguments
-        MethodSymbol mainMethod = globalSymbol.lookupSymbol(
-            "main",
-            MethodSymbol.class
-        );
-        if (mainMethod == null) {
-            throw new CompilerException("Main method missing", f.lineNo());
-        }
-        if (mainMethod.numParameters() != 0) {
-            throw new CompilerException(
-                "Main method should not have any parameters",
-                f.lineNo()
-            );
-        }
-        CompilerUtils.clearTokens();
-    }
-
-    static void populateMethod(SamTokenizer f) throws CompilerException {
-        // MethodDecl -> Type ...
-        Type returnType = getType(f);
-
-        // MethodDecl -> Type MethodName ...
-        String methodName = getIdentifier(f);
-
-        // Check if the method is already defined
-        if (globalSymbol.existSymbol(methodName)) {
-            throw new CompilerException(
-                "Method '" + methodName + "' is already defined",
-                f.lineNo()
-            );
-        }
-
-        // MethodDecl -> Type MethodName (...
-        if (!CompilerUtils.check(f, '(')) {
-            throw new SyntaxErrorException(
-                "populateMethod expects '(' at start of get formals",
-                f.lineNo()
-            );
-        }
-
-        // Init method
-        MethodSymbol method = null;
-        if (methodName.equals("main")) {
-            // MethodDecl -> Type main() ...
-            if (!CompilerUtils.check(f, ')')) {
-                throw new SyntaxErrorException(
-                    "main method should not receive formals",
-                    f.lineNo()
-                );
-            }
-            method = MainMethod.getInstance();
-            method.type = returnType; // update return type for main method
-        } else {
-            // create Method object
-            method = new MethodSymbol(methodName, returnType);
-
-            // Save params in symbol table and method object
-            populateParams(f, method);
-
-            // MethodDecl -> Type MethodName ( Formals? ) ...
-            if (!CompilerUtils.check(f, ')')) {
-                throw new SyntaxErrorException(
-                    "get method expects ')' at end of get formals",
-                    f.lineNo()
-                );
-            }
-        }
-        // Save Method in global scope
-        globalSymbol.addChild(method);
-
-        // MethodDecl -> Type MethodName ( Formals? ) { ...
-        if (!CompilerUtils.check(f, '{')) {
-            throw new SyntaxErrorException(
-                "populateMethod expects '{' at start of body",
-                f.lineNo()
-            );
-        }
-
-        // MethodDecl -> Type MethodName ( Formals? ) { Body ...
-        populateLocals(f, method);
-
-        // MethodDecl -> Type MethodName ( Formals? ) { Body }
-        if (!CompilerUtils.check(f, '}')) {
-            throw new SyntaxErrorException(
-                "populateMethod expects '}' at end of body",
-                f.lineNo()
-            );
-        }
-    }
-
-    static void populateParams(SamTokenizer f, MethodSymbol method)
-        throws CompilerException {
-        while (f.peekAtKind() == TokenType.WORD) {
-            // Formals -> Type ...
-            Type formalType = getType(f);
-
-            // Formals -> Type Identifier
-            String formalName = getIdentifier(f);
-
-            // Check if the formal has already defined
-            if (method.existSymbol(formalName)) {
-                throw new CompilerException(
-                    "populateParams: Param '" +
-                    formalName +
-                    "' has already defined",
-                    f.lineNo()
-                );
-            }
-
-            // set Formal as child of MethodSymbol
-            VariableSymbol paramSymbol = new VariableSymbol(
-                formalName,
-                formalType,
-                true
-            );
-            method.addChild(paramSymbol);
-
-            if (!CompilerUtils.check(f, ',')) {
-                break;
-            }
-        }
-    }
-
-    static void populateLocals(SamTokenizer f, MethodSymbol method)
-        throws CompilerException {
-        // while start with "int | bool | String"
-        while (f.peekAtKind() == TokenType.WORD) {
-            // VarDecl -> Type ...
-            Type varType = getType(f);
-
-            // while varName = a | b | c | ...
-            while (f.peekAtKind() == TokenType.WORD) {
-                // VarDecl -> Type Identifier1, Identifier2
-                String varName = getIdentifier(f);
-
-                // Check if the variable is already defined in the current scope
-                if (method.existSymbol(varName)) {
-                    throw new CompilerException(
-                        "populateLocals: Variable '" +
-                        varName +
-                        "' has already defined in this scope",
-                        f.lineNo()
-                    );
-                }
-
-                // save local variable as child of methodSymbol
-                VariableSymbol variable = new VariableSymbol(
-                    varName,
-                    varType,
-                    false
-                );
-                method.addChild(variable);
-
-                if (CompilerUtils.check(f, ',')) {
-                    continue;
-                } else if (CompilerUtils.check(f, ';')) {
-                    break;
-                } else {
-                    throw new SyntaxErrorException(
-                        "populateLocals: Expected ',' or `;` after each variable declaration",
-                        f.lineNo()
-                    );
-                }
-            }
-        }
-
-        // MethodDecl -> Type MethodName ( Formals? ) { VarDecl [skipBlock] }
-        skipBlock(f);
-    }
-
-    static void skipBlock(SamTokenizer f) throws CompilerException {
-        // Skip the entire block in first pass
-        Deque<Character> stack = new ArrayDeque<>();
-
-        if (!CompilerUtils.check(f, '{')) {
-            throw new SyntaxErrorException(
-                "skipBlock expects '{' at start of block",
-                f.lineNo()
-            );
-        }
-        stack.push('{');
-
-        while (stack.size() > 0 && f.peekAtKind() != TokenType.EOF) {
-            if (CompilerUtils.check(f, '{')) {
-                stack.push('{');
-            } else if (CompilerUtils.check(f, '}')) {
-                stack.pop();
-            } else {
-                CompilerUtils.skipToken(f);
-            }
-        }
-        if (stack.size() > 0) {
-            throw new SyntaxErrorException(
-                "skipBlock missed a closing parentheses",
-                f.lineNo()
-            );
-        }
-    }
-
-    /*** SECOND PASS: CODEGEN
-     ***/
+public class CodeGenerator {
 
     static String getProgram(SamTokenizer f) throws CompilerException {
-        // Check if main method exists
-        MethodSymbol mainMethod = globalSymbol.lookupSymbol(
+        /*** Data segment
+         **/
+        String sam = DataGenerator.generateStaticData();
+
+        /*** Code segment
+         ***/
+
+        // Get main class and main method from symbol table
+        ClassSymbol mainClass = LiveOak3Compiler.globalSymbol.lookupSymbol(
+            "Main",
+            ClassSymbol.class
+        );
+        MethodSymbol mainMethod = mainClass.lookupSymbol(
             "main",
             MethodSymbol.class
         );
-        if (mainMethod == null) {
-            throw new CompilerException("Main method not found", f.lineNo());
-        }
 
-        // Check if main method has the correct signature (no parameters)
-        if (mainMethod.numParameters() != 0) {
-            throw new CompilerException(
-                "Main method should not have parameters",
+        // program return value
+        sam += "PUSHIMM 0\n";
+
+        // instanciate main class to pass in as "this" parameter
+        sam += "PUSHIMM 1\n";
+        sam += "MALLOC\n";
+        // assign main class's vtable
+        sam += "DUP\n";
+        sam += "PUSHABS " + mainClass.vtableAddress + "\n";
+        sam += "STOREIND\n";
+
+        // run main method
+        sam += "LINK\n";
+        sam += "JSR main\n";
+        sam += "UNLINK\n";
+        sam += "ADDSP -" + mainMethod.numParameters() + "\n";
+        sam += DataGenerator.freeStaticData();
+        sam += "STOP\n";
+
+        // LiveOak-3
+        while (f.peekAtKind() != TokenType.EOF) {
+            sam += getClassDecl(f);
+        }
+        return sam;
+    }
+
+    static String getClassDecl(SamTokenizer f) throws CompilerException {
+        // Generate sam code
+        String sam = "";
+
+        // ClassDecl -> class...
+        if (!CompilerUtils.check(f, "class")) {
+            throw new SyntaxErrorException(
+                "populateClass expects 'class' at the start",
                 f.lineNo()
             );
         }
 
-        String pgm = "";
-        pgm += "PUSHIMM 0\n";
-        pgm += "LINK\n";
-        pgm += "JSR main\n";
-        pgm += "UNLINK\n";
-        pgm += "STOP\n";
+        // ClassDecl -> class ClassName ...
+        String className = CodeGenerator.getIdentifier(f);
 
-        // LiveOak-2
-        while (f.peekAtKind() != TokenType.EOF) {
-            pgm += getMethodDecl(f);
+        // Pull class from global scope
+        ClassSymbol classSymbol = LiveOak3Compiler.globalSymbol.lookupSymbol(
+            className,
+            ClassSymbol.class
+        );
+        if (classSymbol == null) {
+            throw new CompilerException(
+                "get class cannot find class " + className + " in symbol table",
+                f.lineNo()
+            );
         }
-        return pgm;
+
+        // ClassDecl -> class ClassName (...
+        if (!CompilerUtils.check(f, '(')) {
+            throw new SyntaxErrorException(
+                "populateClass expects '(' at start of get formals",
+                f.lineNo()
+            );
+        }
+        // ClassDecl -> class className ( Formals? ) ...
+        while (!CompilerUtils.check(f, ')')) {
+            CompilerUtils.skipToken(f);
+        }
+
+        // ClassDecl -> class ClassName ( Formals? ) {...
+        if (!CompilerUtils.check(f, '{')) {
+            throw new SyntaxErrorException(
+                "populateClass expects '{' at start of get class body",
+                f.lineNo()
+            );
+        }
+
+        // ClassDecl -> class ClassName ( Formals? ) { MethodDecl...
+        while (f.peekAtKind() == TokenType.WORD) {
+            sam += getMethodDecl(f, classSymbol);
+        }
+
+        // ClassDecl -> class ClassName ( Formals? ) { MethodDecl...}
+        if (!CompilerUtils.check(f, '}')) {
+            throw new SyntaxErrorException(
+                "populateClass expects '}' at end of get class body",
+                f.lineNo()
+            );
+        }
+
+        return sam;
     }
 
-    static String getMethodDecl(SamTokenizer f) throws CompilerException {
+    static String getMethodDecl(SamTokenizer f, ClassSymbol classSymbol)
+        throws CompilerException {
         // Generate sam code
         String sam = "\n";
 
@@ -375,7 +134,7 @@ public class LiveOak2Compiler {
         String methodName = getIdentifier(f);
 
         // Pull method from global scope
-        MethodSymbol method = globalSymbol.lookupSymbol(
+        MethodSymbol method = classSymbol.lookupSymbol(
             methodName,
             MethodSymbol.class
         );
@@ -633,10 +392,10 @@ public class LiveOak2Compiler {
         Expression expr = getExpr(f, method);
 
         // Type check
-        if (!expr.type.isCompatibleWith(method.type)) {
+        if (!expr.type.isCompatibleWith(method.returnType)) {
             throw new TypeErrorException(
                 "Return type mismatch: expected " +
-                method.type +
+                method.returnType +
                 ", but got " +
                 expr.type,
                 f.lineNo()
@@ -777,7 +536,7 @@ public class LiveOak2Compiler {
     static String getVarStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         String sam = "";
-        Symbol variable = getVar(f, method);
+        VariableSymbol variable = getVar(f, method);
 
         if (!CompilerUtils.check(f, '=')) {
             throw new SyntaxErrorException(
@@ -801,9 +560,6 @@ public class LiveOak2Compiler {
         // write sam code
         sam += expr.samCode;
 
-        // update value in symbol
-        variable.value = expr.value;
-
         // Store item on the stack to Symbol
         sam += "STOREOFF " + variable.address + "\n";
 
@@ -820,8 +576,21 @@ public class LiveOak2Compiler {
     static Expression getExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (CompilerUtils.check(f, '(')) {
-            Expression expr = null;
+            // Expr -> this
+            if (CompilerUtils.check(f, "this")) {
+                VariableSymbol thisSymbol = method.parameters.get(0);
+                return new Expression(
+                    "PUSHOFF " + thisSymbol.address + "\n",
+                    thisSymbol.type
+                );
+            }
 
+            // Expr -> null
+            if (CompilerUtils.check(f, "null")) {
+                return new Expression("PUSHIMM 0\n", Type.VOID);
+            }
+
+            Expression expr = null;
             // Expr -> ( Unop Expr )
             if (f.test('~') || f.test('!')) {
                 expr = getUnopExpr(f, method);
@@ -1074,7 +843,7 @@ public class LiveOak2Compiler {
             );
         }
 
-        return new Expression(sam, callingMethod.type);
+        return new Expression(sam, callingMethod.returnType);
     }
 
     static String getActuals(
@@ -1084,8 +853,11 @@ public class LiveOak2Compiler {
     ) throws CompilerException {
         String sam = "";
         int paramCount = callingMethod.numParameters();
-        int argCount = 0;
 
+        // Always start with "this" param, which is always the first parameter
+        sam += "PUSHOFF " + callingMethod.parameters.get(0) + "\n";
+
+        int argCount = 1;
         do {
             // check done processing all the actuals
             if (f.test(')')) {
@@ -1122,9 +894,6 @@ public class LiveOak2Compiler {
             // write sam code
             sam += expr.samCode;
 
-            // save value in symbol
-            currParam.value = expr.value;
-
             argCount++;
         } while (CompilerUtils.check(f, ','));
 
@@ -1152,18 +921,13 @@ public class LiveOak2Compiler {
             // Expr -> Literal -> Num
             case INTEGER:
                 int value = CompilerUtils.getInt(f);
-                return new Expression(
-                    "PUSHIMM " + value + "\n",
-                    Type.INT,
-                    value
-                );
+                return new Expression("PUSHIMM " + value + "\n", Type.INT);
             // Expr -> Literal -> String
             case STRING:
                 String strValue = CompilerUtils.getString(f);
                 return new Expression(
                     "PUSHIMMSTR \"" + strValue + "\"\n",
-                    Type.STRING,
-                    strValue
+                    Type.STRING
                 );
             // Expr -> MethodName | Var | Literal
             case WORD:
@@ -1171,10 +935,10 @@ public class LiveOak2Compiler {
 
                 // Expr -> Literal -> "true" | "false"
                 if (name.equals("true")) {
-                    return new Expression("PUSHIMM 1\n", Type.BOOL, true);
+                    return new Expression("PUSHIMM 1\n", Type.BOOL);
                 }
                 if (name.equals("false")) {
-                    return new Expression("PUSHIMM 0\n", Type.BOOL, false);
+                    return new Expression("PUSHIMM 0\n", Type.BOOL);
                 }
 
                 // Expr -> MethodName | Var
@@ -1196,8 +960,7 @@ public class LiveOak2Compiler {
                 else if (symbol instanceof VariableSymbol) {
                     return new Expression(
                         "PUSHOFF " + symbol.address + "\n",
-                        symbol.type,
-                        symbol.value
+                        ((VariableSymbol) symbol).type
                     );
                 } else {
                     throw new CompilerException(
@@ -1217,7 +980,7 @@ public class LiveOak2Compiler {
     static Type getType(SamTokenizer f) throws CompilerException {
         // typeString = "int" | "bool" | "String"
         String typeString = CompilerUtils.getWord(f);
-        Type type = Type.fromString(typeString);
+        Type type = Type.getType(typeString);
 
         // typeString != INT | BOOL | STRING
         if (type == null) {
@@ -1243,7 +1006,7 @@ public class LiveOak2Compiler {
 
     /*** Non-recursive operations. Override "getVar", inherit the rest from LiveOak0Compiler
      ***/
-    static Symbol getVar(SamTokenizer f, MethodSymbol method)
+    static VariableSymbol getVar(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // Not a var, raise
         if (f.peekAtKind() != TokenType.WORD) {
@@ -1254,7 +1017,10 @@ public class LiveOak2Compiler {
         }
 
         String varName = CompilerUtils.getWord(f);
-        Symbol variable = method.lookupSymbol(varName);
+        VariableSymbol variable = method.lookupSymbol(
+            varName,
+            VariableSymbol.class
+        );
         if (variable == null) {
             throw new SyntaxErrorException(
                 "getVar trying to access variable that has not been declared: Variable" +

@@ -6,21 +6,22 @@ import java.util.Objects;
 public class VariableSymbol extends Symbol {
 
     boolean isParameter;
+    Type type;
 
     public VariableSymbol(
         Symbol parent,
         String name,
         Type type,
         int address,
-        Object value,
         boolean isParameter
     ) {
-        super(parent, new ArrayList<>(), name, type, address, value);
+        super(parent, new ArrayList<>(), name, address);
+        this.type = type;
         this.isParameter = isParameter;
     }
 
     public VariableSymbol(String name, Type type, boolean isParameter) {
-        this(null, name, type, 0, null, isParameter);
+        this(null, name, type, 0, isParameter);
     }
 
     @Override
@@ -28,6 +29,11 @@ public class VariableSymbol extends Symbol {
         throw new UnsupportedOperationException(
             "VariableSymbol cannot have children"
         );
+    }
+
+    @Override
+    public Type getType() {
+        return type;
     }
 
     @Override

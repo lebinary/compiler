@@ -13,7 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /*******************
- * Example test cases for main.LiveOak2Compiler
+ * Example test cases for main.LiveOak3Compiler
  *
  * You will want to add more test cases
  * *******************/
@@ -58,7 +58,7 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2InvalidProgramDir, "test_0.lo").toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_0.lo"
         );
         assertTrue(
@@ -75,7 +75,7 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2InvalidProgramDir, "test_1.lo").toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_1.lo"
         );
         assertTrue(
@@ -95,7 +95,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_10.lo"
         );
         assertTrue(
@@ -115,7 +115,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_11.lo"
         );
         assertTrue(
@@ -135,7 +135,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_12.lo"
         );
         assertTrue(
@@ -155,7 +155,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_13.lo"
         );
         assertTrue(
@@ -175,7 +175,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_14.lo"
         );
         assertTrue(
@@ -195,7 +195,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_15.lo"
         );
         assertTrue(
@@ -215,7 +215,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_16.lo"
         );
         assertTrue(
@@ -235,7 +235,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_17.lo"
         );
         assertTrue(
@@ -255,7 +255,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_18.lo"
         );
         assertTrue(
@@ -275,7 +275,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_19.lo"
         );
         assertTrue(
@@ -292,7 +292,7 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2InvalidProgramDir, "test_2.lo").toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_2.lo"
         );
         assertTrue(
@@ -312,7 +312,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_20.lo"
         );
         assertTrue(
@@ -332,7 +332,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_21.lo"
         );
         assertTrue(
@@ -352,7 +352,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_22.lo"
         );
         assertTrue(
@@ -372,7 +372,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_23.lo"
         );
         assertTrue(
@@ -392,7 +392,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_24.lo"
         );
         assertTrue(
@@ -412,7 +412,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_25.lo"
         );
         assertTrue(
@@ -432,7 +432,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_26.lo"
         );
         assertTrue(
@@ -452,7 +452,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_27.lo"
         );
         assertTrue(
@@ -472,7 +472,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_28.lo"
         );
         assertTrue(
@@ -492,7 +492,7 @@ class LiveOak2CompilerTest {
         ).toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_29.lo"
         );
         assertTrue(
@@ -509,7 +509,7 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2InvalidProgramDir, "test_3.lo").toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_3.lo"
         );
         assertTrue(
@@ -526,7 +526,7 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2InvalidProgramDir, "test_4.lo").toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_4.lo"
         );
         assertTrue(
@@ -543,7 +543,7 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2InvalidProgramDir, "test_5.lo").toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_5.lo"
         );
         assertTrue(
@@ -560,7 +560,7 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2InvalidProgramDir, "test_6.lo").toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_6.lo"
         );
         assertTrue(
@@ -577,7 +577,7 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2InvalidProgramDir, "test_7.lo").toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_7.lo"
         );
         assertTrue(
@@ -594,7 +594,7 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2InvalidProgramDir, "test_8.lo").toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_8.lo"
         );
         assertTrue(
@@ -611,7 +611,7 @@ class LiveOak2CompilerTest {
         String fileName = Path.of(lo2InvalidProgramDir, "test_9.lo").toString();
         assertThrows(
             Error.class,
-            () -> LiveOak2Compiler.compiler(fileName),
+            () -> LiveOak3Compiler.compiler(fileName),
             "Expected parse error to be thrown for file test_9.lo"
         );
         assertTrue(
@@ -626,7 +626,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 120")
     void testLO2_30() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_30.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 120);
     }
 
@@ -634,7 +634,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'The rain in Spain falls'")
     void testLO2_31() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_31.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(
             program,
             "The rain in Spain falls"
@@ -645,7 +645,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 1100")
     void testLO2_32() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_32.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 1100);
     }
 
@@ -653,7 +653,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'false'")
     void testLO2_33() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_33.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(program, "false");
     }
 
@@ -661,7 +661,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'abcabcabcabcabcabcabcabcabc'")
     void testLO2_34() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_34.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(
             program,
             "abcabcabcabcabcabcabcabcabc"
@@ -672,7 +672,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 30")
     void testLO2_35() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_35.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 30);
     }
 
@@ -680,7 +680,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 266")
     void testLO2_36() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_36.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 266);
     }
 
@@ -688,7 +688,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 4")
     void testLO2_37() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_37.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 4);
     }
 
@@ -696,7 +696,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'tset a tsuj si sihTtset a tsuj si sihTright?'")
     void testLO2_38() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_38.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(
             program,
             "tset a tsuj si sihTtset a tsuj si sihTright?"
@@ -707,7 +707,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 238")
     void testLO2_39() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_39.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 238);
     }
 
@@ -715,7 +715,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 1")
     void testLO2_40() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_40.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 1);
     }
 
@@ -723,7 +723,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 1")
     void testLO2_41() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_41.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 1);
     }
 
@@ -731,7 +731,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 26141")
     void testLO2_42() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_42.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 26141);
     }
 
@@ -741,7 +741,7 @@ class LiveOak2CompilerTest {
     )
     void testLO2_43() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_43.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(
             program,
             "The rain in Spain fallsThe rain in Spain falls"
@@ -752,7 +752,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 14")
     void testLO2_44() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_44.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 14);
     }
 
@@ -760,7 +760,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 199704")
     void testLO2_45() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_45.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 199704);
     }
 
@@ -768,7 +768,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 40")
     void testLO2_46() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_46.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 40);
     }
 
@@ -776,7 +776,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 15")
     void testLO2_47() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_47.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 15);
     }
 
@@ -784,7 +784,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 1")
     void testLO2_48() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_48.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 1);
     }
 
@@ -792,7 +792,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 475")
     void testLO2_49() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_49.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 475);
     }
 
@@ -800,7 +800,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'do Do Do do Do'")
     void testLO2_50() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_50.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(program, "do Do Do do Do");
     }
 
@@ -808,7 +808,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 20")
     void testLO2_51() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_51.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 20);
     }
 
@@ -816,7 +816,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 25")
     void testLO2_52() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_52.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 25);
     }
 
@@ -824,7 +824,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 1")
     void testLO2_53() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_53.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 1);
     }
 
@@ -832,7 +832,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 11110")
     void testLO2_54() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_54.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 11110);
     }
 
@@ -840,7 +840,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'eip sa ysae'")
     void testLO2_55() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_55.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(program, "eip sa ysae");
     }
 
@@ -848,7 +848,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'HelloHello'")
     void testLO2_56() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_56.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(program, "HelloHello");
     }
 
@@ -856,7 +856,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'halb!emosewa era sgnirts'")
     void testLO2_57() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_57.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(
             program,
             "halb!emosewa era sgnirts"
@@ -867,7 +867,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 17")
     void testLO2_58() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_58.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 17);
     }
 
@@ -875,7 +875,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'zZZZsllaf niapS ni niar ehTZZZz'")
     void testLO2_59() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_59.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(
             program,
             "zZZZsllaf niapS ni niar ehTZZZz"
@@ -886,7 +886,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 345")
     void testLO2_60() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_60.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 345);
     }
 
@@ -894,7 +894,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 5493")
     void testLO2_61() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_61.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 5493);
     }
 
@@ -902,7 +902,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 30")
     void testLO2_62() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_62.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 30);
     }
 
@@ -910,7 +910,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 34")
     void testLO2_63() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_63.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 34);
     }
 
@@ -918,7 +918,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'alternate result'")
     void testLO2_64() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_64.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(program, "alternate result");
     }
 
@@ -926,7 +926,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 123")
     void testLO2_65() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_65.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 123);
     }
 
@@ -934,7 +934,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 1311")
     void testLO2_66() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_66.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 1311);
     }
 
@@ -942,7 +942,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 24")
     void testLO2_67() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_67.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 24);
     }
 
@@ -950,7 +950,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 5")
     void testLO2_68() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_68.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 5);
     }
 
@@ -958,7 +958,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 100098")
     void testLO2_69() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_69.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 100098);
     }
 
@@ -966,7 +966,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 12069")
     void testLO2_70() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_70.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 12069);
     }
 
@@ -974,7 +974,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'azzzzzc'")
     void testLO2_71() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_71.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(program, "azzzzzc");
     }
 
@@ -982,7 +982,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 32")
     void testLO2_72() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_72.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 32);
     }
 
@@ -990,7 +990,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 20")
     void testLO2_73() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_73.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 20);
     }
 
@@ -998,7 +998,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 147")
     void testLO2_74() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_74.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 147);
     }
 
@@ -1006,7 +1006,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 431")
     void testLO2_75() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_75.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 431);
     }
 
@@ -1014,7 +1014,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 3533")
     void testLO2_76() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_76.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 3533);
     }
 
@@ -1022,7 +1022,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 0")
     void testLO2_77() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_77.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 0);
     }
 
@@ -1030,7 +1030,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 1")
     void testLO2_78() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_78.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 1);
     }
 
@@ -1038,7 +1038,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 0")
     void testLO2_79() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_79.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 0);
     }
 
@@ -1046,7 +1046,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 388")
     void testLO2_80() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_80.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 388);
     }
 
@@ -1054,7 +1054,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 456")
     void testLO2_81() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_81.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 456);
     }
 
@@ -1062,7 +1062,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 0")
     void testLO2_82() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_82.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 0);
     }
 
@@ -1070,7 +1070,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return -10")
     void testLO2_83() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_83.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, -10);
     }
 
@@ -1078,7 +1078,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'black cat'")
     void testLO2_84() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_84.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(program, "black cat");
     }
 
@@ -1086,7 +1086,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 10111")
     void testLO2_85() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_85.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 10111);
     }
 
@@ -1094,7 +1094,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 14")
     void testLO2_86() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_86.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 14);
     }
 
@@ -1102,7 +1102,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 72")
     void testLO2_87() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_87.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 72);
     }
 
@@ -1110,7 +1110,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 2")
     void testLO2_88() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_88.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 2);
     }
 
@@ -1118,7 +1118,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 0")
     void testLO2_89() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_89.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 0);
     }
 
@@ -1126,7 +1126,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 168")
     void testLO2_90() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_90.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 168);
     }
 
@@ -1134,7 +1134,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 12")
     void testLO2_91() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_91.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 12);
     }
 
@@ -1142,7 +1142,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 90")
     void testLO2_92() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_92.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 90);
     }
 
@@ -1150,7 +1150,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 111")
     void testLO2_93() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_93.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 111);
     }
 
@@ -1158,7 +1158,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 481")
     void testLO2_94() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_94.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 481);
     }
 
@@ -1166,7 +1166,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 1597")
     void testLO2_95() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_95.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 1597);
     }
 
@@ -1174,7 +1174,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 163")
     void testLO2_96() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_96.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 163);
     }
 
@@ -1182,7 +1182,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 'abcabcabcabcabcabcabcabcabcabcabc'")
     void testLO2_97() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_97.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(
             program,
             "abcabcabcabcabcabcabcabcabcabcabc"
@@ -1193,7 +1193,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return -1")
     void testLO2_98() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_98.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, -1);
     }
 
@@ -1201,7 +1201,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return 905")
     void testLO2_99() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_99.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnValue(program, 905);
     }
 
@@ -1209,7 +1209,7 @@ class LiveOak2CompilerTest {
     @DisplayName("should return \n    *\n   ***\n  *****\n *******\n********* ")
     void testLO2_100() throws Throwable {
         String fileName = Path.of(lo2ValidProgramDir, "test_100.lo").toString();
-        String program = LiveOak2Compiler.compiler(fileName);
+        String program = LiveOak3Compiler.compiler(fileName);
         SamTestRunner.checkReturnedStringValue(
             program,
             "    *\n   ***\n  *****\n *******\n*********"

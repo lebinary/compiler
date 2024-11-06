@@ -11,37 +11,31 @@ public class MethodSymbol extends Symbol {
 
     public List<VariableSymbol> parameters;
     public List<VariableSymbol> localVariables;
+    public Type returnType;
     private Deque<Label> labels;
     private Deque<Statement> statements;
 
     public MethodSymbol(
         Symbol parent,
-        List<Symbol> children,
         String name,
         Type returnType,
         int address
     ) {
-        super(parent, children, name, returnType, address, null);
+        super(parent, new ArrayList<>(), name, address);
         this.parameters = new ArrayList<>();
         this.localVariables = new ArrayList<>();
+        this.returnType = returnType;
         this.labels = new ArrayDeque<>();
         this.statements = new ArrayDeque<>();
-
-        // Populate parameters and localVariables
-        for (Symbol child : children) {
-            if (child instanceof VariableSymbol) {
-                udpateParamsAndLocals(child);
-            }
-        }
     }
 
     // Constructor with default values
     public MethodSymbol() {
-        this(null, new ArrayList<>(), "main", Type.INT, 0);
+        this(null, "main", Type.INT, 0);
     }
 
     public MethodSymbol(String name, Type returnType) {
-        this(null, new ArrayList<>(), name, returnType, 0);
+        this(null, name, returnType, 0);
     }
 
     // update child's address and categorize them
@@ -51,7 +45,7 @@ public class MethodSymbol extends Symbol {
             castChild.address = -1;
             parameters.add(castChild);
 
-            // correct address of other params
+            // re-udpate correct address of other params
             for (int i = parameters.size() - 2; i >= 0; i--) {
                 parameters.get(i).address -= 1;
             }
@@ -63,7 +57,12 @@ public class MethodSymbol extends Symbol {
 
     // Tree operations
     public void addChild(Symbol child) {
-        super.addChild(child);
+        if (child instanceof ClassSymbol) {
+            throw new UnsupportedOperationException(
+                "Cannot declare Class inside a method"
+            );
+        }
+        udpateSuper(child);
 
         if (child instanceof VariableSymbol) {
             udpateParamsAndLocals(child);
@@ -97,7 +96,7 @@ public class MethodSymbol extends Symbol {
     }
 
     public int numParameters() {
-        return parameters.size();
+        return parameters.size(); // dont count "this" as parameters
     }
 
     // labels stack operations
@@ -142,6 +141,11 @@ public class MethodSymbol extends Symbol {
 
     public boolean hasStatement(Statement statement) {
         return statements.contains(statement);
+    }
+
+    @Override
+    public Type getType() {
+        return returnType;
     }
 
     @Override
