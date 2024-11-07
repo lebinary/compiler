@@ -12,6 +12,7 @@ public class MethodSymbol extends Symbol {
     public List<VariableSymbol> parameters;
     public List<VariableSymbol> localVariables;
     public Type returnType;
+    public boolean isVirtual;
     private Deque<Label> labels;
     private Deque<Statement> statements;
 
@@ -19,7 +20,8 @@ public class MethodSymbol extends Symbol {
         Symbol parent,
         String name,
         Type returnType,
-        int address
+        int address,
+        boolean isVirtual
     ) {
         super(parent, new ArrayList<>(), name, address);
         this.parameters = new ArrayList<>();
@@ -27,15 +29,20 @@ public class MethodSymbol extends Symbol {
         this.returnType = returnType;
         this.labels = new ArrayDeque<>();
         this.statements = new ArrayDeque<>();
+        this.isVirtual = isVirtual;
     }
 
     // Constructor with default values
     public MethodSymbol() {
-        this(null, "main", Type.INT, 0);
+        this(null, "main", Type.INT, 0, true);
     }
 
     public MethodSymbol(String name, Type returnType) {
-        this(null, name, returnType, 0);
+        this(null, name, returnType, 0, true);
+    }
+
+    public MethodSymbol(String name, Type returnType, boolean isVirtual) {
+        this(null, name, returnType, 0, isVirtual);
     }
 
     // update child's address and categorize them

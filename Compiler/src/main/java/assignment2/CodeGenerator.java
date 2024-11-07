@@ -72,7 +72,7 @@ public class CodeGenerator {
         }
 
         // ClassDecl -> class ClassName ...
-        String className = CodeGenerator.getIdentifier(f);
+        String className = getIdentifier(f);
 
         // Pull class from global scope
         ClassSymbol classSymbol = LiveOak3Compiler.globalSymbol.lookupSymbol(
@@ -133,7 +133,7 @@ public class CodeGenerator {
         // MethodDecl -> Type MethodName ...
         String methodName = getIdentifier(f);
 
-        // Pull method from global scope
+        // Pull method from class scope
         MethodSymbol method = classSymbol.lookupSymbol(
             methodName,
             MethodSymbol.class
@@ -575,21 +575,26 @@ public class CodeGenerator {
 
     static Expression getExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
+        // Expr -> this
+        if (CompilerUtils.check(f, "this")) {
+            VariableSymbol thisSymbol = method.parameters.get(0);
+            return new Expression(
+                "PUSHOFF " + thisSymbol.address + "\n",
+                thisSymbol.type
+            );
+        }
+
+        // Expr -> null
+        if (CompilerUtils.check(f, "null")) {
+            return new Expression("PUSHIMM 0\n", Type.VOID);
+        }
+
+        //Expr -> new ClassName (Actuals)
+        if (f.test("new")) {
+            return getConstructorExpr(f, method);
+        }
+
         if (CompilerUtils.check(f, '(')) {
-            // Expr -> this
-            if (CompilerUtils.check(f, "this")) {
-                VariableSymbol thisSymbol = method.parameters.get(0);
-                return new Expression(
-                    "PUSHOFF " + thisSymbol.address + "\n",
-                    thisSymbol.type
-                );
-            }
-
-            // Expr -> null
-            if (CompilerUtils.check(f, "null")) {
-                return new Expression("PUSHIMM 0\n", Type.VOID);
-            }
-
             Expression expr = null;
             // Expr -> ( Unop Expr )
             if (f.test('~') || f.test('!')) {
@@ -635,10 +640,68 @@ public class CodeGenerator {
 
             return expr;
         }
-        // Expr -> MethodName | Var | Literal
+        // Expr -> Var | Literal
         else {
             return getTerminal(f, method);
         }
+    }
+
+    static Expression getConstructorExpr(SamTokenizer f, MethodSymbol method)
+        throws CompilerException {
+        if (!CompilerUtils.check(f, "new")) {
+            throw new SyntaxErrorException(
+                "getInstance expects 'new' at the beginning",
+                f.lineNo()
+            );
+        }
+
+        String className = getIdentifier(f);
+        ClassSymbol classSymbol = LiveOak3Compiler.globalSymbol.lookupSymbol(
+            className,
+            ClassSymbol.class
+        );
+        if (classSymbol == null) {
+            throw new CompilerException(
+                "instanciating class that doesn't exist",
+                f.lineNo()
+            );
+        }
+        MethodSymbol constructor = classSymbol.lookupSymbol(
+            className,
+            MethodSymbol.class
+        );
+        if (constructor == null) {
+            // No constructor was declared for this Class, instanciate it anyway
+            String sam = initObject(classSymbol);
+
+            if (!CompilerUtils.check(f, '(')) {
+                throw new SyntaxErrorException(
+                    "getMethodCallExpr expects '(' at the start of actuals",
+                    f.lineNo()
+                );
+            }
+            while (!CompilerUtils.check(f, ')')) {
+                CompilerUtils.skipToken(f);
+            }
+
+            return new Expression(sam, Type.getType(classSymbol.name));
+        }
+
+        return getMethodCallExpr(f, method, constructor);
+    }
+
+    static String initObject(ClassSymbol classSymbol) {
+        String sam = "";
+
+        // instanciate class to pass in as "this" parameter
+        sam += "PUSHIMM " + classSymbol.getSize() + "\n";
+        sam += "MALLOC\n";
+        // assign main class's vtable
+        sam += "DUP\n";
+        sam += "PUSHABS " + classSymbol.vtableAddress + "\n";
+        sam += "STOREIND\n";
+
+        return sam;
     }
 
     static Expression getUnopExpr(SamTokenizer f, MethodSymbol method)
@@ -854,9 +917,20 @@ public class CodeGenerator {
         String sam = "";
         int paramCount = callingMethod.numParameters();
 
-        // Always start with "this" param, which is always the first parameter
-        sam += "PUSHOFF " + callingMethod.parameters.get(0) + "\n";
+        // check if callingMethod is a constructor
+        ClassSymbol classSymbol = LiveOak3Compiler.globalSymbol.lookupSymbol(
+            callingMethod.name,
+            ClassSymbol.class
+        );
 
+        if (classSymbol != null) {
+            // instanciate class to pass in as "this" parameter
+            sam += initObject(classSymbol);
+        } else {
+            sam += "PUSHOFF " + callingMethod.parameters.get(0).address + "\n";
+        }
+
+        // start from 1, because "this" is the first param
         int argCount = 1;
         do {
             // check done processing all the actuals
@@ -941,32 +1015,38 @@ public class CodeGenerator {
                     return new Expression("PUSHIMM 0\n", Type.BOOL);
                 }
 
-                // Expr -> MethodName | Var
-                Symbol symbol = method.lookupSymbol(name);
-
-                if (symbol == null) {
+                VariableSymbol varSymbol = method.lookupSymbol(
+                    name,
+                    VariableSymbol.class
+                );
+                if (varSymbol == null) {
                     throw new CompilerException(
                         "getTerminal trying to access symbol that has not been declared: Symbol " +
-                        name,
+                        varSymbol,
                         f.lineNo()
                     );
                 }
 
-                // Expr -> MethodName ( Actuals )
-                if (symbol instanceof MethodSymbol) {
-                    return getMethodCallExpr(f, method, (MethodSymbol) symbol);
+                // Expr -> Var.MethodName(Actuals)
+                if (CompilerUtils.check(f, '.')) {
+                    ClassSymbol classSymbol =
+                        LiveOak3Compiler.globalSymbol.lookupSymbol(
+                            varSymbol.type.toString(),
+                            ClassSymbol.class
+                        );
+
+                    String methodName = CompilerUtils.getWord(f);
+                    MethodSymbol callingMethod = classSymbol.lookupSymbol(
+                        methodName,
+                        MethodSymbol.class
+                    );
+                    return getMethodCallExpr(f, method, callingMethod);
                 }
                 // Expr -> Var
-                else if (symbol instanceof VariableSymbol) {
+                else {
                     return new Expression(
-                        "PUSHOFF " + symbol.address + "\n",
-                        ((VariableSymbol) symbol).type
-                    );
-                } else {
-                    throw new CompilerException(
-                        "getTerminal trying to access invalid symbol: Symbol " +
-                        symbol,
-                        f.lineNo()
+                        "PUSHOFF " + varSymbol.address + "\n",
+                        varSymbol.type
                     );
                 }
             default:

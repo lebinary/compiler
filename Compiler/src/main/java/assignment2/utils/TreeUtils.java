@@ -66,7 +66,9 @@ public class TreeUtils {
                 .append(", parameters=")
                 .append(methodSymbol.parameters.size())
                 .append(", localVariables=")
-                .append(methodSymbol.localVariables.size());
+                .append(methodSymbol.localVariables.size())
+                .append(", isVirtual=")
+                .append(methodSymbol.isVirtual);
         } else if (symbol instanceof ClassSymbol) {
             sb
                 .append(", vtableAddress=")

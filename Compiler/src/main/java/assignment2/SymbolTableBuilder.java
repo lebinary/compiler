@@ -17,7 +17,6 @@ public class SymbolTableBuilder {
         while (f.peekAtKind() != TokenType.EOF) {
             populateClass(f);
         }
-
         // Make sure there is a main class
         ClassSymbol mainClass = LiveOak3Compiler.globalSymbol.lookupSymbol(
             "Main",
@@ -128,6 +127,9 @@ public class SymbolTableBuilder {
         // MethodDecl -> Type MethodName ...
         String methodName = CodeGenerator.getIdentifier(f);
 
+        // Check if method is a constructor
+        boolean isVirual = methodName.equals(classSymbol.name) ? false : true;
+
         // Check if the method is already defined
         if (classSymbol.lookupSymbol(methodName, MethodSymbol.class) != null) {
             throw new CompilerException(
@@ -145,7 +147,11 @@ public class SymbolTableBuilder {
         }
 
         // create Method object
-        MethodSymbol method = new MethodSymbol(methodName, returnType);
+        MethodSymbol method = new MethodSymbol(
+            methodName,
+            returnType,
+            isVirual
+        );
 
         // first param in the method is reserved for "this" object
         VariableSymbol thisVariable = new VariableSymbol(
