@@ -35,7 +35,7 @@ task testLO1(type: Test) {
     }
 }
 
-task testLO2(type: Test) {
+task testLO3(type: Test) {
     useJUnitPlatform()
     filter {
         includeTestsMatching "assignment2.LiveOak3CompilerTest"
