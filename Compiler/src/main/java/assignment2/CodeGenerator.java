@@ -701,7 +701,7 @@ public class CodeGenerator {
             return new Expression(sam, Type.getType(classSymbol.name));
         }
 
-        return getMethodCallExpr(f, method, constructor);
+        return getMethodCallExpr(f, method, null, constructor);
     }
 
     static String initObject(ClassSymbol classSymbol) {
@@ -895,6 +895,7 @@ public class CodeGenerator {
     static Expression getMethodCallExpr(
         SamTokenizer f,
         MethodSymbol scopeMethod,
+        VariableSymbol callingVariable,
         MethodSymbol callingMethod
     ) throws CompilerException {
         String sam = "";
@@ -907,7 +908,7 @@ public class CodeGenerator {
             );
         }
 
-        sam += getActuals(f, scopeMethod, callingMethod);
+        sam += getActuals(f, scopeMethod, callingVariable, callingMethod);
         sam += "LINK\n";
         sam += "JSR " + callingMethod.name + "\n";
         sam += "UNLINK\n";
@@ -926,17 +927,31 @@ public class CodeGenerator {
     static String getActuals(
         SamTokenizer f,
         MethodSymbol scopeMethod,
+        VariableSymbol callingVariable,
         MethodSymbol callingMethod
     ) throws CompilerException {
         String sam = "";
         int paramCount = callingMethod.numParameters();
 
         // check if callingMethod is a constructor
-        if (callingMethod.isConstructor()) {
+        if (callingMethod.isConstructor() && callingVariable == null) {
             // instanciate class to pass in as "this" parameter
             sam += initObject((ClassSymbol) callingMethod.parent);
         } else {
-            sam += "PUSHOFF " + callingMethod.getThisAddress() + "\n";
+            if (callingVariable == null) {
+                throw new CompilerException(
+                    "Cannot invoke method from null instance",
+                    f.lineNo()
+                );
+            }
+            if (callingVariable.isInstanceVariable()) {
+                sam += "PUSHOFF " + callingMethod.getThisAddress() + "\n";
+                sam += "PUSHIMM " + callingVariable.address + "\n";
+                sam += "ADD\n";
+                sam += "PUSHIND\n";
+            } else {
+                sam += "PUSHOFF " + callingVariable.address + "\n";
+            }
         }
 
         // start from 1, because "this" is the first param
@@ -1049,7 +1064,12 @@ public class CodeGenerator {
                         methodName,
                         MethodSymbol.class
                     );
-                    return getMethodCallExpr(f, method, callingMethod);
+                    return getMethodCallExpr(
+                        f,
+                        method,
+                        varSymbol,
+                        callingMethod
+                    );
                 }
                 // Expr -> Var
                 else {
