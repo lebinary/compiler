@@ -251,7 +251,10 @@ public class CodeGenerator {
             sam += "PUSHOFF " + method.getThisAddress() + "\n";
         }
         // else, check for return statement as usual
-        else if (endWithReturnStmt.get(endWithReturnStmt.size() - 1) != 1) {
+        else if (
+            method.returnType != Type.VOID &&
+            endWithReturnStmt.get(endWithReturnStmt.size() - 1) != 1
+        ) {
             throw new SyntaxErrorException(
                 "get method missing return statement at the end",
                 f.lineNo()
