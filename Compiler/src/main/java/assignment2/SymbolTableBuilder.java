@@ -56,7 +56,7 @@ public class SymbolTableBuilder {
         }
 
         // ClassDecl -> class ClassName ...
-        String className = CodeGenerator.getIdentifier(f);
+        String className = Helpers.getIdentifier(f);
 
         // Check if the class is already defined
         if (
@@ -133,7 +133,7 @@ public class SymbolTableBuilder {
         // while varName = a | b | c | ...
         while (f.peekAtKind() == TokenType.WORD) {
             // VarDecl -> Type Identifier1, Identifier2
-            String propName = CodeGenerator.getIdentifier(f);
+            String propName = Helpers.getIdentifier(f);
             VariableSymbol propSymbol = new VariableSymbol(propName, propType);
             classSymbol.addChild(propSymbol);
 
@@ -158,7 +158,7 @@ public class SymbolTableBuilder {
         Type returnType = populateType(f);
 
         // MethodDecl -> Type MethodName ...
-        String methodName = CodeGenerator.getIdentifier(f);
+        String methodName = Helpers.getIdentifier(f);
 
         // Check if method is a constructor
         boolean isConstructor = methodName.equals(classSymbol.name);
@@ -244,7 +244,7 @@ public class SymbolTableBuilder {
             Type formalType = populateType(f);
 
             // Formals -> Type Identifier
-            String formalName = CodeGenerator.getIdentifier(f);
+            String formalName = Helpers.getIdentifier(f);
 
             // Check if the formal has already defined in this scope
             if (symbol.lookupSymbol(formalName, VariableSymbol.class) != null) {
@@ -280,7 +280,7 @@ public class SymbolTableBuilder {
             // while varName = a | b | c | ...
             while (f.peekAtKind() == TokenType.WORD) {
                 // VarDecl -> Type Identifier1, Identifier2
-                String varName = CodeGenerator.getIdentifier(f);
+                String varName = Helpers.getIdentifier(f);
 
                 // Check if the variable is already defined in the current scope
                 if (

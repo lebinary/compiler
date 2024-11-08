@@ -72,7 +72,7 @@ public class CodeGenerator {
         }
 
         // ClassDecl -> class ClassName ...
-        String className = getIdentifier(f);
+        String className = Helpers.getIdentifier(f);
 
         // Pull class from global scope
         ClassSymbol classSymbol = LiveOak3Compiler.globalSymbol.lookupSymbol(
@@ -131,7 +131,7 @@ public class CodeGenerator {
         Type returnType = getType(f);
 
         // MethodDecl -> Type MethodName ...
-        String methodName = getIdentifier(f);
+        String methodName = Helpers.getIdentifier(f);
 
         // Pull method from class scope
         MethodSymbol method = classSymbol.lookupSymbol(
@@ -164,7 +164,7 @@ public class CodeGenerator {
             Type formalType = getType(f);
 
             // Formals -> Type Identifier
-            String formalName = getIdentifier(f);
+            String formalName = Helpers.getIdentifier(f);
 
             if (!CompilerUtils.check(f, ',')) {
                 break;
@@ -281,7 +281,7 @@ public class CodeGenerator {
         // while varName = a | b | c | ...
         while (f.peekAtKind() == TokenType.WORD) {
             // VarDecl -> Type Identifier1, Identifier2
-            String varName = getIdentifier(f);
+            String varName = Helpers.getIdentifier(f);
 
             // write sam code
             sam += "PUSHIMM 0\n";
@@ -672,7 +672,7 @@ public class CodeGenerator {
             );
         }
 
-        String className = getIdentifier(f);
+        String className = Helpers.getIdentifier(f);
         ClassSymbol classSymbol = LiveOak3Compiler.globalSymbol.lookupSymbol(
             className,
             ClassSymbol.class
@@ -689,7 +689,7 @@ public class CodeGenerator {
         );
         if (constructor == null) {
             // No constructor was declared for this Class, instanciate it anyway
-            String sam = initObject(classSymbol);
+            String sam = Helpers.initObject(classSymbol);
 
             if (!CompilerUtils.check(f, '(')) {
                 throw new SyntaxErrorException(
@@ -707,26 +707,12 @@ public class CodeGenerator {
         return getMethodCallExpr(f, method, null, constructor);
     }
 
-    static String initObject(ClassSymbol classSymbol) {
-        String sam = "";
-
-        // instanciate class to pass in as "this" parameter
-        sam += "PUSHIMM " + classSymbol.getSize() + "\n";
-        sam += "MALLOC\n";
-        // assign main class's vtable
-        sam += "DUP\n";
-        sam += "PUSHABS " + classSymbol.vtableAddress + "\n";
-        sam += "STOREIND\n";
-
-        return sam;
-    }
-
     static Expression getUnopExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // Not an operator, raise
         if (f.peekAtKind() != TokenType.OPERATOR) {
             throw new TypeErrorException(
-                "getUnopExpr expects an OPERATOR",
+                "Helpers.getUnopExpr expects an OPERATOR",
                 f.lineNo()
             );
         }
@@ -738,7 +724,7 @@ public class CodeGenerator {
         /*** Special case
          ***/
         if (op == '~' && expr.type == Type.STRING) {
-            expr.samCode += reverseString();
+            expr.samCode += Helpers.reverseString();
         } /*** Basic cases
          ***/else {
             // Type check
@@ -753,7 +739,7 @@ public class CodeGenerator {
             }
 
             // apply unop on expression
-            expr.samCode += getUnop(op);
+            expr.samCode += Helpers.getUnop(op);
         }
 
         return expr;
@@ -767,13 +753,23 @@ public class CodeGenerator {
         // Not an operator, raise
         if (f.peekAtKind() != TokenType.OPERATOR) {
             throw new TypeErrorException(
-                "getBinopExpr expects an OPERATOR",
+                "Helpers.getBinopExpr expects an OPERATOR",
                 f.lineNo()
             );
         }
         char op = CompilerUtils.getOp(f);
+        String prevSam = "";
+
+        // Optimisation, if op is an OR operator and prevExpr is truthy, early return
+        Label skipLabel = new Label();
+        if (op == '|' && prevExpr.type == Type.BOOL) {
+            prevSam += "ISPOS\n";
+            prevSam += "DUP\n";
+            prevSam += "JUMPC " + skipLabel.name + "\n";
+        }
 
         Expression expr = getExpr(f, method);
+        expr.samCode = prevSam + expr.samCode;
 
         /*** Special cases:
          ***/
@@ -783,7 +779,7 @@ public class CodeGenerator {
             ((prevExpr.type == Type.STRING && expr.type == Type.INT) ||
                 (prevExpr.type == Type.INT && expr.type == Type.STRING))
         ) {
-            expr.samCode += repeatString(prevExpr.type, expr.type);
+            expr.samCode += Helpers.repeatString(prevExpr.type, expr.type);
             expr.type = Type.STRING;
         }
         // String concatenation
@@ -792,16 +788,16 @@ public class CodeGenerator {
             prevExpr.type == Type.STRING &&
             expr.type == Type.STRING
         ) {
-            expr.samCode += concatString();
+            expr.samCode += Helpers.concatString();
             expr.type = Type.STRING;
         }
         // String comparison
         else if (
-            getBinopType(op) == BinopType.COMPARISON &&
+            Helpers.getBinopType(op) == BinopType.COMPARISON &&
             prevExpr.type == Type.STRING &&
             expr.type == Type.STRING
         ) {
-            expr.samCode += compareString(op);
+            expr.samCode += Helpers.compareString(op);
             expr.type = Type.STRING;
         } else {
             /*** Basic cases
@@ -819,7 +815,7 @@ public class CodeGenerator {
 
             // Type check for Logical operations
             if (
-                getBinopType(op) == BinopType.BITWISE &&
+                Helpers.getBinopType(op) == BinopType.BITWISE &&
                 (prevExpr.type != Type.BOOL || expr.type != Type.BOOL)
             ) {
                 throw new TypeErrorException(
@@ -834,13 +830,15 @@ public class CodeGenerator {
             }
 
             // basic binop sam code
-            expr.samCode += getBinop(op);
+            expr.samCode += Helpers.getBinop(op);
         }
 
         // Change return type to boolean if binop is Comparison
-        if (getBinopType(op) == BinopType.COMPARISON) {
+        if (Helpers.getBinopType(op) == BinopType.COMPARISON) {
             expr.type = Type.BOOL;
         }
+
+        expr.samCode += skipLabel.name + ":\n";
 
         return expr;
     }
@@ -939,7 +937,7 @@ public class CodeGenerator {
         // check if callingMethod is a constructor
         if (callingMethod.isConstructor() && callingVariable == null) {
             // instanciate class to pass in as "this" parameter
-            sam += initObject((ClassSymbol) callingMethod.parent);
+            sam += Helpers.initObject((ClassSymbol) callingMethod.parent);
         } else {
             if (callingVariable == null) {
                 throw new CompilerException(
@@ -1113,17 +1111,6 @@ public class CodeGenerator {
         return type;
     }
 
-    static String getIdentifier(SamTokenizer f) throws CompilerException {
-        String identifier = CompilerUtils.getWord(f);
-        if (!IDENTIFIER_PATTERN.matcher(identifier).matches()) {
-            throw new SyntaxErrorException(
-                "Invalid identifier: " + identifier,
-                f.lineNo()
-            );
-        }
-        return identifier;
-    }
-
     /*** Non-recursive operations. Override "getVar", inherit the rest from LiveOak0Compiler
      ***/
     static VariableSymbol getVar(SamTokenizer f, MethodSymbol method)
@@ -1149,525 +1136,5 @@ public class CodeGenerator {
             );
         }
         return variable;
-    }
-
-    /*** HELPERS
-     ***/
-    public static final Pattern IDENTIFIER_PATTERN = Pattern.compile(
-        "^[a-zA-Z]([a-zA-Z0-9'_'])*$"
-    );
-
-    public static String getUnop(char op) throws CompilerException {
-        switch (op) {
-            // TODO: string bitwise
-            case '~':
-                return "PUSHIMM -1\nTIMES\n";
-            case '!':
-                return "PUSHIMM 1\nADD\nPUSHIMM 2\nMOD\n";
-            default:
-                throw new TypeErrorException(
-                    "getUnop received invalid input: " + op,
-                    -1
-                );
-        }
-    }
-
-    public static String getBinop(char op) throws CompilerException {
-        switch (op) {
-            case '+':
-                return "ADD\n";
-            case '-':
-                return "SUB\n";
-            case '*':
-                return "TIMES\n";
-            case '/':
-                return "DIV\n";
-            case '%':
-                return "MOD\n";
-            case '&':
-                return "AND\n";
-            case '|':
-                return "OR\n";
-            case '>':
-                return "GREATER\n";
-            case '<':
-                return "LESS\n";
-            case '=':
-                return "EQUAL\n";
-            default:
-                throw new TypeErrorException(
-                    "getBinop received invalid input: " + op,
-                    -1
-                );
-        }
-    }
-
-    public static BinopType getBinopType(char op) throws CompilerException {
-        switch (op) {
-            case '+':
-            case '-':
-            case '*':
-            case '/':
-            case '%':
-                return BinopType.ARITHMETIC;
-            case '&':
-            case '|':
-                return BinopType.BITWISE;
-            case '>':
-            case '<':
-            case '=':
-                return BinopType.COMPARISON;
-            default:
-                throw new TypeErrorException(
-                    "categorizeBinop received invalid input: " + op,
-                    -1
-                );
-        }
-    }
-
-    public static String repeatString(
-        Type firstInputType,
-        Type secondInputType
-    ) {
-        // expects parameters already on the stack
-        Label enterFuncLabel = new Label();
-        Label exitFuncLabel = new Label();
-        Label startLoopLabel = new Label();
-        Label stopLoopLabel = new Label();
-        Label returnLabel = new Label();
-        Label invalidParamLabel = new Label();
-
-        String sam = "";
-
-        // prepare params, String always on top
-        if (firstInputType == Type.STRING) {
-            sam += "SWAP\n";
-        }
-
-        // call method
-        sam += "LINK\n";
-        sam += "JSR " + enterFuncLabel.name + "\n";
-        sam += "UNLINK\n";
-        sam += "ADDSP -1\n"; // free second param, only first param remain with new value
-        sam += "JUMP " + exitFuncLabel.name + "\n";
-
-        // method definition
-        sam += enterFuncLabel.name + ":\n";
-        sam += "PUSHIMM 0\n"; // local 1: loop counter
-        sam += "PUSHIMM 0\n"; // local 2: increment address
-        sam += "PUSHIMM 0\n"; // local 3: return address
-
-        // validate param, if n < 0 -> return
-        sam += "PUSHOFF -2\n";
-        sam += "ISNEG\n";
-        sam += "JUMPC " + invalidParamLabel.name + "\n";
-
-        // allocate memory for new string -> Address
-        sam += "PUSHOFF -1\n";
-        sam += getStringLength();
-        sam += "PUSHOFF -2\n";
-        sam += "TIMES\n";
-        sam += "PUSHIMM 1\n";
-        sam += "ADD\n";
-        sam += "MALLOC\n";
-        sam += "STOREOFF 3\n";
-
-        // return this address
-        sam += "PUSHOFF 3\n";
-        sam += "STOREOFF 4\n";
-
-        // loop...
-        sam += startLoopLabel.name + ":\n";
-        // check if done
-        sam += "PUSHOFF 2\n";
-        sam += "PUSHOFF -2\n";
-        sam += "EQUAL\n";
-        sam += "JUMPC " + stopLoopLabel.name + "\n";
-
-        // append str to memory
-        sam += "PUSHIMM 0\n"; // will return next address
-        sam += "PUSHOFF 3\n"; // param1: starting memory address
-        sam += "PUSHOFF -1\n"; // param2: string
-        sam += appendStringHeap();
-        sam += "STOREOFF 3\n";
-
-        // increase counter
-        sam += "PUSHOFF 2\n";
-        sam += "PUSHIMM 1\n";
-        sam += "ADD\n";
-        sam += "STOREOFF 2\n";
-
-        // Continue loop
-        sam += "JUMP " + startLoopLabel.name + "\n";
-
-        // Stop loop
-        sam += stopLoopLabel.name + ":\n";
-        sam += "PUSHOFF 4\n";
-        sam += "STOREOFF -2\n";
-        sam += "JUMP " + returnLabel.name + "\n";
-
-        // Invalid param, return empty string
-        sam += invalidParamLabel.name + ":\n";
-        sam += "PUSHIMMSTR \"\"";
-        sam += "STOREOFF -2\n";
-        sam += "JUMP " + returnLabel.name + "\n";
-
-        // Return func
-        sam += returnLabel.name + ":\n";
-        sam += "ADDSP -3\n";
-        sam += "RST\n";
-
-        // Exit method
-        sam += exitFuncLabel.name + ":\n";
-
-        return sam;
-    }
-
-    public static String getStringLength() {
-        // expects parameters already on the stack
-        Label startCountLabel = new Label();
-        Label stopCountLabel = new Label();
-        String sam = "";
-
-        sam += "DUP\n";
-
-        // START
-        sam += startCountLabel.name + ":\n";
-        sam += "DUP\n";
-        sam += "PUSHIND\n";
-
-        // check end of string
-        sam += "ISNIL\n";
-        sam += "JUMPC " + stopCountLabel.name + "\n";
-
-        // increament count and continue loop
-        sam += "PUSHIMM 1\n";
-        sam += "ADD\n";
-        sam += "JUMP " + startCountLabel.name + "\n";
-
-        // STOP
-        sam += stopCountLabel.name + ":\n";
-        sam += "SWAP\n";
-        sam += "SUB\n";
-
-        return sam;
-    }
-
-    public static String appendStringHeap() {
-        // expects parameters already on the stack, String on top, Mempry address
-        Label enterFuncLabel = new Label();
-        Label exitFuncLabel = new Label();
-        Label startLoopLabel = new Label();
-        Label stopLoopLabel = new Label();
-
-        String sam = "";
-
-        // call method
-        sam += "LINK\n";
-        sam += "JSR " + enterFuncLabel.name + "\n";
-        sam += "UNLINK\n";
-        sam += "ADDSP -2\n";
-        sam += "JUMP " + exitFuncLabel.name + "\n";
-
-        sam += enterFuncLabel.name + ":\n";
-        sam += "PUSHOFF -2\n";
-        sam += "PUSHOFF -1\n";
-
-        sam += startLoopLabel.name + ":\n";
-        // put char in TOS
-        // end loop if nil
-        sam += "PUSHOFF 3\n";
-        sam += "PUSHIND\n";
-        sam += "ISNIL\n";
-        sam += "JUMPC " + stopLoopLabel.name + "\n";
-
-        // Save to allocated memory
-        sam += "PUSHOFF 2\n";
-        sam += "PUSHOFF 3\n";
-        sam += "PUSHIND\n";
-        sam += "STOREIND\n";
-
-        // increase address current string
-        sam += "PUSHOFF 3\n";
-        sam += "PUSHIMM 1\n";
-        sam += "ADD\n";
-        sam += "STOREOFF 3\n";
-
-        // increase final address string
-        sam += "PUSHOFF 2\n";
-        sam += "PUSHIMM 1\n";
-        sam += "ADD\n";
-        sam += "STOREOFF 2\n";
-
-        sam += "JUMP " + startLoopLabel.name + "\n";
-
-        sam += stopLoopLabel.name + ":\n";
-        sam += "PUSHOFF 2\n";
-        sam += "PUSHIMMCH '\\0'" + "\n";
-        sam += "STOREIND\n";
-        sam += "PUSHOFF 2\n";
-        sam += "STOREOFF -3\n";
-        sam += "ADDSP -2\n";
-        sam += "RST\n";
-
-        // Exit method
-        sam += exitFuncLabel.name + ":\n";
-
-        return sam;
-    }
-
-    public static String concatString() {
-        // expects parameters (2 strings) already on the stack
-        Label enterFuncLabel = new Label();
-        Label exitFuncLabel = new Label();
-
-        String sam = "";
-
-        // call method
-        sam += "LINK\n";
-        sam += "JSR " + enterFuncLabel.name + "\n";
-        sam += "UNLINK\n";
-        sam += "ADDSP -1\n"; // free second param, only first param remain with new value
-        sam += "JUMP " + exitFuncLabel.name + "\n";
-
-        // method definition
-        sam += enterFuncLabel.name + ":\n";
-        sam += "PUSHIMM 0\n"; // local 2: increment address
-        sam += "PUSHIMM 0\n"; // local 3: return address
-
-        // allocate space for resulting string
-        sam += "PUSHOFF -1\n";
-        sam += getStringLength();
-        sam += "PUSHOFF -2\n";
-        sam += getStringLength();
-        sam += "ADD\n";
-        sam += "PUSHIMM 1\n";
-        sam += "ADD\n";
-        sam += "MALLOC\n";
-        sam += "STOREOFF 2\n";
-
-        // return this address
-        sam += "PUSHOFF 2\n";
-        sam += "STOREOFF 3\n";
-
-        // append first string to memory
-        sam += "PUSHIMM 0\n"; // will return next address
-        sam += "PUSHOFF 2\n"; // param1: starting memory address
-        sam += "PUSHOFF -2\n"; // param2: string
-        sam += appendStringHeap();
-        sam += "STOREOFF 2\n";
-
-        // append second string to memory
-        sam += "PUSHIMM 0\n";
-        sam += "PUSHOFF 2\n";
-        sam += "PUSHOFF -1\n";
-        sam += appendStringHeap();
-        sam += "STOREOFF 2\n";
-
-        // store in the first string pos
-        sam += "PUSHOFF 3\n";
-        sam += "STOREOFF -2\n";
-
-        // clean local vars
-        sam += "ADDSP -2\n";
-        // return
-        sam += "RST\n";
-
-        // Exit method
-        sam += exitFuncLabel.name + ":\n";
-
-        return sam;
-    }
-
-    public static String compareString(char op) throws CompilerException {
-        if (getBinopType(op) != BinopType.COMPARISON) {
-            throw new SyntaxErrorException(
-                "compareString receive invalid operation: " + op,
-                -1
-            );
-        }
-
-        // expects parameters (2 strings) already on the stack
-        Label enterFuncLabel = new Label();
-        Label exitFuncLabel = new Label();
-        Label startLoopLabel = new Label();
-        Label stopLoopLabel = new Label();
-
-        String sam = "";
-
-        // call method
-        sam += "LINK\n";
-        sam += "JSR " + enterFuncLabel.name + "\n";
-        sam += "UNLINK\n";
-        sam += "ADDSP -1\n"; // free second param, only first param remain with new value
-        sam += "JUMP " + exitFuncLabel.name + "\n";
-
-        // method definition
-        sam += enterFuncLabel.name + ":\n";
-        sam += "PUSHIMM 0\n"; // local 2: counter
-        sam += "PUSHIMM 0\n"; // local 3: result
-
-        // loop...
-        sam += startLoopLabel.name + ":\n";
-        // reach end of string 1?
-        sam += "PUSHOFF -2\n";
-        sam += "PUSHOFF 2\n";
-        sam += "ADD\n";
-        sam += "PUSHIND\n";
-        sam += "ISNIL\n";
-
-        // reach end of string 2?
-        sam += "PUSHOFF -1\n";
-        sam += "PUSHOFF 2\n";
-        sam += "ADD\n";
-        sam += "PUSHIND\n";
-        sam += "ISNIL\n";
-
-        // reach end of both string, is equal
-        sam += "AND\n";
-        sam += "JUMPC " + stopLoopLabel.name + "\n";
-
-        // not end, comparing char by char
-        // get char of string 1
-        sam += "PUSHOFF -2\n";
-        sam += "PUSHOFF 2\n";
-        sam += "ADD\n";
-        sam += "PUSHIND\n";
-
-        // get char of string 2
-        sam += "PUSHOFF -1\n";
-        sam += "PUSHOFF 2\n";
-        sam += "ADD\n";
-        sam += "PUSHIND\n";
-
-        // compare and store result
-        sam += "CMP\n";
-        sam += "STOREOFF 3\n";
-
-        // check if done
-        sam += "PUSHOFF 3\n";
-        sam += "JUMPC " + stopLoopLabel.name + "\n";
-
-        // not done, continue to next char
-        sam += "PUSHOFF 2\n";
-        sam += "PUSHIMM 1\n";
-        sam += "ADD\n";
-        sam += "STOREOFF 2\n";
-        sam += "JUMP " + startLoopLabel.name + "\n";
-
-        // Stop loop
-        sam += stopLoopLabel.name + ":\n";
-        sam += "PUSHOFF 3\n";
-        sam += "STOREOFF -2\n";
-        sam += "ADDSP -2\n";
-        sam += "RST\n";
-
-        // Exit method
-        sam += exitFuncLabel.name + ":\n";
-
-        if (op == '<') {
-            sam += "PUSHIMM 1\n";
-        } else if (op == '>') {
-            sam += "PUSHIMM -1\n";
-        } else {
-            sam += "PUSHIMM 0\n";
-        }
-        sam += "EQUAL\n";
-
-        return sam;
-    }
-
-    public static String reverseString() {
-        // expects parameter (1 string) already on the stack
-        Label enterFuncLabel = new Label();
-        Label exitFuncLabel = new Label();
-        Label startLoopLabel = new Label();
-        Label stopLoopLabel = new Label();
-
-        String sam = "";
-
-        // call method
-        sam += "LINK\n";
-        sam += "JSR " + enterFuncLabel.name + "\n";
-        sam += "UNLINK\n";
-        sam += "JUMP " + exitFuncLabel.name + "\n";
-
-        // method definition
-        sam += enterFuncLabel.name + ":\n";
-        sam += "PUSHIMM 0\n"; // local 2: counter
-        sam += "PUSHIMM 0\n"; // local 3: increment address
-        sam += "PUSHIMM 0\n"; // local 4: result
-
-        // get string length and store in local 2
-        sam += "PUSHOFF -1\n";
-        sam += getStringLength();
-        sam += "STOREOFF 2\n";
-
-        // allocate space for resulting string
-        sam += "PUSHOFF 2\n";
-        sam += "PUSHIMM 1\n";
-        sam += "ADD\n";
-        sam += "MALLOC\n";
-        sam += "STOREOFF 3\n";
-
-        // return this address
-        sam += "PUSHOFF 3\n";
-        sam += "STOREOFF 4\n";
-
-        // set EOS char first
-        sam += "PUSHOFF 3\n";
-        sam += "PUSHOFF 2\n";
-        sam += "ADD\n";
-        sam += "PUSHIMMCH '\\0'" + "\n";
-        sam += "STOREIND\n";
-
-        // loop (backward)...
-        sam += startLoopLabel.name + ":\n";
-
-        // end loop if counter == 0
-        sam += "PUSHOFF 2\n";
-        sam += "ISNIL\n";
-        sam += "JUMPC " + stopLoopLabel.name + "\n";
-
-        // get current address
-        sam += "PUSHOFF 3\n";
-
-        // get current char
-        sam += "PUSHOFF -1\n";
-        sam += "PUSHOFF 2\n";
-        sam += "ADD\n";
-        sam += "PUSHIMM 1\n"; // subtract 1 because indexing
-        sam += "SUB\n";
-        sam += "PUSHIND\n";
-
-        // store char in address
-        sam += "STOREIND\n";
-
-        // increment address
-        sam += "PUSHOFF 3\n";
-        sam += "PUSHIMM 1\n";
-        sam += "ADD\n";
-        sam += "STOREOFF 3\n";
-
-        // decrement counter
-        sam += "PUSHOFF 2\n";
-        sam += "PUSHIMM 1\n";
-        sam += "SUB\n";
-        sam += "STOREOFF 2\n";
-
-        // Continue loop
-        sam += "JUMP " + startLoopLabel.name + "\n";
-
-        // Stop loop
-        sam += stopLoopLabel.name + ":\n";
-        sam += "PUSHOFF 4\n";
-        sam += "STOREOFF -1\n";
-        sam += "ADDSP -3\n";
-        sam += "RST\n";
-
-        // Exit method
-        sam += exitFuncLabel.name + ":\n";
-
-        return sam;
     }
 }

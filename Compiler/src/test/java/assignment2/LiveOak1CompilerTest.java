@@ -50,14 +50,14 @@ class LiveOak1CompilerTest {
         "InvalidPrograms"
     ).toString();
 
-    private static final String lo3ValidProgramDir = Path.of(
+    private static final String lo3GoodExampleDir = Path.of(
         "src",
         "test",
         "resources",
         "LO-3",
         "ValidPrograms"
     ).toString();
-    private static final String lo3InvalidProgramDir = Path.of(
+    private static final String lo3BadExampleDir = Path.of(
         "src",
         "test",
         "resources",
@@ -88,11 +88,10 @@ class LiveOak1CompilerTest {
     @Test
     @DisplayName("Test_0")
     void testL01_0() throws Throwable {
-        String fileName = Path.of(lo3ValidProgramDir, "test_15.lo").toString();
+        String fileName = Path.of(lo3GoodExampleDir, "test_43.lo").toString();
         String program = LiveOak3Compiler.compiler(fileName);
-        System.out.println(program);
-        SamTestRunner.checkReturnValue(program, 10);
-
+        // System.out.println(program);
+        SamTestRunner.checkReturnedStringValue(program, "zYxzYx");
         // assertThrows(
         //     Error.class,
         //     () -> LiveOak3Compiler.compiler(fileName),
