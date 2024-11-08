@@ -24,6 +24,14 @@ public class VariableSymbol extends Symbol {
         this(null, name, type, 0, isParameter);
     }
 
+    public VariableSymbol(String name, Type type) {
+        this(null, name, type, 0, false);
+    }
+
+    public boolean isInstanceVariable() {
+        return (parent instanceof ClassSymbol);
+    }
+
     @Override
     public void addChild(Symbol child) {
         throw new UnsupportedOperationException(

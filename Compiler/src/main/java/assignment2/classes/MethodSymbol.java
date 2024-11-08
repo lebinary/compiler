@@ -85,11 +85,11 @@ public class MethodSymbol extends Symbol {
         this.statements.clear();
     }
 
-    // Params and Locals operations
-    public int getNextParamAddress() {
-        return -(1 + parameters.size());
+    public boolean isConstructor() {
+        return name.equals(parent.name);
     }
 
+    // Params and Locals operations
     public int getNextLocalAddress() {
         return 2 + localVariables.size();
     }
@@ -104,6 +104,14 @@ public class MethodSymbol extends Symbol {
 
     public int numParameters() {
         return parameters.size(); // dont count "this" as parameters
+    }
+
+    public VariableSymbol getThisSymbol() {
+        return parameters.get(0);
+    }
+
+    public int getThisAddress() {
+        return getThisSymbol().address;
     }
 
     // labels stack operations

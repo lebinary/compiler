@@ -16,6 +16,7 @@ public class Type {
 
     // Initialize built-in types
     static {
+        allTypes.add(VOID);
         allTypes.add(INT);
         allTypes.add(BOOL);
         allTypes.add(STRING);
@@ -54,9 +55,21 @@ public class Type {
     }
 
     public boolean isCompatibleWith(Type other) {
-        if (other == null) return false;
+        if (other == null || this == null) return false;
+
+        // Allow null to be assigned to String or custom classes
+        if (
+            (this == VOID && !other.isPrimitive()) ||
+            (other == VOID && !this.isPrimitive())
+        ) {
+            return true;
+        }
         // For now, types are only compatible if they're exactly the same
-        return this.typeName.equals(other.typeName);
+        return this == other;
+    }
+
+    public boolean isPrimitive() {
+        return this == INT || this == BOOL;
     }
 
     public boolean isClass() {

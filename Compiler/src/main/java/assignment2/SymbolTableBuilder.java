@@ -83,13 +83,15 @@ public class SymbolTableBuilder {
         // create ClassSymbol object
         ClassSymbol classSym = new ClassSymbol(className);
 
-        // ClassDecl -> class className ( Formals? ...
-        populateParams(f, classSym);
+        // Populate all the instance properties
+        while (f.peekAtKind() == TokenType.WORD) {
+            populateClassProperties(f, classSym);
+        }
 
-        // ClassDecl -> class className ( Formals? ) ...
+        // ClassDecl -> class className ( VarDecl? ) ...
         if (!CompilerUtils.check(f, ')')) {
             throw new SyntaxErrorException(
-                "get method expects ')' at end of get formals",
+                "populateClass expects ')' at end of get VarDecl",
                 f.lineNo()
             );
         }
@@ -119,6 +121,37 @@ public class SymbolTableBuilder {
         LiveOak3Compiler.globalSymbol.addChild(classSym);
     }
 
+    static String populateClassProperties(
+        SamTokenizer f,
+        ClassSymbol classSymbol
+    ) throws CompilerException {
+        String sam = "";
+
+        // VarDecl -> Type ...
+        Type propType = populateType(f);
+
+        // while varName = a | b | c | ...
+        while (f.peekAtKind() == TokenType.WORD) {
+            // VarDecl -> Type Identifier1, Identifier2
+            String propName = CodeGenerator.getIdentifier(f);
+            VariableSymbol propSymbol = new VariableSymbol(propName, propType);
+            classSymbol.addChild(propSymbol);
+
+            if (CompilerUtils.check(f, ',')) {
+                continue;
+            } else if (CompilerUtils.check(f, ';')) {
+                break;
+            } else {
+                throw new SyntaxErrorException(
+                    "Expected ',' or `;` after each variable declaration",
+                    f.lineNo()
+                );
+            }
+        }
+
+        return sam;
+    }
+
     static void populateMethod(SamTokenizer f, ClassSymbol classSymbol)
         throws CompilerException {
         // MethodDecl -> Type ...
@@ -128,7 +161,8 @@ public class SymbolTableBuilder {
         String methodName = CodeGenerator.getIdentifier(f);
 
         // Check if method is a constructor
-        boolean isVirual = methodName.equals(classSymbol.name) ? false : true;
+        boolean isConstructor = methodName.equals(classSymbol.name);
+        boolean isVirual = isConstructor ? false : true;
 
         // Check if the method is already defined
         if (classSymbol.lookupSymbol(methodName, MethodSymbol.class) != null) {
@@ -261,11 +295,7 @@ public class SymbolTableBuilder {
                 }
 
                 // save local variable as child of methodSymbol
-                VariableSymbol variable = new VariableSymbol(
-                    varName,
-                    varType,
-                    false
-                );
+                VariableSymbol variable = new VariableSymbol(varName, varType);
                 method.addChild(variable);
 
                 if (CompilerUtils.check(f, ',')) {

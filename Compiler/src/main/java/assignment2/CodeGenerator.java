@@ -197,12 +197,12 @@ public class CodeGenerator {
         }
 
         // Check if any return method
-        if (!method.hasStatement(Statement.RETURN)) {
-            throw new SyntaxErrorException(
-                "get method missing return statement",
-                f.lineNo()
-            );
-        }
+        // if (!method.hasStatement(Statement.RETURN)) {
+        //     throw new SyntaxErrorException(
+        //         "get method missing return statement",
+        //         f.lineNo()
+        //     );
+        // }
 
         return sam;
     }
@@ -244,7 +244,14 @@ public class CodeGenerator {
 
             sam += getStmt(f, method);
         }
-        if (endWithReturnStmt.get(endWithReturnStmt.size() - 1) != 1) {
+
+        // if method is constructor, always return the "this" object
+        if (method.isConstructor()) {
+            // push "this" on to stack for return
+            sam += "PUSHOFF " + method.getThisAddress() + "\n";
+        }
+        // else, check for return statement as usual
+        else if (endWithReturnStmt.get(endWithReturnStmt.size() - 1) != 1) {
             throw new SyntaxErrorException(
                 "get method missing return statement at the end",
                 f.lineNo()
@@ -547,7 +554,8 @@ public class CodeGenerator {
 
         Expression expr = getExpr(f, method);
         // Type check
-        if (!expr.type.isCompatibleWith(variable.type)) {
+        if (!variable.type.isCompatibleWith(expr.type)) {
+            System.out.println(expr.type);
             throw new TypeErrorException(
                 "getVarStmt type mismatch: " +
                 variable.type +
@@ -557,11 +565,17 @@ public class CodeGenerator {
             );
         }
 
-        // write sam code
-        sam += expr.samCode;
-
-        // Store item on the stack to Symbol
-        sam += "STOREOFF " + variable.address + "\n";
+        // Store item on the stack to VariableSymbol
+        if (variable.isInstanceVariable()) {
+            sam += "PUSHOFF " + method.getThisAddress() + "\n";
+            sam += "PUSHIMM " + variable.address + "\n";
+            sam += "ADD\n";
+            sam += expr.samCode;
+            sam += "STOREIND\n";
+        } else {
+            sam += expr.samCode;
+            sam += "STOREOFF " + variable.address + "\n";
+        }
 
         if (!CompilerUtils.check(f, ';')) {
             throw new SyntaxErrorException(
@@ -577,7 +591,7 @@ public class CodeGenerator {
         throws CompilerException {
         // Expr -> this
         if (CompilerUtils.check(f, "this")) {
-            VariableSymbol thisSymbol = method.parameters.get(0);
+            VariableSymbol thisSymbol = method.getThisSymbol();
             return new Expression(
                 "PUSHOFF " + thisSymbol.address + "\n",
                 thisSymbol.type
@@ -918,16 +932,11 @@ public class CodeGenerator {
         int paramCount = callingMethod.numParameters();
 
         // check if callingMethod is a constructor
-        ClassSymbol classSymbol = LiveOak3Compiler.globalSymbol.lookupSymbol(
-            callingMethod.name,
-            ClassSymbol.class
-        );
-
-        if (classSymbol != null) {
+        if (callingMethod.isConstructor()) {
             // instanciate class to pass in as "this" parameter
-            sam += initObject(classSymbol);
+            sam += initObject((ClassSymbol) callingMethod.parent);
         } else {
-            sam += "PUSHOFF " + callingMethod.parameters.get(0).address + "\n";
+            sam += "PUSHOFF " + callingMethod.getThisAddress() + "\n";
         }
 
         // start from 1, because "this" is the first param
@@ -1044,10 +1053,18 @@ public class CodeGenerator {
                 }
                 // Expr -> Var
                 else {
-                    return new Expression(
-                        "PUSHOFF " + varSymbol.address + "\n",
-                        varSymbol.type
-                    );
+                    String sam = "";
+
+                    if (varSymbol.isInstanceVariable()) {
+                        sam += "PUSHOFF " + method.getThisAddress() + "\n";
+                        sam += "PUSHIMM " + varSymbol.address + "\n";
+                        sam += "ADD\n";
+                        sam += "PUSHIND\n";
+                    } else {
+                        sam += "PUSHOFF " + varSymbol.address + "\n";
+                    }
+
+                    return new Expression(sam, varSymbol.type);
                 }
             default:
                 throw new TypeErrorException(

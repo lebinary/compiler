@@ -8,6 +8,7 @@ public class ClassSymbol extends Symbol {
 
     /*** Static propeties
      ***/
+    private static int OBJECT_OFFSET = 1; // object saved in heap is offset by to store vtable address
     private static int nextVTableAddress = 0;
 
     /*** Instance properties
@@ -31,7 +32,7 @@ public class ClassSymbol extends Symbol {
     // update class's vtable next address
     public void updateProperties(Symbol child) {
         if (child instanceof VariableSymbol) {
-            child.address = instanceVariables.size();
+            child.address = instanceVariables.size() + OBJECT_OFFSET;
             instanceVariables.add((VariableSymbol) child);
         } else if (child instanceof MethodSymbol) {
             // constuctor
