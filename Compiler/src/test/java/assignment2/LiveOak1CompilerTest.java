@@ -88,10 +88,10 @@ class LiveOak1CompilerTest {
     @Test
     @DisplayName("Test_0")
     void testL01_0() throws Throwable {
-        String fileName = Path.of(lo3GoodExampleDir, "test_43.lo").toString();
+        String fileName = Path.of(lo3GoodExampleDir, "test_45.lo").toString();
         String program = LiveOak3Compiler.compiler(fileName);
+        SamTestRunner.checkReturnValue(program, 296);
         // System.out.println(program);
-        SamTestRunner.checkReturnedStringValue(program, "zYxzYx");
         // assertThrows(
         //     Error.class,
         //     () -> LiveOak3Compiler.compiler(fileName),

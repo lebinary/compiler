@@ -757,15 +757,17 @@ public class CodeGenerator {
                 f.lineNo()
             );
         }
+        Label doneLabel = new Label();
+        Label handleDivideZero = new Label();
+
         char op = CompilerUtils.getOp(f);
         String prevSam = "";
 
-        // Optimisation, if op is an OR operator and prevExpr is truthy, early return
-        Label skipLabel = new Label();
+        // Optimisation: if op is an OR operator and prevExpr is truthy, early return
         if (op == '|' && prevExpr.type == Type.BOOL) {
             prevSam += "ISPOS\n";
             prevSam += "DUP\n";
-            prevSam += "JUMPC " + skipLabel.name + "\n";
+            prevSam += "JUMPC " + doneLabel.name + "\n";
         }
 
         Expression expr = getExpr(f, method);
@@ -829,6 +831,13 @@ public class CodeGenerator {
                 );
             }
 
+            // Handle divide by zero
+            if (op == '/' && expr.type == Type.INT) {
+                expr.samCode += "DUP\n";
+                expr.samCode += "ISNIL\n";
+                expr.samCode += "JUMPC " + handleDivideZero.name + "\n";
+            }
+
             // basic binop sam code
             expr.samCode += Helpers.getBinop(op);
         }
@@ -838,7 +847,13 @@ public class CodeGenerator {
             expr.type = Type.BOOL;
         }
 
-        expr.samCode += skipLabel.name + ":\n";
+        expr.samCode += "JUMP " + doneLabel.name + "\n";
+
+        expr.samCode += handleDivideZero.name + ":\n";
+        expr.samCode += "SWAP\n";
+        expr.samCode += "DIV\n";
+
+        expr.samCode += doneLabel.name + ":\n";
 
         return expr;
     }
