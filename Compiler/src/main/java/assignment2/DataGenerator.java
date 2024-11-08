@@ -47,7 +47,7 @@ public class DataGenerator {
             sam += "DUP\n";
             sam += "PUSHIMM " + method.address + "\n";
             sam += "ADD\n";
-            sam += "PUSHIMMPA " + method.name + "\n";
+            sam += "PUSHIMMPA " + method.getLabelName() + "\n";
             sam += "STOREIND\n";
         }
 

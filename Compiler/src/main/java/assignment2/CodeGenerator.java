@@ -46,7 +46,7 @@ public class CodeGenerator {
 
         // run main method
         sam += "LINK\n";
-        sam += "JSR main\n";
+        sam += "JSR " + mainMethod.getLabelName() + "\n";
         sam += "UNLINK\n";
         sam += "ADDSP -" + mainMethod.numParameters() + "\n";
         sam += DataGenerator.freeStaticData();
@@ -148,7 +148,7 @@ public class CodeGenerator {
         }
 
         // Valid method, start generating...
-        sam += methodName + ":\n";
+        sam += method.getLabelName() + ":\n";
 
         // MethodDecl -> Type MethodName (...
         if (!CompilerUtils.check(f, '(')) {
@@ -913,7 +913,7 @@ public class CodeGenerator {
 
         sam += getActuals(f, scopeMethod, callingVariable, callingMethod);
         sam += "LINK\n";
-        sam += "JSR " + callingMethod.name + "\n";
+        sam += "JSR " + callingMethod.getLabelName() + "\n";
         sam += "UNLINK\n";
         sam += "ADDSP -" + callingMethod.numParameters() + "\n";
 

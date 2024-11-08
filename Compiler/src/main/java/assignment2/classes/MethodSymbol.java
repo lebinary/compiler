@@ -13,6 +13,8 @@ public class MethodSymbol extends Symbol {
     public List<VariableSymbol> localVariables;
     public Type returnType;
     public boolean isVirtual;
+    public Label label;
+
     private Deque<Label> labels;
     private Deque<Statement> statements;
 
@@ -30,6 +32,7 @@ public class MethodSymbol extends Symbol {
         this.labels = new ArrayDeque<>();
         this.statements = new ArrayDeque<>();
         this.isVirtual = isVirtual;
+        this.label = new Label();
     }
 
     // Constructor with default values
@@ -87,6 +90,10 @@ public class MethodSymbol extends Symbol {
 
     public boolean isConstructor() {
         return name.equals(parent.name);
+    }
+
+    public String getLabelName() {
+        return label.name;
     }
 
     // Params and Locals operations
