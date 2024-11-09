@@ -420,6 +420,21 @@ public class CodeGenerator {
         return sam.toString();
     }
 
+    protected static String getIdentifier(SamTokenizer f)
+        throws CompilerException {
+        return Helper.getIdentifier(f);
+    }
+
+    protected static Expression getExpr(SamTokenizer f, MethodSymbol method)
+        throws CompilerException {
+        return ExpressionCodeGenerator.getExpr(f, method);
+    }
+
+    protected static String getStmt(SamTokenizer f, MethodSymbol method)
+        throws CompilerException {
+        return StatementCodeGenerator.getStmt(f, method);
+    }
+
     /*** HELPERS
      ***/
     protected static String initObject(ClassSymbol classSymbol) {
@@ -435,20 +450,5 @@ public class CodeGenerator {
             .append(Backend.storeIndirect());
 
         return sam.toString();
-    }
-
-    protected static String getIdentifier(SamTokenizer f)
-        throws CompilerException {
-        return Helper.getIdentifier(f);
-    }
-
-    protected static Expression getExpr(SamTokenizer f, MethodSymbol method)
-        throws CompilerException {
-        return ExpressionCodeGenerator.getExpr(f, method);
-    }
-
-    protected static String getStmt(SamTokenizer f, MethodSymbol method)
-        throws CompilerException {
-        return StatementCodeGenerator.getStmt(f, method);
     }
 }
