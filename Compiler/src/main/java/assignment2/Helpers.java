@@ -4,7 +4,6 @@ import assignment2.errors.CompilerException;
 import assignment2.errors.SyntaxErrorException;
 import assignment2.errors.TypeErrorException;
 import edu.utexas.cs.sam.io.SamTokenizer;
-import edu.utexas.cs.sam.io.Tokenizer;
 import edu.utexas.cs.sam.io.Tokenizer.TokenType;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,7 +58,7 @@ public class Helpers {
     );
 
     static String getIdentifier(SamTokenizer f) throws CompilerException {
-        String identifier = LiveOak3Compiler.getWord(f);
+        String identifier = Tokenizer.getWord(f);
         if (!IDENTIFIER_PATTERN.matcher(identifier).matches()) {
             throw new SyntaxErrorException(
                 "Invalid identifier: " + identifier,

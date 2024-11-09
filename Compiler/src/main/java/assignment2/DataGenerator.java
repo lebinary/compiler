@@ -4,7 +4,6 @@ import assignment2.errors.CompilerException;
 import assignment2.errors.SyntaxErrorException;
 import assignment2.errors.TypeErrorException;
 import edu.utexas.cs.sam.io.SamTokenizer;
-import edu.utexas.cs.sam.io.Tokenizer;
 import edu.utexas.cs.sam.io.Tokenizer.TokenType;
 import java.util.ArrayList;
 import java.util.HashMap;

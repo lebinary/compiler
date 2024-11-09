@@ -3,7 +3,6 @@ package assignment2;
 import assignment2.errors.CompilerException;
 import assignment2.errors.SyntaxErrorException;
 import edu.utexas.cs.sam.io.SamTokenizer;
-import edu.utexas.cs.sam.io.Tokenizer;
 import edu.utexas.cs.sam.io.Tokenizer.TokenType;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -67,7 +66,7 @@ public class SymbolTableBuilder {
     static void populateClass(SamTokenizer f, ClassSymbol symbolTable)
         throws CompilerException {
         // ClassDecl -> class...
-        if (!LiveOak3Compiler.check(f, "class")) {
+        if (!Tokenizer.check(f, "class")) {
             throw new SyntaxErrorException(
                 "populateClass expects 'class' at the start",
                 f.lineNo()
@@ -86,7 +85,7 @@ public class SymbolTableBuilder {
         }
 
         // ClassDecl -> class ClassName (...
-        if (!LiveOak3Compiler.check(f, '(')) {
+        if (!Tokenizer.check(f, '(')) {
             throw new SyntaxErrorException(
                 "populateClass expects '(' at start of get formals",
                 f.lineNo()
@@ -102,7 +101,7 @@ public class SymbolTableBuilder {
         }
 
         // ClassDecl -> class className ( VarDecl? ) ...
-        if (!LiveOak3Compiler.check(f, ')')) {
+        if (!Tokenizer.check(f, ')')) {
             throw new SyntaxErrorException(
                 "populateClass expects ')' at end of get VarDecl",
                 f.lineNo()
@@ -110,7 +109,7 @@ public class SymbolTableBuilder {
         }
 
         // ClassDecl -> class ClassName ( Formals? ) {...
-        if (!LiveOak3Compiler.check(f, '{')) {
+        if (!Tokenizer.check(f, '{')) {
             throw new SyntaxErrorException(
                 "populateClass expects '{' at start of get class body",
                 f.lineNo()
@@ -123,7 +122,7 @@ public class SymbolTableBuilder {
         }
 
         // ClassDecl -> class ClassName ( Formals? ) { MethodDecl...}
-        if (!LiveOak3Compiler.check(f, '}')) {
+        if (!Tokenizer.check(f, '}')) {
             throw new SyntaxErrorException(
                 "populateClass expects '}' at end of get class body",
                 f.lineNo()
@@ -150,9 +149,9 @@ public class SymbolTableBuilder {
             VariableSymbol propSymbol = new VariableSymbol(propName, propType);
             classSymbol.addChild(propSymbol);
 
-            if (LiveOak3Compiler.check(f, ',')) {
+            if (Tokenizer.check(f, ',')) {
                 continue;
-            } else if (LiveOak3Compiler.check(f, ';')) {
+            } else if (Tokenizer.check(f, ';')) {
                 break;
             } else {
                 throw new SyntaxErrorException(
@@ -186,7 +185,7 @@ public class SymbolTableBuilder {
         }
 
         // MethodDecl -> Type MethodName (...
-        if (!LiveOak3Compiler.check(f, '(')) {
+        if (!Tokenizer.check(f, '(')) {
             throw new SyntaxErrorException(
                 "populateMethod expects '(' at start of get formals",
                 f.lineNo()
@@ -212,7 +211,7 @@ public class SymbolTableBuilder {
         populateParams(f, method);
 
         // MethodDecl -> Type MethodName ( Formals? ) ...
-        if (!LiveOak3Compiler.check(f, ')')) {
+        if (!Tokenizer.check(f, ')')) {
             throw new SyntaxErrorException(
                 "get method expects ')' at end of get formals",
                 f.lineNo()
@@ -223,7 +222,7 @@ public class SymbolTableBuilder {
         classSymbol.addChild(method);
 
         // MethodDecl -> Type MethodName ( Formals? ) { ...
-        if (!LiveOak3Compiler.check(f, '{')) {
+        if (!Tokenizer.check(f, '{')) {
             throw new SyntaxErrorException(
                 "populateMethod expects '{' at start of body",
                 f.lineNo()
@@ -234,7 +233,7 @@ public class SymbolTableBuilder {
         populateLocals(f, method);
 
         // MethodDecl -> Type MethodName ( Formals? ) { Body }
-        if (!LiveOak3Compiler.check(f, '}')) {
+        if (!Tokenizer.check(f, '}')) {
             throw new SyntaxErrorException(
                 "populateMethod expects '}' at end of body",
                 f.lineNo()
@@ -244,7 +243,7 @@ public class SymbolTableBuilder {
 
     static Type populateType(SamTokenizer f) throws CompilerException {
         // typeString = "int" | "bool" | "String"
-        String typeString = LiveOak3Compiler.getWord(f);
+        String typeString = Tokenizer.getWord(f);
         Type type = Type.createClassType(typeString);
 
         return type;
@@ -277,7 +276,7 @@ public class SymbolTableBuilder {
             );
             symbol.addChild(paramSymbol);
 
-            if (!LiveOak3Compiler.check(f, ',')) {
+            if (!Tokenizer.check(f, ',')) {
                 break;
             }
         }
@@ -311,9 +310,9 @@ public class SymbolTableBuilder {
                 VariableSymbol variable = new VariableSymbol(varName, varType);
                 method.addChild(variable);
 
-                if (LiveOak3Compiler.check(f, ',')) {
+                if (Tokenizer.check(f, ',')) {
                     continue;
-                } else if (LiveOak3Compiler.check(f, ';')) {
+                } else if (Tokenizer.check(f, ';')) {
                     break;
                 } else {
                     throw new SyntaxErrorException(
@@ -332,7 +331,7 @@ public class SymbolTableBuilder {
         // Skip the entire block in first pass
         Deque<Character> stack = new ArrayDeque<>();
 
-        if (!LiveOak3Compiler.check(f, '{')) {
+        if (!Tokenizer.check(f, '{')) {
             throw new SyntaxErrorException(
                 "skipBlock expects '{' at start of block",
                 f.lineNo()
@@ -341,12 +340,12 @@ public class SymbolTableBuilder {
         stack.push('{');
 
         while (stack.size() > 0 && f.peekAtKind() != TokenType.EOF) {
-            if (LiveOak3Compiler.check(f, '{')) {
+            if (Tokenizer.check(f, '{')) {
                 stack.push('{');
-            } else if (LiveOak3Compiler.check(f, '}')) {
+            } else if (Tokenizer.check(f, '}')) {
                 stack.pop();
             } else {
-                LiveOak3Compiler.skipToken(f);
+                Tokenizer.skipToken(f);
             }
         }
         if (stack.size() > 0) {
