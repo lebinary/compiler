@@ -59,7 +59,7 @@ public class Helpers {
     );
 
     static String getIdentifier(SamTokenizer f) throws CompilerException {
-        String identifier = CompilerUtils.getWord(f);
+        String identifier = LiveOak3Compiler.getWord(f);
         if (!IDENTIFIER_PATTERN.matcher(identifier).matches()) {
             throw new SyntaxErrorException(
                 "Invalid identifier: " + identifier,

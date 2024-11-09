@@ -15,42 +15,51 @@ import java.util.regex.Pattern;
 
 public class DataGenerator {
 
-    static String generateStaticData() throws CompilerException {
-        String sam = "vtables:\n";
+    static String generateStaticData(ClassSymbol symbolTable)
+        throws CompilerException {
+        StringBuilder sam = new StringBuilder("vtables:\n");
 
-        for (Symbol child : LiveOak3Compiler.globalSymbol.children) {
-            sam += generateVTable((ClassSymbol) child);
+        for (Symbol child : symbolTable.children) {
+            sam.append(generateVTable((ClassSymbol) child));
         }
 
-        return sam;
+        return sam.toString();
     }
 
-    static String freeStaticData() throws CompilerException {
+    static String freeStaticData(ClassSymbol symbolTable)
+        throws CompilerException {
         // Note: you should have only main's return value on top of the stack before running this
-        String sam = "";
+        StringBuilder sam = new StringBuilder();
 
-        for (Symbol child : LiveOak3Compiler.globalSymbol.children) {
-            sam += "SWAP\n";
-            sam += "FREE\n";
+        for (Symbol child : symbolTable.children) {
+            sam.append("SWAP\n").append("FREE\n");
         }
 
-        return sam;
+        return sam.toString();
     }
 
     static String generateVTable(ClassSymbol classSymbol)
         throws CompilerException {
-        String sam = "";
-        sam += "PUSHIMM " + classSymbol.virtualMethods.size() + "\n";
-        sam += "MALLOC\n";
+        StringBuilder sam = new StringBuilder();
+        sam
+            .append("PUSHIMM ")
+            .append(classSymbol.virtualMethods.size())
+            .append("\n")
+            .append("MALLOC\n");
 
         for (MethodSymbol method : classSymbol.virtualMethods) {
-            sam += "DUP\n";
-            sam += "PUSHIMM " + method.address + "\n";
-            sam += "ADD\n";
-            sam += "PUSHIMMPA " + method.getLabelName() + "\n";
-            sam += "STOREIND\n";
+            sam
+                .append("DUP\n")
+                .append("PUSHIMM ")
+                .append(method.address)
+                .append("\n")
+                .append("ADD\n")
+                .append("PUSHIMMPA ")
+                .append(method.getLabelName())
+                .append("\n")
+                .append("STOREIND\n");
         }
 
-        return sam;
+        return sam.toString();
     }
 }

@@ -13,28 +13,33 @@ import java.util.Map;
 
 public class CodeGenerator {
 
+    private static ClassSymbol symbolTable = null;
+
     // Main program generation
-    public static String getProgram(SamTokenizer f) throws CompilerException {
+    public static String getProgram(SamTokenizer f, ClassSymbol symbolTable)
+        throws CompilerException {
+        // set symbol table
+        CodeGenerator.symbolTable = symbolTable;
+
         StringBuilder sam = new StringBuilder();
 
         /*** DATA SEGMENT: only vtables for now
          ***/
-        sam.append(DataGenerator.generateStaticData());
+        sam.append(DataGenerator.generateStaticData(symbolTable));
 
         /*** CODE SEGMENT: get main program
          ***/
-        sam.append(getMainProgram(f, LiveOak3Compiler.globalSymbol));
+        sam.append(getMainProgram(f));
 
         // Process class declarations
         while (f.peekAtKind() != TokenType.EOF) {
-            sam.append(getClassDecl(f, LiveOak3Compiler.globalSymbol));
+            sam.append(getClassDecl(f));
         }
 
         return sam.toString();
     }
 
-    static String getMainProgram(SamTokenizer f, ClassSymbol symbolTable)
-        throws CompilerException {
+    static String getMainProgram(SamTokenizer f) throws CompilerException {
         // Get main class and main method from symbol table
         ClassSymbol mainClass = symbolTable.lookupSymbol(
             "Main",
@@ -69,19 +74,18 @@ public class CodeGenerator {
         sam.append("JSR ").append(mainMethod.getLabelName()).append("\n");
         sam.append("UNLINK\n");
         sam.append("ADDSP -").append(mainMethod.numParameters()).append("\n");
-        sam.append(DataGenerator.freeStaticData());
+        sam.append(DataGenerator.freeStaticData(symbolTable));
         sam.append("STOP\n");
 
         return sam.toString();
     }
 
-    static String getClassDecl(SamTokenizer f, ClassSymbol symbolTable)
-        throws CompilerException {
+    static String getClassDecl(SamTokenizer f) throws CompilerException {
         // Generate sam code
         StringBuilder sam = new StringBuilder();
 
         // ClassDecl -> class...
-        if (!CompilerUtils.check(f, "class")) {
+        if (!LiveOak3Compiler.check(f, "class")) {
             throw new SyntaxErrorException(
                 "populateClass expects 'class' at the start",
                 f.lineNo()
@@ -112,19 +116,19 @@ public class CodeGenerator {
         }
 
         // ClassDecl -> class ClassName (...
-        if (!CompilerUtils.check(f, '(')) {
+        if (!LiveOak3Compiler.check(f, '(')) {
             throw new SyntaxErrorException(
                 "populateClass expects '(' at start of get formals",
                 f.lineNo()
             );
         }
         // ClassDecl -> class className ( Formals? ) ...
-        while (!CompilerUtils.check(f, ')')) {
-            CompilerUtils.skipToken(f);
+        while (!LiveOak3Compiler.check(f, ')')) {
+            LiveOak3Compiler.skipToken(f);
         }
 
         // ClassDecl -> class ClassName ( Formals? ) {...
-        if (!CompilerUtils.check(f, '{')) {
+        if (!LiveOak3Compiler.check(f, '{')) {
             throw new SyntaxErrorException(
                 "populateClass expects '{' at start of get class body",
                 f.lineNo()
@@ -137,7 +141,7 @@ public class CodeGenerator {
         }
 
         // ClassDecl -> class ClassName ( Formals? ) { MethodDecl...}
-        if (!CompilerUtils.check(f, '}')) {
+        if (!LiveOak3Compiler.check(f, '}')) {
             throw new SyntaxErrorException(
                 "populateClass expects '}' at end of get class body",
                 f.lineNo()
@@ -176,7 +180,7 @@ public class CodeGenerator {
         sam.append(method.getLabelName()).append(":\n");
 
         // MethodDecl -> Type MethodName (...
-        if (!CompilerUtils.check(f, '(')) {
+        if (!LiveOak3Compiler.check(f, '(')) {
             throw new SyntaxErrorException(
                 "get method expects '(' at start of get formals",
                 f.lineNo()
@@ -191,11 +195,11 @@ public class CodeGenerator {
             // Formals -> Type Identifier
             String formalName = Helpers.getIdentifier(f);
 
-            if (!CompilerUtils.check(f, ',')) {
+            if (!LiveOak3Compiler.check(f, ',')) {
                 break;
             }
         }
-        if (!CompilerUtils.check(f, ')')) {
+        if (!LiveOak3Compiler.check(f, ')')) {
             throw new SyntaxErrorException(
                 "get method expects ')' at end of get formals",
                 f.lineNo()
@@ -203,7 +207,7 @@ public class CodeGenerator {
         }
 
         // MethodDecl -> Type MethodName ( Formals? ) { ...
-        if (!CompilerUtils.check(f, '{')) {
+        if (!LiveOak3Compiler.check(f, '{')) {
             throw new SyntaxErrorException(
                 "get method expects '{' at start of body",
                 f.lineNo()
@@ -214,7 +218,7 @@ public class CodeGenerator {
         sam.append(getBody(f, method));
 
         // MethodDecl -> Type MethodName ( Formals? ) { Body }
-        if (!CompilerUtils.check(f, '}')) {
+        if (!LiveOak3Compiler.check(f, '}')) {
             throw new SyntaxErrorException(
                 "get method expects '}' at end of body",
                 f.lineNo()
@@ -245,14 +249,14 @@ public class CodeGenerator {
         method.pushLabel(returnLabel);
 
         // Then, get Block
-        if (!CompilerUtils.check(f, '{')) {
+        if (!LiveOak3Compiler.check(f, '{')) {
             throw new SyntaxErrorException(
                 "getBlock expects '{' at start of block",
                 f.lineNo()
             );
         }
         List<Integer> endWithReturnStmt = new ArrayList<>();
-        while (!CompilerUtils.check(f, '}')) {
+        while (!LiveOak3Compiler.check(f, '}')) {
             if (f.test("return")) {
                 endWithReturnStmt.add(1);
             } else {
@@ -309,9 +313,9 @@ public class CodeGenerator {
             // write sam code
             sam.append("PUSHIMM 0\n");
 
-            if (CompilerUtils.check(f, ',')) {
+            if (LiveOak3Compiler.check(f, ',')) {
                 continue;
-            } else if (CompilerUtils.check(f, ';')) {
+            } else if (LiveOak3Compiler.check(f, ';')) {
                 break;
             } else {
                 throw new SyntaxErrorException(
@@ -328,14 +332,14 @@ public class CodeGenerator {
         throws CompilerException {
         StringBuilder sam = new StringBuilder();
 
-        if (!CompilerUtils.check(f, '{')) {
+        if (!LiveOak3Compiler.check(f, '{')) {
             throw new SyntaxErrorException(
                 "getBlock expects '{' at start of block",
                 f.lineNo()
             );
         }
 
-        while (!CompilerUtils.check(f, '}')) {
+        while (!LiveOak3Compiler.check(f, '}')) {
             sam.append(getStmt(f, method));
         }
 
@@ -347,7 +351,7 @@ public class CodeGenerator {
         StringBuilder sam = new StringBuilder();
 
         // Stmt -> ;
-        if (CompilerUtils.check(f, ';')) {
+        if (LiveOak3Compiler.check(f, ';')) {
             return sam.toString(); // Null statement
         }
 
@@ -390,7 +394,7 @@ public class CodeGenerator {
 
     static String getBreakStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
-        if (!CompilerUtils.check(f, "break")) {
+        if (!LiveOak3Compiler.check(f, "break")) {
             throw new SyntaxErrorException(
                 "break statement expects 'break'",
                 f.lineNo()
@@ -405,7 +409,7 @@ public class CodeGenerator {
             );
         }
 
-        if (!CompilerUtils.check(f, ';')) {
+        if (!LiveOak3Compiler.check(f, ';')) {
             throw new SyntaxErrorException(
                 "getBreakStmt expects ';' at end of statement",
                 f.lineNo()
@@ -421,7 +425,7 @@ public class CodeGenerator {
 
     static String getReturnStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
-        if (!CompilerUtils.check(f, "return")) {
+        if (!LiveOak3Compiler.check(f, "return")) {
             throw new SyntaxErrorException(
                 "getReturnStmt expects 'return' at beginining",
                 f.lineNo()
@@ -454,7 +458,7 @@ public class CodeGenerator {
         }
         sam.append("JUMP ").append(returnLabel.name).append("\n");
 
-        if (!CompilerUtils.check(f, ';')) {
+        if (!LiveOak3Compiler.check(f, ';')) {
             throw new SyntaxErrorException(
                 "getReturnStmt expects ';' at end of statement",
                 f.lineNo()
@@ -465,7 +469,7 @@ public class CodeGenerator {
 
     static String getIfStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
-        if (!CompilerUtils.check(f, "if")) {
+        if (!LiveOak3Compiler.check(f, "if")) {
             throw new SyntaxErrorException(
                 "if statement expects 'if' at beginining",
                 f.lineNo()
@@ -480,7 +484,7 @@ public class CodeGenerator {
         Label false_block = new Label();
 
         // if ( Expr ) ...
-        if (!CompilerUtils.check(f, '(')) {
+        if (!LiveOak3Compiler.check(f, '(')) {
             throw new SyntaxErrorException(
                 "if statement expects '(' at beginining of condition",
                 f.lineNo()
@@ -489,7 +493,7 @@ public class CodeGenerator {
 
         sam.append(getExpr(f, method).samCode);
 
-        if (!CompilerUtils.check(f, ')')) {
+        if (!LiveOak3Compiler.check(f, ')')) {
             throw new SyntaxErrorException(
                 "if statement expects ')' at end of condition",
                 f.lineNo()
@@ -510,7 +514,7 @@ public class CodeGenerator {
             .append("\n");
 
         // Checks 'else'
-        if (!CompilerUtils.getWord(f).equals("else")) {
+        if (!LiveOak3Compiler.getWord(f).equals("else")) {
             throw new SyntaxErrorException(
                 "if statement expects 'else' between expressions",
                 f.lineNo()
@@ -528,7 +532,7 @@ public class CodeGenerator {
 
     static String getWhileStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
-        if (!CompilerUtils.check(f, "while")) {
+        if (!LiveOak3Compiler.check(f, "while")) {
             throw new SyntaxErrorException(
                 "while statement expects 'while' at beginining",
                 f.lineNo()
@@ -546,7 +550,7 @@ public class CodeGenerator {
         method.pushLabel(stop_loop);
 
         // while ( Expr ) ...
-        if (!CompilerUtils.check(f, '(')) {
+        if (!LiveOak3Compiler.check(f, '(')) {
             throw new SyntaxErrorException(
                 "while statement expects '(' at beginining of condition",
                 f.lineNo()
@@ -558,7 +562,7 @@ public class CodeGenerator {
             .append(":\n")
             .append(getExpr(f, method).samCode);
 
-        if (!CompilerUtils.check(f, ')')) {
+        if (!LiveOak3Compiler.check(f, ')')) {
             throw new SyntaxErrorException(
                 "while statement expects ')' at end of condition",
                 f.lineNo()
@@ -592,7 +596,7 @@ public class CodeGenerator {
         StringBuilder sam = new StringBuilder();
         VariableSymbol variable = getVar(f, method);
 
-        if (!CompilerUtils.check(f, '=')) {
+        if (!LiveOak3Compiler.check(f, '=')) {
             throw new SyntaxErrorException(
                 "getStmt expects '=' after variable",
                 f.lineNo()
@@ -632,7 +636,7 @@ public class CodeGenerator {
                 .append("\n");
         }
 
-        if (!CompilerUtils.check(f, ';')) {
+        if (!LiveOak3Compiler.check(f, ';')) {
             throw new SyntaxErrorException(
                 "getStmt expects ';' at end of statement",
                 f.lineNo()
@@ -645,7 +649,7 @@ public class CodeGenerator {
     static Expression getExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // Expr -> this
-        if (CompilerUtils.check(f, "this")) {
+        if (LiveOak3Compiler.check(f, "this")) {
             VariableSymbol thisSymbol = method.getThisSymbol();
             return new Expression(
                 new StringBuilder()
@@ -658,7 +662,7 @@ public class CodeGenerator {
         }
 
         // Expr -> null
-        if (CompilerUtils.check(f, "null")) {
+        if (LiveOak3Compiler.check(f, "null")) {
             return new Expression("PUSHIMM 0\n", Type.VOID);
         }
 
@@ -667,7 +671,7 @@ public class CodeGenerator {
             return getConstructorExpr(f, method);
         }
 
-        if (CompilerUtils.check(f, '(')) {
+        if (LiveOak3Compiler.check(f, '(')) {
             Expression expr = null;
             // Expr -> ( Unop Expr )
             if (f.test('~') || f.test('!')) {
@@ -685,12 +689,12 @@ public class CodeGenerator {
                 }
 
                 // Expr -> ( Expr ) , ends early
-                if (CompilerUtils.check(f, ')')) {
+                if (LiveOak3Compiler.check(f, ')')) {
                     return expr;
                 }
 
                 // Exprt -> (Expr ? Expr : Expr)
-                if (CompilerUtils.check(f, '?')) {
+                if (LiveOak3Compiler.check(f, '?')) {
                     Expression ternaryExpr = getTernaryExpr(f, method);
                     expr.samCode = new StringBuilder(expr.samCode)
                         .append(ternaryExpr.samCode)
@@ -708,7 +712,7 @@ public class CodeGenerator {
             }
 
             // Check closing ')'
-            if (!CompilerUtils.check(f, ')')) {
+            if (!LiveOak3Compiler.check(f, ')')) {
                 throw new SyntaxErrorException(
                     "getExpr expects ')' at end of Expr -> ( Expr (...) )",
                     f.lineNo()
@@ -725,7 +729,7 @@ public class CodeGenerator {
 
     static Expression getConstructorExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
-        if (!CompilerUtils.check(f, "new")) {
+        if (!LiveOak3Compiler.check(f, "new")) {
             throw new SyntaxErrorException(
                 "getInstance expects 'new' at the beginning",
                 f.lineNo()
@@ -733,7 +737,7 @@ public class CodeGenerator {
         }
 
         String className = Helpers.getIdentifier(f);
-        ClassSymbol classSymbol = LiveOak3Compiler.globalSymbol.lookupSymbol(
+        ClassSymbol classSymbol = symbolTable.lookupSymbol(
             className,
             ClassSymbol.class
         );
@@ -751,14 +755,14 @@ public class CodeGenerator {
             // No constructor was declared for this Class, instantiate it anyway
             String sam = Helpers.initObject(classSymbol);
 
-            if (!CompilerUtils.check(f, '(')) {
+            if (!LiveOak3Compiler.check(f, '(')) {
                 throw new SyntaxErrorException(
                     "getMethodCallExpr expects '(' at the start of actuals",
                     f.lineNo()
                 );
             }
-            while (!CompilerUtils.check(f, ')')) {
-                CompilerUtils.skipToken(f);
+            while (!LiveOak3Compiler.check(f, ')')) {
+                LiveOak3Compiler.skipToken(f);
             }
 
             return new Expression(sam, Type.getType(classSymbol.name));
@@ -776,7 +780,7 @@ public class CodeGenerator {
                 f.lineNo()
             );
         }
-        char op = CompilerUtils.getOp(f);
+        char op = LiveOak3Compiler.getOp(f);
 
         // getExpr() would return "exactly" one value on the stack
         Expression expr = getExpr(f, method);
@@ -826,7 +830,7 @@ public class CodeGenerator {
         Label doneLabel = new Label();
         Label handleDivideZero = new Label();
 
-        char op = CompilerUtils.getOp(f);
+        char op = LiveOak3Compiler.getOp(f);
         StringBuilder prevSam = new StringBuilder();
 
         // Optimisation: if op is an OR operator and prevExpr is truthy, early return
@@ -969,7 +973,7 @@ public class CodeGenerator {
             .append("\n");
 
         // Checks ':'
-        if (!CompilerUtils.check(f, ':')) {
+        if (!LiveOak3Compiler.check(f, ':')) {
             throw new SyntaxErrorException(
                 "Ternary expects ':' between expressions",
                 f.lineNo()
@@ -1010,7 +1014,7 @@ public class CodeGenerator {
     ) throws CompilerException {
         StringBuilder sam = new StringBuilder().append("PUSHIMM 0\n"); // return value
 
-        if (!CompilerUtils.check(f, '(')) {
+        if (!LiveOak3Compiler.check(f, '(')) {
             throw new SyntaxErrorException(
                 "getMethodCallExpr expects '(' at the start of actuals",
                 f.lineNo()
@@ -1028,7 +1032,7 @@ public class CodeGenerator {
             .append(callingMethod.numParameters())
             .append("\n");
 
-        if (!CompilerUtils.check(f, ')')) {
+        if (!LiveOak3Compiler.check(f, ')')) {
             throw new SyntaxErrorException(
                 "getMethodCallExpr expects ')' at the end of actuals",
                 f.lineNo()
@@ -1119,7 +1123,7 @@ public class CodeGenerator {
             sam.append(expr.samCode);
 
             argCount++;
-        } while (CompilerUtils.check(f, ','));
+        } while (LiveOak3Compiler.check(f, ','));
 
         // too few actuals provided
         if (argCount < paramCount) {
@@ -1145,7 +1149,7 @@ public class CodeGenerator {
         switch (type) {
             // Expr -> Literal -> Num
             case INTEGER:
-                int value = CompilerUtils.getInt(f);
+                int value = LiveOak3Compiler.getInt(f);
                 return new Expression(
                     new StringBuilder()
                         .append("PUSHIMM ")
@@ -1156,7 +1160,7 @@ public class CodeGenerator {
                 );
             // Expr -> Literal -> String
             case STRING:
-                String strValue = CompilerUtils.getString(f);
+                String strValue = LiveOak3Compiler.getString(f);
                 return new Expression(
                     new StringBuilder()
                         .append("PUSHIMMSTR \"")
@@ -1167,7 +1171,7 @@ public class CodeGenerator {
                 );
             // Expr -> Var | Literal
             case WORD:
-                String name = CompilerUtils.getWord(f);
+                String name = LiveOak3Compiler.getWord(f);
 
                 // Expr -> Literal -> "true" | "false"
                 if (name.equals("true")) {
@@ -1193,14 +1197,13 @@ public class CodeGenerator {
                     );
                 }
                 // Expr -> Var.MethodName(Actuals)
-                if (CompilerUtils.check(f, '.')) {
-                    ClassSymbol classSymbol =
-                        LiveOak3Compiler.globalSymbol.lookupSymbol(
-                            varSymbol.type.toString(),
-                            ClassSymbol.class
-                        );
+                if (LiveOak3Compiler.check(f, '.')) {
+                    ClassSymbol classSymbol = symbolTable.lookupSymbol(
+                        varSymbol.type.toString(),
+                        ClassSymbol.class
+                    );
 
-                    String methodName = CompilerUtils.getWord(f);
+                    String methodName = LiveOak3Compiler.getWord(f);
                     MethodSymbol callingMethod = classSymbol.lookupSymbol(
                         methodName,
                         MethodSymbol.class
@@ -1248,7 +1251,7 @@ public class CodeGenerator {
 
     static Type getType(SamTokenizer f) throws CompilerException {
         // typeString = "int" | "bool" | "String"
-        String typeString = CompilerUtils.getWord(f);
+        String typeString = LiveOak3Compiler.getWord(f);
         Type type = Type.getType(typeString);
 
         // typeString != INT | BOOL | STRING
@@ -1275,7 +1278,7 @@ public class CodeGenerator {
             );
         }
 
-        String varName = CompilerUtils.getWord(f);
+        String varName = LiveOak3Compiler.getWord(f);
         VariableSymbol variable = method.lookupSymbol(
             varName,
             VariableSymbol.class
