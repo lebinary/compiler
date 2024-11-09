@@ -43,21 +43,21 @@ public class LiveOak3Compiler {
                 "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
                 inFileName;
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Error e) {
             String errorMessage =
                 "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
                 inFileName;
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Exception e) {
             String errorMessage =
                 "Failed to compile src/test/resources/LO-2/InvalidPrograms/" +
                 inFileName;
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         }
     }
@@ -100,12 +100,12 @@ public class LiveOak3Compiler {
         } catch (CompilerException e) {
             String errorMessage = createErrorMessage(fileName);
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         } catch (Exception e) {
             String errorMessage = createErrorMessage(fileName);
             System.err.println(errorMessage);
-            CompilerUtils.printTokens();
+            // CompilerUtils.printTokens();
             throw new Error(errorMessage, e);
         }
     }
