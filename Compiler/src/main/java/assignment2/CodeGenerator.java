@@ -911,7 +911,7 @@ public class CodeGenerator {
     static Expression getMethodCallExpr(
         SamTokenizer f,
         MethodSymbol scopeMethod,
-        VariableSymbol callingVariable,
+        VariableSymbol scopeVariable,
         MethodSymbol callingMethod
     ) throws CompilerException {
         String sam = "";
@@ -924,7 +924,7 @@ public class CodeGenerator {
             );
         }
 
-        sam += getActuals(f, scopeMethod, callingVariable, callingMethod);
+        sam += getActuals(f, scopeMethod, scopeVariable, callingMethod);
         sam += "LINK\n";
         sam += "JSR " + callingMethod.getLabelName() + "\n";
         sam += "UNLINK\n";
@@ -943,30 +943,31 @@ public class CodeGenerator {
     static String getActuals(
         SamTokenizer f,
         MethodSymbol scopeMethod,
-        VariableSymbol callingVariable,
+        VariableSymbol scopeVariable,
         MethodSymbol callingMethod
     ) throws CompilerException {
         String sam = "";
         int paramCount = callingMethod.numParameters();
 
         // check if callingMethod is a constructor
-        if (callingMethod.isConstructor() && callingVariable == null) {
+        if (callingMethod.isConstructor() && scopeVariable == null) {
             // instanciate class to pass in as "this" parameter
             sam += Helpers.initObject((ClassSymbol) callingMethod.parent);
         } else {
-            if (callingVariable == null) {
+            if (scopeVariable == null) {
                 throw new CompilerException(
                     "Cannot invoke method from null instance",
                     f.lineNo()
                 );
             }
-            if (callingVariable.isInstanceVariable()) {
-                sam += "PUSHOFF " + callingMethod.getThisAddress() + "\n";
-                sam += "PUSHIMM " + callingVariable.address + "\n";
+            if (scopeVariable.isInstanceVariable()) {
+                System.out.println("CALLING: " + scopeMethod.name);
+                sam += "PUSHOFF " + scopeMethod.getThisAddress() + "\n";
+                sam += "PUSHIMM " + scopeVariable.address + "\n";
                 sam += "ADD\n";
                 sam += "PUSHIND\n";
             } else {
-                sam += "PUSHOFF " + callingVariable.address + "\n";
+                sam += "PUSHOFF " + scopeVariable.address + "\n";
             }
         }
 
@@ -1043,7 +1044,7 @@ public class CodeGenerator {
                     "PUSHIMMSTR \"" + strValue + "\"\n",
                     Type.STRING
                 );
-            // Expr -> MethodName | Var | Literal
+            // Expr -> Var | Literal
             case WORD:
                 String name = CompilerUtils.getWord(f);
 
@@ -1066,7 +1067,6 @@ public class CodeGenerator {
                         f.lineNo()
                     );
                 }
-
                 // Expr -> Var.MethodName(Actuals)
                 if (CompilerUtils.check(f, '.')) {
                     ClassSymbol classSymbol =
