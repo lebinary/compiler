@@ -86,7 +86,7 @@ public class LiveOak3Compiler {
                 SamTokenizer.TokenizerOptions.PROCESS_STRINGS
             );
             SymbolTableBuilder.populate(firstPass);
-            TreeUtils.printTree(globalSymbol);
+            // TreeUtils.printTree(globalSymbol);
 
             /*** Second pass: codegen
              ***/

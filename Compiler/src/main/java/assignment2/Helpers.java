@@ -14,8 +14,36 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Helpers {
+
     /*** HELPERS
      ***/
+    // Add at the top of the class with other constant definitions
+    private static final String[] RESERVED_WORDS = {
+        "class",
+        "void",
+        "int",
+        "bool",
+        "string",
+        "new",
+        "if",
+        "else",
+        "while",
+        "return",
+        "this",
+        "null",
+        "true",
+        "false",
+    };
+
+    public static boolean isReservedWord(String identifier) {
+        for (String word : RESERVED_WORDS) {
+            if (word.equals(identifier)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static String initObject(ClassSymbol classSymbol) {
         String sam = "";
 
@@ -30,6 +58,10 @@ public class Helpers {
         return sam;
     }
 
+    public static final Pattern IDENTIFIER_PATTERN = Pattern.compile(
+        "^[a-zA-Z]([a-zA-Z0-9'_'])*$"
+    );
+
     static String getIdentifier(SamTokenizer f) throws CompilerException {
         String identifier = CompilerUtils.getWord(f);
         if (!IDENTIFIER_PATTERN.matcher(identifier).matches()) {
@@ -40,10 +72,6 @@ public class Helpers {
         }
         return identifier;
     }
-
-    public static final Pattern IDENTIFIER_PATTERN = Pattern.compile(
-        "^[a-zA-Z]([a-zA-Z0-9'_'])*$"
-    );
 
     public static String getUnop(char op) throws CompilerException {
         switch (op) {

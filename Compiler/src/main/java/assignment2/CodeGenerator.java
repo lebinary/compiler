@@ -74,6 +74,14 @@ public class CodeGenerator {
         // ClassDecl -> class ClassName ...
         String className = Helpers.getIdentifier(f);
 
+        // Invalid className
+        if (Helpers.isReservedWord(className)) {
+            throw new SyntaxErrorException(
+                "className cannot be a reserved word",
+                f.lineNo()
+            );
+        }
+
         // Pull class from global scope
         ClassSymbol classSymbol = LiveOak3Compiler.globalSymbol.lookupSymbol(
             className,
@@ -961,7 +969,6 @@ public class CodeGenerator {
                 );
             }
             if (scopeVariable.isInstanceVariable()) {
-                System.out.println("CALLING: " + scopeMethod.name);
                 sam += "PUSHOFF " + scopeMethod.getThisAddress() + "\n";
                 sam += "PUSHIMM " + scopeVariable.address + "\n";
                 sam += "ADD\n";
