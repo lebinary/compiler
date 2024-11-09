@@ -9,6 +9,32 @@ public class Tokenizer {
 
     public static ArrayList<String> processedTokens = new ArrayList<>();
 
+    private static final String[] RESERVED_WORDS = {
+        "class",
+        "void",
+        "int",
+        "bool",
+        "string",
+        "new",
+        "if",
+        "else",
+        "while",
+        "return",
+        "this",
+        "null",
+        "true",
+        "false",
+    };
+
+    public static boolean isReservedWord(String identifier) {
+        for (String word : RESERVED_WORDS) {
+            if (word.equals(identifier)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void reset() {
         processedTokens.clear();
     }

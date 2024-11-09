@@ -94,14 +94,6 @@ public class CodeGenerator {
         // ClassDecl -> class ClassName ...
         String className = Helpers.getIdentifier(f);
 
-        // Invalid className
-        if (Helpers.isReservedWord(className)) {
-            throw new SyntaxErrorException(
-                "className cannot be a reserved word",
-                f.lineNo()
-            );
-        }
-
         // Pull class from global scope
         ClassSymbol classSymbol = symbolTable.lookupSymbol(
             className,

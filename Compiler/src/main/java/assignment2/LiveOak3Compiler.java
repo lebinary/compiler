@@ -72,7 +72,6 @@ public class LiveOak3Compiler {
             ClassSymbol symbolTable = SymbolTableBuilder.createSymbolTable(
                 firstPass
             );
-            // TreeUtils.printTree(globalSymbol);
 
             /*** Second pass: codegen
              ***/

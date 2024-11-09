@@ -12,32 +12,6 @@ public class Helpers {
 
     /*** HELPERS
      ***/
-    // Add at the top of the class with other constant definitions
-    private static final String[] RESERVED_WORDS = {
-        "class",
-        "void",
-        "int",
-        "bool",
-        "string",
-        "new",
-        "if",
-        "else",
-        "while",
-        "return",
-        "this",
-        "null",
-        "true",
-        "false",
-    };
-
-    public static boolean isReservedWord(String identifier) {
-        for (String word : RESERVED_WORDS) {
-            if (word.equals(identifier)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     static String initObject(ClassSymbol classSymbol) {
         String sam = "";
@@ -59,6 +33,15 @@ public class Helpers {
 
     static String getIdentifier(SamTokenizer f) throws CompilerException {
         String identifier = Tokenizer.getWord(f);
+
+        // Invalid identifier
+        if (Tokenizer.isReservedWord(identifier)) {
+            throw new SyntaxErrorException(
+                "Identifier cannot be a reserved word",
+                f.lineNo()
+            );
+        }
+
         if (!IDENTIFIER_PATTERN.matcher(identifier).matches()) {
             throw new SyntaxErrorException(
                 "Invalid identifier: " + identifier,
