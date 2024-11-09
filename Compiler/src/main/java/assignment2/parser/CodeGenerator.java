@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/*** Code generator based on grammar
+ ***/
 public class CodeGenerator {
 
     private static ClassSymbol symbolTable = null;
@@ -38,7 +40,8 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static String getMainProgram(SamTokenizer f) throws CompilerException {
+    private static String getMainProgram(SamTokenizer f)
+        throws CompilerException {
         // Get main class and main method from symbol table
         ClassSymbol mainClass = symbolTable.lookupSymbol(
             "Main",
@@ -79,7 +82,8 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static String getClassDecl(SamTokenizer f) throws CompilerException {
+    private static String getClassDecl(SamTokenizer f)
+        throws CompilerException {
         // Generate sam code
         StringBuilder sam = new StringBuilder();
 
@@ -92,7 +96,7 @@ public class CodeGenerator {
         }
 
         // ClassDecl -> class ClassName ...
-        String className = Helpers.getIdentifier(f);
+        String className = Helper.getIdentifier(f);
 
         // Pull class from global scope
         ClassSymbol classSymbol = symbolTable.lookupSymbol(
@@ -142,8 +146,10 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static String getMethodDecl(SamTokenizer f, ClassSymbol classSymbol)
-        throws CompilerException {
+    private static String getMethodDecl(
+        SamTokenizer f,
+        ClassSymbol classSymbol
+    ) throws CompilerException {
         // Generate sam code
         StringBuilder sam = new StringBuilder("\n");
 
@@ -151,7 +157,7 @@ public class CodeGenerator {
         Type returnType = getType(f);
 
         // MethodDecl -> Type MethodName ...
-        String methodName = Helpers.getIdentifier(f);
+        String methodName = Helper.getIdentifier(f);
 
         // Pull method from class scope
         MethodSymbol method = classSymbol.lookupSymbol(
@@ -184,7 +190,7 @@ public class CodeGenerator {
             Type formalType = getType(f);
 
             // Formals -> Type Identifier
-            String formalName = Helpers.getIdentifier(f);
+            String formalName = Helper.getIdentifier(f);
 
             if (!Tokenizer.check(f, ',')) {
                 break;
@@ -219,9 +225,7 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    /*** Recursive operations. Override all
-     ***/
-    static String getBody(SamTokenizer f, MethodSymbol method)
+    private static String getBody(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         StringBuilder sam = new StringBuilder();
 
@@ -289,7 +293,7 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static String getVarDecl(SamTokenizer f, MethodSymbol method)
+    private static String getVarDecl(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         StringBuilder sam = new StringBuilder();
 
@@ -299,7 +303,7 @@ public class CodeGenerator {
         // while varName = a | b | c | ...
         while (f.peekAtKind() == TokenType.WORD) {
             // VarDecl -> Type Identifier1, Identifier2
-            String varName = Helpers.getIdentifier(f);
+            String varName = Helper.getIdentifier(f);
 
             // write sam code
             sam.append("PUSHIMM 0\n");
@@ -319,7 +323,7 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static String getBlock(SamTokenizer f, MethodSymbol method)
+    private static String getBlock(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         StringBuilder sam = new StringBuilder();
 
@@ -337,7 +341,7 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static String getStmt(SamTokenizer f, MethodSymbol method)
+    private static String getStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         StringBuilder sam = new StringBuilder();
 
@@ -383,7 +387,7 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static String getBreakStmt(SamTokenizer f, MethodSymbol method)
+    private static String getBreakStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (!Tokenizer.check(f, "break")) {
             throw new SyntaxErrorException(
@@ -414,7 +418,7 @@ public class CodeGenerator {
             .toString();
     }
 
-    static String getReturnStmt(SamTokenizer f, MethodSymbol method)
+    private static String getReturnStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (!Tokenizer.check(f, "return")) {
             throw new SyntaxErrorException(
@@ -458,7 +462,7 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static String getIfStmt(SamTokenizer f, MethodSymbol method)
+    private static String getIfStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (!Tokenizer.check(f, "if")) {
             throw new SyntaxErrorException(
@@ -521,7 +525,7 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static String getWhileStmt(SamTokenizer f, MethodSymbol method)
+    private static String getWhileStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         if (!Tokenizer.check(f, "while")) {
             throw new SyntaxErrorException(
@@ -582,7 +586,7 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static String getVarStmt(SamTokenizer f, MethodSymbol method)
+    private static String getVarStmt(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         StringBuilder sam = new StringBuilder();
         VariableSymbol variable = getVar(f, method);
@@ -637,7 +641,7 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static Expression getExpr(SamTokenizer f, MethodSymbol method)
+    private static Expression getExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // Expr -> this
         if (Tokenizer.check(f, "this")) {
@@ -718,8 +722,10 @@ public class CodeGenerator {
         }
     }
 
-    static Expression getConstructorExpr(SamTokenizer f, MethodSymbol method)
-        throws CompilerException {
+    private static Expression getConstructorExpr(
+        SamTokenizer f,
+        MethodSymbol method
+    ) throws CompilerException {
         if (!Tokenizer.check(f, "new")) {
             throw new SyntaxErrorException(
                 "getInstance expects 'new' at the beginning",
@@ -727,7 +733,7 @@ public class CodeGenerator {
             );
         }
 
-        String className = Helpers.getIdentifier(f);
+        String className = Helper.getIdentifier(f);
         ClassSymbol classSymbol = symbolTable.lookupSymbol(
             className,
             ClassSymbol.class
@@ -744,7 +750,7 @@ public class CodeGenerator {
         );
         if (constructor == null) {
             // No constructor was declared for this Class, instantiate it anyway
-            String sam = Helpers.initObject(classSymbol);
+            String sam = Helper.initObject(classSymbol);
 
             if (!Tokenizer.check(f, '(')) {
                 throw new SyntaxErrorException(
@@ -762,12 +768,12 @@ public class CodeGenerator {
         return getMethodCallExpr(f, method, null, constructor);
     }
 
-    static Expression getUnopExpr(SamTokenizer f, MethodSymbol method)
+    private static Expression getUnopExpr(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // Not an operator, raise
         if (f.peekAtKind() != TokenType.OPERATOR) {
             throw new TypeErrorException(
-                "Helpers.getUnopExpr expects an OPERATOR",
+                "Helper.getUnopExpr expects an OPERATOR",
                 f.lineNo()
             );
         }
@@ -779,7 +785,7 @@ public class CodeGenerator {
         /*** Special case ***/
         if (op == '~' && expr.type == Type.STRING) {
             expr.samCode = new StringBuilder(expr.samCode)
-                .append(Helpers.reverseString())
+                .append(StringHelper.reverseString())
                 .toString();
         } /*** Basic cases ***/else {
             // Type check
@@ -799,14 +805,14 @@ public class CodeGenerator {
 
             // apply unop on expression
             expr.samCode = new StringBuilder(expr.samCode)
-                .append(Helpers.getUnop(op))
+                .append(Helper.getUnop(op))
                 .toString();
         }
 
         return expr;
     }
 
-    static Expression getBinopExpr(
+    private static Expression getBinopExpr(
         SamTokenizer f,
         Expression prevExpr,
         MethodSymbol method
@@ -814,7 +820,7 @@ public class CodeGenerator {
         // Not an operator, raise
         if (f.peekAtKind() != TokenType.OPERATOR) {
             throw new TypeErrorException(
-                "Helpers.getBinopExpr expects an OPERATOR",
+                "Helper.getBinopExpr expects an OPERATOR",
                 f.lineNo()
             );
         }
@@ -847,7 +853,7 @@ public class CodeGenerator {
                 (prevExpr.type == Type.INT && expr.type == Type.STRING))
         ) {
             expr.samCode = new StringBuilder(expr.samCode)
-                .append(Helpers.repeatString(prevExpr.type, expr.type))
+                .append(StringHelper.repeatString(prevExpr.type, expr.type))
                 .toString();
             expr.type = Type.STRING;
         }
@@ -858,18 +864,18 @@ public class CodeGenerator {
             expr.type == Type.STRING
         ) {
             expr.samCode = new StringBuilder(expr.samCode)
-                .append(Helpers.concatString())
+                .append(StringHelper.concatString())
                 .toString();
             expr.type = Type.STRING;
         }
         // String comparison
         else if (
-            Helpers.getBinopType(op) == BinopType.COMPARISON &&
+            Helper.getBinopType(op) == BinopType.COMPARISON &&
             prevExpr.type == Type.STRING &&
             expr.type == Type.STRING
         ) {
             expr.samCode = new StringBuilder(expr.samCode)
-                .append(Helpers.compareString(op))
+                .append(StringHelper.compareString(op))
                 .toString();
             expr.type = Type.STRING;
         } else {
@@ -889,7 +895,7 @@ public class CodeGenerator {
 
             // Type check for Logical operations
             if (
-                Helpers.getBinopType(op) == BinopType.BITWISE &&
+                Helper.getBinopType(op) == BinopType.BITWISE &&
                 (prevExpr.type != Type.BOOL || expr.type != Type.BOOL)
             ) {
                 throw new TypeErrorException(
@@ -917,12 +923,12 @@ public class CodeGenerator {
             }
             expr.samCode = new StringBuilder(expr.samCode)
                 .append(divZeroCheck)
-                .append(Helpers.getBinop(op))
+                .append(Helper.getBinop(op))
                 .toString();
         }
 
         // Change return type to boolean if binop is Comparison
-        if (Helpers.getBinopType(op) == BinopType.COMPARISON) {
+        if (Helper.getBinopType(op) == BinopType.COMPARISON) {
             expr.type = Type.BOOL;
         }
 
@@ -941,8 +947,10 @@ public class CodeGenerator {
         return expr;
     }
 
-    static Expression getTernaryExpr(SamTokenizer f, MethodSymbol method)
-        throws CompilerException {
+    private static Expression getTernaryExpr(
+        SamTokenizer f,
+        MethodSymbol method
+    ) throws CompilerException {
         // Generate sam code
         Expression expr = new Expression();
 
@@ -997,7 +1005,7 @@ public class CodeGenerator {
         return expr;
     }
 
-    static Expression getMethodCallExpr(
+    private static Expression getMethodCallExpr(
         SamTokenizer f,
         MethodSymbol scopeMethod,
         VariableSymbol scopeVariable,
@@ -1033,7 +1041,7 @@ public class CodeGenerator {
         return new Expression(sam.toString(), callingMethod.returnType);
     }
 
-    static String getActuals(
+    private static String getActuals(
         SamTokenizer f,
         MethodSymbol scopeMethod,
         VariableSymbol scopeVariable,
@@ -1045,7 +1053,7 @@ public class CodeGenerator {
         // check if callingMethod is a constructor
         if (callingMethod.isConstructor() && scopeVariable == null) {
             // instantiate class to pass in as "this" parameter
-            sam.append(Helpers.initObject((ClassSymbol) callingMethod.parent));
+            sam.append(Helper.initObject((ClassSymbol) callingMethod.parent));
         } else {
             if (scopeVariable == null) {
                 throw new CompilerException(
@@ -1134,7 +1142,7 @@ public class CodeGenerator {
         return sam.toString();
     }
 
-    static Expression getTerminal(SamTokenizer f, MethodSymbol method)
+    private static Expression getTerminal(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         TokenType type = f.peekAtKind();
         switch (type) {
@@ -1240,7 +1248,7 @@ public class CodeGenerator {
         }
     }
 
-    static Type getType(SamTokenizer f) throws CompilerException {
+    private static Type getType(SamTokenizer f) throws CompilerException {
         // typeString = "int" | "bool" | "String"
         String typeString = Tokenizer.getWord(f);
         Type type = Type.getType(typeString);
@@ -1259,7 +1267,7 @@ public class CodeGenerator {
         return type;
     }
 
-    static VariableSymbol getVar(SamTokenizer f, MethodSymbol method)
+    private static VariableSymbol getVar(SamTokenizer f, MethodSymbol method)
         throws CompilerException {
         // Not a var, raise
         if (f.peekAtKind() != TokenType.WORD) {

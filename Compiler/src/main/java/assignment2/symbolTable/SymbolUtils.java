@@ -2,10 +2,10 @@ package assignment2;
 
 import java.util.Map;
 
-public class TreeUtils {
+public class SymbolUtils {
 
-    public static void printTree(Symbol root) {
-        printSymbolRecursive(root, 0, "");
+    public static void print(Symbol symbolTable) {
+        printSymbolRecursive(symbolTable, 0, "");
     }
 
     private static void printSymbolRecursive(
@@ -81,18 +81,5 @@ public class TreeUtils {
 
         sb.append(")");
         return sb.toString();
-    }
-
-    // Utility method to print just the symbol table of a symbol
-    public static void printSymbolTable(Symbol symbol) {
-        System.out.println("Symbol Table for " + symbolToString(symbol) + ":");
-        for (Map.Entry<String, Symbol> entry : symbol.symbolTable.entrySet()) {
-            System.out.println(
-                "  " +
-                entry.getKey() +
-                " -> " +
-                symbolToString(entry.getValue())
-            );
-        }
     }
 }

@@ -7,8 +7,6 @@ import java.util.List;
 
 public class Tokenizer {
 
-    public static ArrayList<String> processedTokens = new ArrayList<>();
-
     private static final String[] RESERVED_WORDS = {
         "class",
         "void",
@@ -25,6 +23,8 @@ public class Tokenizer {
         "true",
         "false",
     };
+
+    public static ArrayList<String> processedTokens = new ArrayList<>();
 
     public static boolean isReservedWord(String identifier) {
         for (String word : RESERVED_WORDS) {

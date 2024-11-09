@@ -37,7 +37,7 @@ public class DataGenerator {
         return sam.toString();
     }
 
-    static String generateVTable(ClassSymbol classSymbol)
+    private static String generateVTable(ClassSymbol classSymbol)
         throws CompilerException {
         StringBuilder sam = new StringBuilder();
         sam
