@@ -16,7 +16,7 @@ public class DataGenerator {
 
     static String generateStaticData(ClassSymbol symbolTable)
         throws CompilerException {
-        StringBuilder sam = new StringBuilder("vtables:\n");
+        StringBuilder sam = new StringBuilder("vtables:\n"); // Keep raw string for label
 
         for (Symbol child : symbolTable.children) {
             sam.append(generateVTable((ClassSymbol) child));
@@ -31,7 +31,7 @@ public class DataGenerator {
         StringBuilder sam = new StringBuilder();
 
         for (Symbol child : symbolTable.children) {
-            sam.append("SWAP\n").append("FREE\n");
+            sam.append(Backend.swap()).append(Backend.free());
         }
 
         return sam.toString();
@@ -40,23 +40,18 @@ public class DataGenerator {
     private static String generateVTable(ClassSymbol classSymbol)
         throws CompilerException {
         StringBuilder sam = new StringBuilder();
+
         sam
-            .append("PUSHIMM ")
-            .append(classSymbol.virtualMethods.size())
-            .append("\n")
-            .append("MALLOC\n");
+            .append(Backend.pushImmediate(classSymbol.virtualMethods.size()))
+            .append(Backend.malloc());
 
         for (MethodSymbol method : classSymbol.virtualMethods) {
             sam
-                .append("DUP\n")
-                .append("PUSHIMM ")
-                .append(method.address)
-                .append("\n")
-                .append("ADD\n")
-                .append("PUSHIMMPA ")
-                .append(method.getLabelName())
-                .append("\n")
-                .append("STOREIND\n");
+                .append(Backend.dup())
+                .append(Backend.pushImmediate(method.address))
+                .append(Backend.add())
+                .append(Backend.pushImmediateAddress(method.getLabelName()))
+                .append(Backend.storeIndirect());
         }
 
         return sam.toString();

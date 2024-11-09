@@ -74,7 +74,7 @@ public class SymbolTableBuilder {
         }
 
         // ClassDecl -> class ClassName ...
-        String className = Helper.getIdentifier(f);
+        String className = getIdentifier(f);
 
         // Check if the class is already defined
         if (symbolTable.lookupSymbol(className, ClassSymbol.class) != null) {
@@ -145,7 +145,7 @@ public class SymbolTableBuilder {
         // while varName = a | b | c | ...
         while (f.peekAtKind() == TokenType.WORD) {
             // VarDecl -> Type Identifier1, Identifier2
-            String propName = Helper.getIdentifier(f);
+            String propName = getIdentifier(f);
             VariableSymbol propSymbol = new VariableSymbol(propName, propType);
             classSymbol.addChild(propSymbol);
 
@@ -170,7 +170,7 @@ public class SymbolTableBuilder {
         Type returnType = populateType(f);
 
         // MethodDecl -> Type MethodName ...
-        String methodName = Helper.getIdentifier(f);
+        String methodName = getIdentifier(f);
 
         // Check if method is a constructor
         boolean isConstructor = methodName.equals(classSymbol.name);
@@ -256,7 +256,7 @@ public class SymbolTableBuilder {
             Type formalType = populateType(f);
 
             // Formals -> Type Identifier
-            String formalName = Helper.getIdentifier(f);
+            String formalName = getIdentifier(f);
 
             // Check if the formal has already defined in this scope
             if (symbol.lookupSymbol(formalName, VariableSymbol.class) != null) {
@@ -292,7 +292,7 @@ public class SymbolTableBuilder {
             // while varName = a | b | c | ...
             while (f.peekAtKind() == TokenType.WORD) {
                 // VarDecl -> Type Identifier1, Identifier2
-                String varName = Helper.getIdentifier(f);
+                String varName = getIdentifier(f);
 
                 // Check if the variable is already defined in the current scope
                 if (
@@ -354,5 +354,10 @@ public class SymbolTableBuilder {
                 f.lineNo()
             );
         }
+    }
+
+    private static String getIdentifier(SamTokenizer f)
+        throws CompilerException {
+        return Helper.getIdentifier(f);
     }
 }
