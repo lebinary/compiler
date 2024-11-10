@@ -1,22 +1,41 @@
-package assignment2;
+package compiler;
 
 import edu.utexas.cs.sam.io.SamTokenizer;
 import edu.utexas.cs.sam.io.Tokenizer.TokenType;
-import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
+import java.util.List;
 
-public class CompilerUtils {
+public class Tokenizer {
 
-    /** General utils
-     **/
+    private static final String[] RESERVED_WORDS = {
+        "class",
+        "void",
+        "int",
+        "bool",
+        "string",
+        "new",
+        "if",
+        "else",
+        "while",
+        "return",
+        "this",
+        "null",
+        "true",
+        "false",
+    };
 
-    /** Processed Tokens Utils
-     **/
     public static ArrayList<String> processedTokens = new ArrayList<>();
 
-    public static void clearTokens() {
+    public static boolean isReservedWord(String identifier) {
+        for (String word : RESERVED_WORDS) {
+            if (word.equals(identifier)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void reset() {
         processedTokens.clear();
     }
 

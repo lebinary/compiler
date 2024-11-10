@@ -1,4 +1,4 @@
-package assignment2;
+package compiler;
 
 public enum BinopType {
     ARITHMETIC,

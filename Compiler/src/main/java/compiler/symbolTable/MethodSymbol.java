@@ -1,4 +1,4 @@
-package assignment2;
+package compiler;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -11,37 +11,41 @@ public class MethodSymbol extends Symbol {
 
     public List<VariableSymbol> parameters;
     public List<VariableSymbol> localVariables;
+    public Type returnType;
+    public boolean isVirtual;
+    public Label label;
+
     private Deque<Label> labels;
     private Deque<Statement> statements;
 
     public MethodSymbol(
         Symbol parent,
-        List<Symbol> children,
         String name,
         Type returnType,
-        int address
+        int address,
+        boolean isVirtual
     ) {
-        super(parent, children, name, returnType, address, null);
+        super(parent, new ArrayList<>(), name, address);
         this.parameters = new ArrayList<>();
         this.localVariables = new ArrayList<>();
+        this.returnType = returnType;
         this.labels = new ArrayDeque<>();
         this.statements = new ArrayDeque<>();
-
-        // Populate parameters and localVariables
-        for (Symbol child : children) {
-            if (child instanceof VariableSymbol) {
-                udpateParamsAndLocals(child);
-            }
-        }
+        this.isVirtual = isVirtual;
+        this.label = new Label();
     }
 
     // Constructor with default values
     public MethodSymbol() {
-        this(null, new ArrayList<>(), "main", Type.INT, 0);
+        this(null, "main", Type.INT, 0, true);
     }
 
     public MethodSymbol(String name, Type returnType) {
-        this(null, new ArrayList<>(), name, returnType, 0);
+        this(null, name, returnType, 0, true);
+    }
+
+    public MethodSymbol(String name, Type returnType, boolean isVirtual) {
+        this(null, name, returnType, 0, isVirtual);
     }
 
     // update child's address and categorize them
@@ -51,7 +55,7 @@ public class MethodSymbol extends Symbol {
             castChild.address = -1;
             parameters.add(castChild);
 
-            // correct address of other params
+            // re-udpate correct address of other params
             for (int i = parameters.size() - 2; i >= 0; i--) {
                 parameters.get(i).address -= 1;
             }
@@ -63,7 +67,12 @@ public class MethodSymbol extends Symbol {
 
     // Tree operations
     public void addChild(Symbol child) {
-        super.addChild(child);
+        if (child instanceof ClassSymbol) {
+            throw new UnsupportedOperationException(
+                "Cannot declare Class inside a method"
+            );
+        }
+        udpateSuper(child);
 
         if (child instanceof VariableSymbol) {
             udpateParamsAndLocals(child);
@@ -79,11 +88,15 @@ public class MethodSymbol extends Symbol {
         this.statements.clear();
     }
 
-    // Params and Locals operations
-    public int getNextParamAddress() {
-        return -(1 + parameters.size());
+    public boolean isConstructor() {
+        return name.equals(parent.name);
     }
 
+    public String getLabelName() {
+        return label.name;
+    }
+
+    // Params and Locals operations
     public int getNextLocalAddress() {
         return 2 + localVariables.size();
     }
@@ -97,7 +110,15 @@ public class MethodSymbol extends Symbol {
     }
 
     public int numParameters() {
-        return parameters.size();
+        return parameters.size(); // dont count "this" as parameters
+    }
+
+    public VariableSymbol getThisSymbol() {
+        return parameters.get(0);
+    }
+
+    public int getThisAddress() {
+        return getThisSymbol().address;
     }
 
     // labels stack operations
@@ -142,6 +163,11 @@ public class MethodSymbol extends Symbol {
 
     public boolean hasStatement(Statement statement) {
         return statements.contains(statement);
+    }
+
+    @Override
+    public Type getType() {
+        return returnType;
     }
 
     @Override

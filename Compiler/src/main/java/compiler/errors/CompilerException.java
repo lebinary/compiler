@@ -1,4 +1,4 @@
-package assignment2.errors;
+package compiler.errors;
 
 public class CompilerException extends Exception {
     private final int line;

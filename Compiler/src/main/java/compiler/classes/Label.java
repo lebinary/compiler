@@ -1,4 +1,4 @@
-package assignment2;
+package compiler;
 
 import java.util.UUID;
 

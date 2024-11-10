@@ -1,4 +1,4 @@
-package assignment2.errors;
+package compiler.errors;
 
 public class TypeErrorException extends CompilerException {
     public TypeErrorException(String message, int line) {

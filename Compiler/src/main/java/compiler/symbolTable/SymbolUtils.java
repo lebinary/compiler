@@ -1,11 +1,11 @@
-package assignment2;
+package compiler;
 
 import java.util.Map;
 
-public class TreeUtils {
+public class SymbolUtils {
 
-    public static void printTree(Symbol root) {
-        printSymbolRecursive(root, 0, "");
+    public static void print(Symbol symbolTable) {
+        printSymbolRecursive(symbolTable, 0, "");
     }
 
     private static void printSymbolRecursive(
@@ -43,42 +43,43 @@ public class TreeUtils {
 
     private static String symbolToString(Symbol symbol) {
         StringBuilder sb = new StringBuilder();
+
         sb
             .append(symbol.getClass().getSimpleName())
             .append("(name='")
             .append(symbol.name)
             .append("'")
-            .append(", type=")
-            .append(symbol.type)
             .append(", address=")
-            .append(symbol.address)
-            .append(", value=")
-            .append(symbol.value);
+            .append(symbol.address);
 
         if (symbol instanceof VariableSymbol) {
             sb
+                .append(", type=")
+                .append(symbol.getType())
                 .append(", isParameter=")
                 .append(((VariableSymbol) symbol).isParameter);
         } else if (symbol instanceof MethodSymbol) {
             MethodSymbol methodSymbol = (MethodSymbol) symbol;
             sb
+                .append(", returnType=")
+                .append(symbol.getType())
                 .append(", parameters=")
                 .append(methodSymbol.parameters.size())
                 .append(", localVariables=")
-                .append(methodSymbol.localVariables.size());
+                .append(methodSymbol.localVariables.size())
+                .append(", isVirtual=")
+                .append(methodSymbol.isVirtual);
+        } else if (symbol instanceof ClassSymbol) {
+            sb
+                .append(", vtableAddress=")
+                .append(((ClassSymbol) symbol).vtableAddress)
+                .append(", instanceVariables=")
+                .append(((ClassSymbol) symbol).instanceVariables.size())
+                .append(", virtualMethods=")
+                .append(((ClassSymbol) symbol).virtualMethods.size());
         }
 
         sb.append(")");
         return sb.toString();
-    }
-
-    // Utility method to print just the symbol table of a symbol
-    public static void printSymbolTable(Symbol symbol) {
-        System.out.println("Symbol Table for " + symbolToString(symbol) + ":");
-        for (Map.Entry<String, Symbol> entry : symbol.symbolTable.entrySet()) {
-            System.out.println(
-                "  " + entry.getKey() + " -> " + symbolToString(entry.getValue())
-            );
-        }
     }
 }

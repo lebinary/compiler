@@ -1,4 +1,4 @@
-package assignment2.errors;
+package compiler.errors;
 
 public class SyntaxErrorException extends CompilerException {
     public SyntaxErrorException(String message, int line) {

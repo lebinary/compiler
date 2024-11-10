@@ -1,4 +1,4 @@
-package assignment2;
+package compiler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,16 +6,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class Symbol {
+public abstract class Symbol {
 
+    /*** Instance properties
+     ***/
     Symbol parent;
     List<Symbol> children;
     Map<String, Symbol> symbolTable = new HashMap<>();
 
     String name;
-    Type type;
     int address;
-    Object value;
+
+    /*** Abstract
+     ***/
+    public abstract Type getType();
+    public abstract void addChild(Symbol child);
 
     /** Constructors
      **/
@@ -23,16 +28,12 @@ public class Symbol {
         Symbol parent,
         List<Symbol> children,
         String name,
-        Type type,
-        int address,
-        Object value
+        int address
     ) {
         this.parent = parent;
         this.children = children;
         this.name = name;
-        this.type = type;
         this.address = address;
-        this.value = value;
 
         // Populate symbolTable with children that have names
         for (Symbol child : this.children) {
@@ -42,15 +43,15 @@ public class Symbol {
         }
     }
 
-    public Symbol(String name, Type type, int address) {
-        this(null, new ArrayList<>(), name, type, address, null);
+    public Symbol(String name, int address) {
+        this(null, new ArrayList<>(), name, address);
     }
 
     public Symbol() {
-        this(null, new ArrayList<>(), "", Type.INT, 0, null);
+        this(null, new ArrayList<>(), "", 0);
     }
 
-    public void addChild(Symbol child) {
+    protected void udpateSuper(Symbol child) {
         child.parent = this;
         children.add(child);
         if (child.name != null) {
@@ -89,9 +90,7 @@ public class Symbol {
         this.symbolTable.clear();
         this.children.clear();
         this.name = "";
-        this.type = Type.INT; // Assuming INT is the default type
         this.address = 0;
-        this.value = null;
     }
 
     public void resetRecursive() {
@@ -106,15 +105,11 @@ public class Symbol {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Symbol symbol = (Symbol) o;
-        return (
-            address == symbol.address &&
-            Objects.equals(name, symbol.name) &&
-            type == symbol.type
-        );
+        return (address == symbol.address && Objects.equals(name, symbol.name));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, type, address); // dont hash parent and children to avoid stack overflow
+        return Objects.hash(name, address); // dont hash parent and children to avoid stack overflow
     }
 }
