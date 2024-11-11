@@ -1,6 +1,6 @@
 # A Compiler
 
-A compiler that translates a Java-like language into SaM assembly code for educational purposes.
+A compiler that translates a Java-like language into SaM (a JVM simulator) for educational purposes.
 
 
 
