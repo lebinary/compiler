@@ -47,7 +47,7 @@ class FiboCalculator(int a;){
 }
 ```
 
-The compiler translates the above code into SaM assembly code that can be executed on the Stack Abstract Machine:
+The compiler translates the above code into assembly code that can be executed on the Stack Abstract Machine:
 
 ![Speedup Example](speedup_example.gif)
 
