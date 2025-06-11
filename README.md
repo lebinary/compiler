@@ -2,10 +2,54 @@
 
 A compiler that translates a Java-like language into SaM (a JVM simulator) for educational purposes.
 
+## Example
 
+Here's an example that calculates the seventh Fibonacci number using object-oriented programming:
 
-<img width="695" alt="Screenshot 2024-11-05 at 02 30 45" src="https://github.com/user-attachments/assets/7a9eff02-1d5c-441a-83a6-a0f90407a40b">
+```java
+class Main() {
+    int main(){
+        FiboCalculator fibo;
+        {
+            fibo = new FiboCalculator(7);
+            return fibo.calculate();
+        }
+    }
+}
 
+class FiboCalculator(int a;){
+    void FiboCalculator(int val){
+        {
+            a = val;
+        }
+    }
+
+    int calculate(){
+        int b;
+        FiboCalculator x, y;
+        {
+            if((a=1)){
+                b = 1;
+            }
+            else{
+                if((a=2)){
+                    b = 1;
+                }
+                else{
+                    x = new FiboCalculator((a-1));
+                    y = new FiboCalculator((a-2));
+                    b = (x.calculate() + y.calculate());
+                }
+            }
+            return b;
+        }
+    }
+}
+```
+
+The compiler translates this into SaM assembly code that can be executed on the Stack Abstract Machine:
+
+![Speedup Example](speedup_example.gif)
 
 ## Table of Contents
 - [Built With](#built-with)

@@ -36,7 +36,7 @@ class Main() {
     int main(){
         FiboCalculator fibo;
         {
-            fibo = new FiboCalculator(10);
+            fibo = new FiboCalculator(7);
             return fibo.calculate();
         }
     }
