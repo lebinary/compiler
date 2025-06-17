@@ -4,7 +4,7 @@ A compiler that translates a Java-like language into SaM (a JVM simulator) for e
 
 ## Example
 
-Here's an example that calculates the seventh Fibonacci number using object-oriented programming:
+Here's an example that calculates the seventh Fibonacci number:
 
 ```java
 class Main() {
